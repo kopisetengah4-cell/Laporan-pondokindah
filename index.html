@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 Pro Fraction</title>
+    <title>Kopi Setengah-4 Auto-Daily</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -59,7 +59,7 @@
 <body>
 <div id="area-laporan">
     <div class="history-tool">
-        <label>LIHAT LAPORAN:</label>
+        <label>TANGGAL:</label>
         <input type="date" id="datepicker" onchange="loadHistory(this.value)">
     </div>
 
@@ -127,21 +127,30 @@
     };
 
     function init() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('datepicker').value = today;
-        document.getElementById('out-tgl').innerText = ": " + new Date().toLocaleDateString('id-ID');
-        loadHistory(today);
-        attachLogic();
+        // Otomatis deteksi tanggal hari ini
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        document.getElementById('datepicker').value = dateStr;
+        
+        const hariIndo = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        document.getElementById('out-hari').innerText = ": " + hariIndo[now.getDay()];
+        document.getElementById('out-tgl').innerText = ": " + now.toLocaleDateString('id-ID');
+        
+        loadHistory(dateStr);
+        
+        document.getElementById('area-laporan').addEventListener('input', () => {
+            updateKalkulasi();
+            saveData();
+        });
     }
 
     function parseVal(s) {
-        if (!s || s === "0") return 0;
+        if (!s || s === "0" || s === "") return 0;
         let v = s.toString().replace(/\./g, '').replace(',', '.');
         if (v.includes('½')) {
             let part = v.split('½')[0];
             return (parseFloat(part) || 0) + 0.5;
         }
-        if (v.includes('/')) return parseFloat(v.split('/')[0]) || 0;
         return parseFloat(v) || 0;
     }
 
@@ -150,31 +159,38 @@
         return n.toLocaleString('id-ID').replace(',', '.');
     }
 
-    function getYesterdayDate(dateStr) {
-        let d = new Date(dateStr);
-        d.setDate(d.getDate() - 1);
-        return d.toISOString().split('T')[0];
-    }
-
     function loadHistory(dateStr) {
         const key = 'kopi4_data_' + dateStr;
         let data = JSON.parse(localStorage.getItem(key));
 
+        // JIKA DATA HARI INI TIDAK ADA (HARI BARU)
         if (!data) {
-            const yesterdayKey = 'kopi4_data_' + getYesterdayDate(dateStr);
+            let d = new Date(dateStr);
+            d.setDate(d.getDate() - 1);
+            const yesterdayKey = 'kopi4_data_' + d.toISOString().split('T')[0];
             const yesterdayData = JSON.parse(localStorage.getItem(yesterdayKey));
-            data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "0", roti: {coklat: "0", vanilla: "0", blueberry: "0"}, ba: "..." };
+            
+            data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "0", roti: {coklat: "0", vanilla: "0", blueberry: "0"}, ba: "...", cabang: "P.INDAH", shift: "" };
             
             daftarBarang.forEach(nama => {
+                // STOK hari ini = SISA STOK kemarin (jika tak ada pakai default)
                 let sisaKemarin = yesterdayData?.inputs[nama]?.sisa || defaultAwal[nama];
                 data.stokAwal[nama] = sisaKemarin;
+                
+                // SISA STOK otomatis terisi sama dengan STOK awal (kecuali barang manual)
                 data.inputs[nama] = { 
                     msk: "0", rsk: "0", tjl: "0", 
                     sisa: pengecualianSisa.includes(nama.toUpperCase()) ? "" : sisaKemarin 
                 };
             });
+            // Langsung simpan data baru ini
+            localStorage.setItem(key, JSON.stringify(data));
         }
 
+        // Terapkan ke Tabel
+        document.getElementById('cabang').innerText = data.cabang ? (data.cabang.startsWith(':') ? data.cabang : ": " + data.cabang) : ": P.INDAH";
+        document.getElementById('shift').innerText = data.shift ? (data.shift.startsWith(':') ? data.shift : ": " + data.shift) : ": ";
+        
         const tableBody = document.getElementById('body-stok');
         tableBody.innerHTML = '';
         daftarBarang.forEach(nama => {
@@ -201,19 +217,15 @@
         updateTotal();
     }
 
-    function attachLogic() {
-        document.getElementById('area-laporan').addEventListener('input', (e) => {
-            if (!e.target.classList.contains('sisa-input')) {
-                document.querySelectorAll('#body-stok tr').forEach(row => {
-                    const nama = row.cells[0].innerText;
-                    if (!pengecualianSisa.includes(nama)) {
-                        const s = parseVal(row.cells[1].innerText), m = parseVal(row.cells[2].innerText), r = parseVal(row.cells[3].innerText), t = parseVal(row.cells[4].innerText);
-                        row.cells[5].innerText = formatVal(s + m - r - t);
-                    }
-                });
+    function updateKalkulasi() {
+        document.querySelectorAll('#body-stok tr').forEach(row => {
+            const nama = row.cells[0].innerText;
+            if (!pengecualianSisa.includes(nama)) {
+                const s = parseVal(row.cells[1].innerText), m = parseVal(row.cells[2].innerText), r = parseVal(row.cells[3].innerText), t = parseVal(row.cells[4].innerText);
+                row.cells[5].innerText = formatVal(s + m - r - t);
             }
-            updateTotal(); save();
         });
+        updateTotal();
     }
 
     function updateTotal() {
@@ -222,19 +234,25 @@
         document.getElementById('total-display').innerText = t.toLocaleString('id-ID').replace(',', '.');
     }
 
-    function save() {
+    function saveData() {
         const dateStr = document.getElementById('datepicker').value;
         const key = 'kopi4_data_' + dateStr;
-        let data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "", roti: {}, ba: "" };
+        let data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "", roti: {}, ba: "", cabang: "", shift: "" };
+        
+        data.cabang = document.getElementById('cabang').innerText;
+        data.shift = document.getElementById('shift').innerText;
+
         document.querySelectorAll('#body-stok tr').forEach(r => {
             const n = r.cells[0].innerText;
             data.stokAwal[n] = r.cells[1].innerText;
             data.inputs[n] = { msk: r.cells[2].innerText, rsk: r.cells[3].innerText, tjl: r.cells[4].innerText, sisa: r.cells[5].innerText };
         });
+
         document.querySelectorAll('.omset-input').forEach(i => data.omset.push(i.innerText));
         data.manualCash = document.getElementById('manual-cash-val').innerText;
         data.ba = document.getElementById('berita-acara').innerText;
         data.roti = { coklat: document.getElementById('r-coklat').innerText, vanilla: document.getElementById('r-vanilla').innerText, blueberry: document.getElementById('r-blueberry').innerText };
+        
         localStorage.setItem(key, JSON.stringify(data));
     }
 
@@ -245,8 +263,7 @@
             html2canvas(el, { scale: 3, backgroundColor: '#000' }).then(c => {
                 const a = document.createElement('a');
                 a.download = `Laporan_${document.getElementById('datepicker').value}.png`;
-                a.href = c.toDataURL();
-                a.click();
+                a.href = c.toDataURL(); a.click();
                 el.classList.remove('download-mode');
             });
         }, 100);
