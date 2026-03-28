@@ -3,60 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 Ultra Compact Bold</title>
+    <title>Kopi Setengah-4 Pro Layout</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 2px; overflow-x: hidden; }
-        #area-laporan { background: #000; padding: 5px; min-width: 500px; margin: auto; }
-        .main-title { text-align: center; color: #d4a373; font-size: 14px; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
+        #area-laporan { background: #000; padding: 8px; min-width: 500px; margin: auto; }
+        .main-title { text-align: center; color: #d4a373; font-size: 16px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
         
-        /* Font Tebal untuk Header Info */
-        .left-info { flex: 1; font-size: 9px; color: #d4a373; font-weight: 800; }
+        .top-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+        .info-group { flex: 1; font-size: 9px; color: #d4a373; font-weight: 800; display: flex; flex-direction: column; justify-content: center; height: 45px; }
         .info-item { display: flex; margin-bottom: 1px; }
-        .info-label { width: 50px; font-weight: 800; }
+        .info-label { width: 55px; font-weight: 800; }
         .info-val { color: #fff; flex: 1; outline: none; font-weight: 800; }
 
         .roti-box { width: 130px; border: 1px solid #333; }
         .roti-header { background: #111; color: #d4a373; font-size: 8px; font-weight: 800; display: flex; text-align: center; }
         .roti-row { display: flex; font-size: 8px; border-top: 1px solid #222; font-weight: 800; }
-        .roti-name { width: 60%; padding: 1px 3px; color: #fff; }
-        .roti-val { width: 40%; padding: 1px; text-align: center; outline: none; border-left: 1px solid #333; color: #fff; font-weight: 800; }
+        .roti-col-name { width: 60%; padding: 2px; color: #fff; text-align: center; }
+        .roti-col-val { width: 40%; padding: 2px; text-align: center; outline: none; border-left: 1px solid #333; color: #fff; font-weight: 800; }
 
         table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
-        th { color: #d4a373; background: #111; font-weight: 800; padding: 2px 1px; border: 1px solid #333; font-size: 7px; }
+        th { color: #d4a373; background: #111; font-weight: 800; padding: 3px 1px; border: 1px solid #333; font-size: 7px; text-align: center; }
+        td { border: 1px solid #222; padding: 2px; text-align: center; color: #fff; font-weight: 800 !important; height: 22px; vertical-align: middle; } 
         
-        /* SEMUA teks tabel menjadi TEBAL */
-        td { border: 1px solid #222; padding: 1px; text-align: center; color: #fff; font-weight: 800 !important; height: 20px; } 
+        .name-col { width: 110px; font-size: 8.5px; }
+
+        .omset-container { display: flex; border: 1px solid #333; margin-top: 5px; }
+        .omset-left { flex: 1; }
+        .omset-right { width: 120px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #fff; } 
+        .total-big { font-size: 24px; font-weight: 800; color: #000; } 
         
-        .name-col { text-align: left; padding-left: 3px; width: 110px; white-space: nowrap; font-size: 8.5px; }
-        .stok-col { width: 60px; }
-        .edit-col { width: 45px; }
-        .sisa-col { width: 65px; }
+        .omset-row { display: flex; border-bottom: 1px solid #222; font-weight: 800; align-items: center; }
+        .omset-label { width: 60%; padding: 3px 8px; font-size: 8.5px; color: #fff; text-align: left; } 
+        .omset-input { flex: 1; padding: 3px; color: #fff; text-align: center; outline: none; border-left: 1px solid #222; }
 
-        .omset-container { display: flex; border: 1px solid #333; }
-        .omset-right { width: 120px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #080808; }
-        .total-big { font-size: 22px; font-weight: 800; color: #d4a373; }
-        .omset-row { display: flex; border-bottom: 1px solid #222; font-weight: 800; }
-        .omset-label { width: 60%; padding: 2px 5px; font-size: 8px; color: #aaa; text-align: left; }
-        .omset-input { flex: 1; padding: 2px; color: #fff; text-align: center; outline: none; }
+        /* Style Baru untuk Cash Awal/Akhir Manual */
+        .manual-cash-section { margin-top: 5px; border: 1px solid #d4a373; display: flex; align-items: center; font-weight: 800; }
+        .manual-cash-label { width: 60%; padding: 5px 8px; font-size: 9px; color: #d4a373; background: #111; }
+        .manual-cash-val { flex: 1; padding: 5px; color: #fff; text-align: center; outline: none; font-size: 10px; }
 
-        .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 500px; padding: 8px; font-weight: 800; margin: 8px auto; display: block; border-radius: 3px; font-size: 11px; }
+        .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 500px; padding: 10px; font-weight: 800; margin: 10px auto; display: block; border-radius: 4px; font-size: 11px; }
 
-        /* Mode Unduh (Putih) */
         .download-mode#area-laporan { background-color: #fff !important; }
-        .download-mode td, .download-mode .info-val, .download-mode .roti-name, .download-mode .roti-val, .download-mode .omset-input, .download-mode #berita-acara { color: #000 !important; font-weight: 800 !important; }
-        .download-mode .main-title, .download-mode th, .download-mode .total-big, .download-mode .ba-title { color: #000 !important; }
-        .download-mode th { background-color: #f0f0f0 !important; }
-        .download-mode table, .download-mode td, .download-mode th, .download-mode .omset-container, .download-mode .roti-box { border-color: #ccc !important; }
+        .download-mode td, .download-mode .info-val, .download-mode .roti-col-name, .download-mode .roti-col-val, .download-mode .omset-input, .download-mode #berita-acara, .download-mode .omset-label, .download-mode .manual-cash-val { color: #000 !important; }
+        .download-mode .main-title, .download-mode th, .download-mode .ba-title, .download-mode .manual-cash-label { color: #000 !important; }
+        .download-mode th, .download-mode .manual-cash-label { background-color: #f0f0f0 !important; }
+        .download-mode table, .download-mode td, .download-mode th, .download-mode .omset-container, .download-mode .roti-box, .download-mode .manual-cash-section { border-color: #ccc !important; }
     </style>
 </head>
 <body>
 <div id="area-laporan">
     <div class="main-title">KOPI SETENGAH-4</div>
-    <div class="header-info">
-        <div class="left-info">
+    
+    <div class="top-section">
+        <div class="info-group">
             <div class="info-item"><span class="info-label">HARI</span><span id="out-hari" class="info-val">: -</span></div>
             <div class="info-item"><span class="info-label">TGL</span><span id="out-tgl" class="info-val">: -</span></div>
             <div class="info-item"><span class="info-label">CABANG</span><span id="cabang" contenteditable="true" class="info-val">: P.INDAH</span></div>
@@ -64,38 +66,48 @@
         </div>
         <div class="roti-box">
             <div class="roti-header"><div style="width:60%">ROTI</div><div style="width:40%">SISA</div></div>
-            <div class="roti-row"><div class="roti-name">COKLAT</div><div contenteditable="true" class="roti-val">0</div></div>
-            <div class="roti-row"><div class="roti-name">VANILLA</div><div contenteditable="true" class="roti-val">0</div></div>
-            <div class="roti-row"><div class="roti-name">BLUEBERRY</div><div contenteditable="true" class="roti-val">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">COKLAT</div><div contenteditable="true" class="roti-col-val">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">VANILLA</div><div contenteditable="true" class="roti-col-val">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">BLUEBERRY</div><div contenteditable="true" class="roti-col-val">0</div></div>
         </div>
     </div>
+
     <div style="width: 100%; overflow-x: auto; border: 1px solid #1a1a1a;">
         <table>
             <thead>
                 <tr>
                     <th class="name-col">BARANG</th>
-                    <th class="stok-col">AWAL</th>
-                    <th class="edit-col">MSK</th>
-                    <th class="edit-col">RSK</th>
-                    <th class="edit-col">TJL</th>
-                    <th class="sisa-col">SISA</th>
+                    <th style="width:60px">AWAL</th>
+                    <th style="width:45px">MSK</th>
+                    <th style="width:45px">RSK</th>
+                    <th style="width:45px">TJL</th>
+                    <th style="width:65px">SISA</th>
                 </tr>
             </thead>
             <tbody id="body-stok"></tbody>
         </table>
     </div>
-    <div class="omset-section" style="margin-top: 5px;">
+
+    <div class="omset-section">
         <div class="omset-container">
-            <div id="omset-list" style="flex:1"></div>
+            <div id="omset-list" class="omset-left"></div>
             <div class="omset-right"><div class="total-big" id="total-display">0</div></div>
         </div>
-        <div style="border: 1px solid #333; margin-top: 5px; padding: 3px;">
+        
+        <div class="manual-cash-section">
+            <div class="manual-cash-label">CASH AWAL / AKHIR</div>
+            <div id="manual-cash-val" contenteditable="true" class="manual-cash-val">0</div>
+        </div>
+
+        <div style="border: 1px solid #333; margin-top: 5px; padding: 4px;">
             <div class="ba-title" style="font-size:8px; color:#d4a373; font-weight:800;">BERITA ACARA:</div>
-            <div id="berita-acara" contenteditable="true" style="font-size:9px; min-height:15px; outline:none; font-weight:800;">...</div>
+            <div id="berita-acara" contenteditable="true" style="font-size:9px; min-height:18px; outline:none; font-weight:800; text-align: center;">...</div>
         </div>
     </div>
 </div>
+
 <button onclick="unduhLaporan()" class="btn-save">UNDUH LAPORAN</button>
+
 <script>
     const daftarBarang = ["Cup Kecil", "Cup Besar", "Cup Hot", "Botol 1 Liter", "Botol 500 Ml", "Gula Aren", "Gula Putih", "Kopi", "Susu UHT", "Krimer", "Sea Salt Cream", "Fn", "SKM", "Hershey's", "Remon", "Sedotan Kecil", "Sedotan Besar", "Plastik Isi 2", "Plastik Isi 1", "Plastik Besar", "Cup Sealer", "Base Susu", "Base Kopi", "Roti"];
     const pengecualianSisa = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
@@ -106,43 +118,42 @@
         document.getElementById('out-hari').innerText = ": " + now.toLocaleDateString('id-ID', {weekday:'short'}).toUpperCase();
         document.getElementById('out-tgl').innerText = ": " + now.toLocaleDateString('id-ID');
         let session = JSON.parse(localStorage.getItem('kopi4_session'));
+        
         const tableBody = document.getElementById('body-stok');
         tableBody.innerHTML = '';
 
         daftarBarang.forEach(nama => {
             let sAwal = (session && session.stokAwal[nama]) ? session.stokAwal[nama] : defaultAwal[nama];
-            if ((sAwal === "0" || sAwal === 0) && defaultAwal[nama]) sAwal = defaultAwal[nama];
             const msk = session?.inputs[nama]?.msk || "0", rsk = session?.inputs[nama]?.rsk || "0", tjl = session?.inputs[nama]?.tjl || "0";
-            
-            // Logika: Sisa tetap bisa dihitung otomatis TAPI sekarang bebas diedit manual
             let sisa = session?.inputs[nama]?.sisa;
-            if (sisa === undefined || sisa === null) {
-                sisa = pengecualianSisa.includes(nama.toUpperCase()) ? "" : sAwal;
-            }
+            if (sisa === undefined) sisa = pengecualianSisa.includes(nama.toUpperCase()) ? "" : sAwal;
 
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="name-col">${nama.toUpperCase()}</td><td class="stok-col">${sAwal}</td><td contenteditable="true">${msk}</td><td contenteditable="true">${rsk}</td><td contenteditable="true">${tjl}</td><td contenteditable="true" class="sisa-input">${sisa}</td>`;
+            tr.innerHTML = `<td class="name-col">${nama.toUpperCase()}</td><td>${sAwal}</td><td contenteditable="true">${msk}</td><td contenteditable="true">${rsk}</td><td contenteditable="true">${tjl}</td><td contenteditable="true" class="sisa-input">${sisa}</td>`;
             tableBody.appendChild(tr);
         });
+
+        if(session?.manualCash) document.getElementById('manual-cash-val').innerText = session.manualCash;
         renderOmset(session?.omset);
         attachLogic();
     }
 
     function renderOmset(saved) {
-        const list = ["CASH", "TRANSFER", "SISA", "GRAB", "QRIS", "SHOPEE F", "SHOPEE P", "GOJEK", "GOPAY", "AIRASIA", "MODAL"];
+        // "CASH AWAL/AKHIR" dihapus dari list ini karena sudah dipindah ke elemen manual
+        const list = ["CASH (TUNAI)", "TRANSFER", "SISA", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
         const container = document.getElementById('omset-list');
         container.innerHTML = '';
-        list.forEach((l, i) => { container.innerHTML += `<div class="omset-row"><div class="omset-label">${l}</div><div contenteditable="true" class="omset-input">${saved?.[i] || "0"}</div></div>`; });
+        list.forEach((l, i) => { 
+            container.innerHTML += `<div class="omset-row"><div class="omset-label">${l}</div><div contenteditable="true" class="omset-input">${saved?.[i] || "0"}</div></div>`; 
+        });
         updateTotal();
     }
 
     function attachLogic() {
         document.getElementById('area-laporan').addEventListener('input', (e) => {
-            // Hanya jalankan auto-kalkulasi jika yang diedit BUKAN kolom sisa itu sendiri
             if (!e.target.classList.contains('sisa-input')) {
                 document.querySelectorAll('#body-stok tr').forEach(row => {
                     const nama = row.cells[0].innerText;
-                    // Barang yang bukan pengecualian akan terupdate otomatis saat stok lain diisi
                     if (!pengecualianSisa.includes(nama)) {
                         const s = parseVal(row.cells[1].innerText), m = parseVal(row.cells[2].innerText), r = parseVal(row.cells[3].innerText), t = parseVal(row.cells[4].innerText);
                         row.cells[5].innerText = (s + m - r - t).toLocaleString('id-ID').replace(',', '.');
@@ -163,18 +174,19 @@
 
     function updateTotal() {
         let t = 0;
-        document.querySelectorAll('.omset-input').forEach((el, i) => { if(i < 10) t += parseVal(el.innerText); });
+        document.querySelectorAll('.omset-input').forEach((el) => { t += parseVal(el.innerText); });
         document.getElementById('total-display').innerText = t.toLocaleString('id-ID').replace(',', '.');
     }
 
     function save() {
-        let data = { stokAwal: {}, inputs: {}, omset: [] };
+        let data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "" };
         document.querySelectorAll('#body-stok tr').forEach(r => {
             const n = r.cells[0].innerText;
             data.stokAwal[n] = r.cells[1].innerText;
             data.inputs[n] = { msk: r.cells[2].innerText, rsk: r.cells[3].innerText, tjl: r.cells[4].innerText, sisa: r.cells[5].innerText };
         });
         document.querySelectorAll('.omset-input').forEach(i => data.omset.push(i.innerText));
+        data.manualCash = document.getElementById('manual-cash-val').innerText;
         localStorage.setItem('kopi4_session', JSON.stringify(data));
     }
 
@@ -184,7 +196,7 @@
         setTimeout(() => {
             html2canvas(el, { scale: 3, backgroundColor: '#ffffff' }).then(c => {
                 const a = document.createElement('a');
-                a.download = `Lap_Kopi4.png`;
+                a.download = `Lap_Setengah4.png`;
                 a.href = c.toDataURL();
                 a.click();
                 el.classList.remove('download-mode');
