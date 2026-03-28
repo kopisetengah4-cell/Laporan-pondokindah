@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kopi Setengah-4 Auto-Fill System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+        
+        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 10px; overflow-x: hidden; }
+        #area-laporan { background: #000; padding: 15px; min-width: 650px; margin: auto; }
+        .scroll-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #1a1a1a; }
+        .main-title { text-align: center; color: #d4a373; font-size: 20px; font-weight: 800; letter-spacing: 3px; margin-bottom: 15px; }
+        
+        .header-info { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 15px; width: 650px; }
+        .left-info { flex: 1; font-size: 11px; color: #d4a373; }
+        .info-item { display: flex; margin-bottom: 4px; padding-bottom: 2px; }
+        .info-label { width: 80px; font-weight: 600; }
+        .info-val { color: #fff; flex: 1; outline: none; border: none !important; background: transparent; }
+
+        .roti-box { width: 180px; border: 1px solid #333; height: fit-content; }
+        .roti-header { background: #111; color: #d4a373; font-size: 10px; font-weight: 800; display: flex; text-align: center; border-bottom: 1px solid #333; }
+        .roti-row { display: flex; font-size: 10px; border-bottom: 1px solid #222; }
+        .roti-name { width: 60%; padding: 5px; font-weight: 600; color: #fff; }
+        .roti-val { width: 40%; padding: 5px; text-align: center; outline: none; border-left: 1px solid #333; color: #fff; font-weight: 600; background: transparent; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; min-width: 650px; }
+        th { color: #d4a373; background: #111; font-weight: 800; padding: 8px 4px; border: 1px solid #333; font-size: 9px; }
+        td { border: 1px solid #222; padding: 4px; text-align: center; color: #fff; font-weight: 600; height: 30px; } 
+        .name-col { text-align: left; padding-left: 10px; color: #fff; width: 180px; }
+        .stok-col, .edit-col, .sisa-col { color: #fff; font-weight: 600; outline: none; background: transparent; }
+
+        .omset-section { width: 650px; margin-top: 15px; }
+        .omset-container { display: flex; border: 1px solid #333; }
+        .omset-left { flex: 1; }
+        .omset-right { width: 180px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #080808; }
+        .total-big { font-size: 32px; font-weight: 800; color: #d4a373; }
+        .omset-row { display: flex; border-bottom: 1px solid #222; }
+        .omset-label { width: 60%; padding: 6px 10px; font-size: 10px; font-weight: 600; color: #aaa; text-align: left; }
+        .omset-input { flex: 1; padding: 6px; color: #fff; text-align: center; outline: none; font-weight: 600; background: transparent; }
+
+        .berita-acara-box { border: 1px solid #333; border-left: 4px solid #d4a373; margin-top: 10px; padding: 10px; background: transparent; }
+        .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 650px; padding: 15px; font-weight: 800; margin: 15px auto; display: block; border: none; border-radius: 6px; cursor: pointer; }
+
+        /* Mode Unduh (Putih) */
+        .download-mode#area-laporan { background-color: #fff !important; color: #000 !important; }
+        .download-mode .info-val, .download-mode .roti-name, .download-mode .roti-val, .download-mode td, .download-mode .name-col, .download-mode .stok-col, .download-mode .edit-col, .download-mode .sisa-col, .download-mode .omset-input, .download-mode #berita-acara { color: #000 !important; }
+        .download-mode .main-title, .download-mode .left-info, .download-mode .roti-header, .download-mode th, .download-mode .total-big, .download-mode .omset-row-title, .download-mode .ba-title { color: #000 !important; font-weight: 700 !important; }
+        .download-mode .roti-header, .download-mode th { background-color: #f0f0f0 !important; }
+        .download-mode .omset-right { background-color: #f9f9f9 !important; border-left: 1px solid #ccc !important; }
+        .download-mode .scroll-wrapper, .download-mode .roti-box, .download-mode .roti-header, .download-mode .roti-row, .download-mode table, .download-mode th, .download-mode td, .download-mode .omset-container, .download-mode .omset-row, .download-mode .berita-acara-box { border-color: #ccc !important; }
+        .download-mode .berita-acara-box { border-left: 4px solid #000 !important; }
+    </style>
+</head>
+<body>
+
+<div id="area-laporan">
+    <div class="main-title">KOPI SETENGAH-4</div>
+    <div class="header-info">
+        <div class="left-info">
+            <div class="info-item"><span class="info-label">HARI</span><span id="out-hari" class="info-val">: -</span></div>
+            <div class="info-item"><span class="info-label">TANGGAL</span><span id="out-tgl" class="info-val">: -</span></div>
+            <div class="info-item"><span class="info-label">CABANG</span><span id="cabang" contenteditable="true" class="info-val">: P.INDAH</span></div>
+            <div class="info-item"><span class="info-label">SHIFT</span><span id="shift" contenteditable="true" class="info-val">: </span></div>
+        </div>
+        <div class="roti-box">
+            <div class="roti-header"><div style="width:60%">ROTI</div><div style="width:40%">SISA</div></div>
+            <div class="roti-row"><div class="roti-name">COKLAT</div><div contenteditable="true" class="roti-val">0</div></div>
+            <div class="roti-row"><div class="roti-name">VANILLA</div><div contenteditable="true" class="roti-val">0</div></div>
+            <div class="roti-row"><div class="roti-name">BLUEBERRY</div><div contenteditable="true" class="roti-val">0</div></div>
+        </div>
+    </div>
+    <div class="scroll-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th class="name-col">NAMA BARANG</th>
+                    <th>STOK AWAL</th>
+                    <th>MASUK</th>
+                    <th>RUSAK</th>
+                    <th>TERJUAL</th>
+                    <th>SISA STOK</th>
+                </tr>
+            </thead>
+            <tbody id="body-stok"></tbody>
+        </table>
+    </div>
+    <div class="omset-section">
+        <div class="omset-row-title" style="text-align: center; color: #d4a373; font-weight: 800; font-size: 11px; margin-bottom: 8px;">RINGKASAN OMSET</div>
+        <div class="omset-container">
+            <div class="omset-left" id="omset-list"></div>
+            <div class="omset-right"><div class="total-big" id="total-display">0</div></div>
+        </div>
+        <div class="berita-acara-box">
+            <div class="ba-title" style="font-size:10px; color:#d4a373; font-weight:800; margin-bottom: 4px;">BERITA ACARA:</div>
+            <div id="berita-acara" contenteditable="true" style="font-size:11px; min-height:30px; outline:none; color: #fff;">...</div>
+        </div>
+    </div>
+</div>
+<button onclick="unduhLaporan()" class="btn-save">UNDUH LAPORAN (HASIL PUTIH)</button>
+
+<script>
+    const daftarBarang = ["Cup Kecil", "Cup Besar", "Cup Hot", "Botol 1 Liter", "Botol 500 Ml", "Gula Aren", "Gula Putih", "Kopi", "Susu UHT", "Krimer", "Sea Salt Cream", "Fn", "SKM", "Hershey's", "Remon", "Sedotan Kecil", "Sedotan Besar", "Plastik Isi 2", "Plastik Isi 1", "Plastik Besar", "Cup Sealer", "Base Susu", "Base Kopi", "Roti"];
+    const hapusSisaOtomatis = ["Cup Kecil", "Cup Besar", "Susu UHT", "Krimer", "SKM", "Base Susu", "Base Kopi", "Roti"];
+    const daftarOmset = ["CASH (TUNAI)", "TRANSFER", "SISA", "GRAB FOOD", "OVO / QRIS", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK / GOTO", "GOPAY", "AIRASIA FOOD", "CASH AWAL/AKHIR"];
+    const defaultAwal = {"Cup Kecil":"1.170","Cup Besar":"135","Cup Hot":"127","Botol 1 Liter":"22","Botol 500 Ml":"49","Gula Aren":"4½","Gula Putih":"1½","Kopi":"15","Susu UHT":"25/995","Krimer":"10/998","Sea Salt Cream":"1/870","Fn":"4/290","SKM":"6/114","Hershey's":"1/620","Remon":"27","Sedotan Kecil":"5½","Sedotan Besar":"2½","Plastik Isi 2":"5","Plastik Isi 1":"7","Plastik Besar":"7","Cup Sealer":"1","Base Susu":"1.500","Base Kopi":"1.000","Roti":"49"};
+
+    function init() {
+        const now = new Date();
+        document.getElementById('out-hari').innerText = ": " + now.toLocaleDateString('id-ID', {weekday:'long'}).toUpperCase();
+        document.getElementById('out-tgl').innerText = ": " + now.toLocaleDateString('id-ID');
+        
+        let savedSisa = JSON.parse(localStorage.getItem('kopi4_sisa_kemarin'));
+        let lastDate = localStorage.getItem('kopi4_last_date');
+        let today = now.toLocaleDateString('en-CA');
+
+        if (lastDate && lastDate !== today) {
+            renderTable(savedSisa || defaultAwal, true);
+        } else {
+            let session = JSON.parse(localStorage.getItem('kopi4_session'));
+            renderTable(session ? session.stokAwal : defaultAwal, !session, session?.inputs);
+            renderOmset(session?.omset);
+        }
+        localStorage.setItem('kopi4_last_date', today);
+    }
+
+    function renderTable(stokMap, isReset, inputs = null) {
+        const tbody = document.getElementById('body-stok');
+        tbody.innerHTML = '';
+        daftarBarang.forEach(nama => {
+            const sAwal = stokMap[nama] || "0";
+            const msk = isReset ? "0" : (inputs?.[nama]?.msk || "0");
+            const rsk = isReset ? "0" : (inputs?.[nama]?.rsk || "0");
+            const tjl = isReset ? "0" : (inputs?.[nama]?.tjl || "0");
+            
+            // Logika: Jika baru dibuka, Sisa Stok disamakan dengan Stok Awal
+            let sisa = isReset ? sAwal : (inputs?.[nama]?.sisa || sAwal);
+            if (isReset && hapusSisaOtomatis.includes(nama)) sisa = "";
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="name-col">${nama.toUpperCase()}</td><td class="stok-col">${sAwal}</td><td contenteditable="true" class="edit-col">${msk}</td><td contenteditable="true" class="edit-col">${rsk}</td><td contenteditable="true" class="edit-col">${tjl}</td><td contenteditable="true" class="sisa-col">${sisa}</td>`;
+            tbody.appendChild(tr);
+        });
+        attachLogic();
+        updateTotal();
+    }
+
+    function renderOmset(savedOmset) {
+        const container = document.getElementById('omset-list');
+        container.innerHTML = '';
+        daftarOmset.forEach((label, i) => {
+            const val = savedOmset ? savedOmset[i] : "0";
+            container.innerHTML += `<div class="omset-row"><div class="omset-label">${label}</div><div contenteditable="true" class="omset-input">${val}</div></div>`;
+        });
+    }
+
+    function attachLogic() {
+        document.getElementById('area-laporan').addEventListener('input', () => {
+            document.querySelectorAll('#body-stok tr').forEach(row => {
+                const n = row.cells[0].innerText;
+                if (!hapusSisaOtomatis.some(item => n.includes(item.toUpperCase()))) {
+                    const s = parseVal(row.cells[1].innerText);
+                    const m = parseVal(row.cells[2].innerText);
+                    const r = parseVal(row.cells[3].innerText);
+                    const t = parseVal(row.cells[4].innerText);
+                    const hasil = (s + m - r - t);
+                    row.cells[5].innerText = hasil.toLocaleString('id-ID').replace(',', '.');
+                }
+            });
+            updateTotal();
+            save();
+        });
+    }
+
+    function parseVal(s) {
+        if (!s || s === "" || s === "-") return 0;
+        let v = s.toString().replace(/\./g, '').replace(',', '.');
+        if (v.includes('½')) return parseFloat(v) + 0.5;
+        if (v.includes('/')) return parseFloat(v.split('/')[0]);
+        return parseFloat(v) || 0;
+    }
+
+    function updateTotal() {
+        let t = 0;
+        document.querySelectorAll('.omset-input').forEach((el, i) => { if(i < 10) t += parseVal(el.innerText); });
+        document.getElementById('total-display').innerText = t.toLocaleString('id-ID').replace(',', '.');
+    }
+
+    function save() {
+        let s = { stokAwal: {}, inputs: {}, omset: [] }, sisaOnly = {};
+        document.querySelectorAll('#body-stok tr').forEach(r => {
+            const n = r.cells[0].innerText;
+            s.stokAwal[n] = r.cells[1].innerText;
+            s.inputs[n] = { msk: r.cells[2].innerText, rsk: r.cells[3].innerText, tjl: r.cells[4].innerText, sisa: r.cells[5].innerText };
+            sisaOnly[n] = r.cells[5].innerText;
+        });
+        document.querySelectorAll('.omset-input').forEach(i => s.omset.push(i.innerText));
+        localStorage.setItem('kopi4_session', JSON.stringify(s));
+        localStorage.setItem('kopi4_sisa_kemarin', JSON.stringify(sisaOnly));
+    }
+
+    function unduhLaporan() {
+        save();
+        const el = document.getElementById('area-laporan');
+        el.classList.add('download-mode');
+        setTimeout(() => {
+            html2canvas(el, { scale: 3, backgroundColor: '#ffffff' }).then(c => {
+                const a = document.createElement('a');
+                a.download = `Laporan_Setengah4_Full.png`;
+                a.href = c.toDataURL("image/png");
+                a.click();
+                el.classList.remove('download-mode');
+            });
+        }, 150);
+    }
+    init();
+    if (!document.querySelectorAll('.omset-input').length) renderOmset();
+</script>
+</body>
+</html>
