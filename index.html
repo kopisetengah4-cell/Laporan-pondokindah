@@ -3,88 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 Final Precision</title>
+    <title>Kopi Setengah-4 Harian</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+        /* Menggunakan font tebal agar jelas dibaca */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         
-        /* Layout Dasar */
-        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 2px; }
-        #area-laporan { background: #000; padding: 12px; min-width: 480px; margin: auto; position: relative; border: 1px solid #222; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
         
-        /* Header & Info */
-        .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; letter-spacing: 2px; margin-bottom: 12px; }
-        .history-tool { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; background: #111; padding: 4px 8px; border-radius: 4px; border: 1px solid #333; z-index: 100; }
-        #datepicker { background: transparent; color: #fff; border: none; font-size: 10px; font-weight: 800; outline: none; cursor: pointer; }
+        #area-laporan {
+            background: #fff;
+            width: 650px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
         
-        .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
-        .info-group { font-size: 10px; color: #d4a373; font-weight: 800; }
-        .info-val { color: #fff; outline: none; margin-left: 4px; }
-
-        /* Roti Box - Semua Teks di Tengah */
-        .roti-box { width: 140px; border: 1px solid #333; text-align: center; }
-        .roti-header { background: #111; color: #d4a373; font-size: 8px; font-weight: 800; display: flex; border-bottom: 1px solid #333; }
-        .roti-row { display: flex; font-size: 9px; border-bottom: 1px solid #222; }
-        .roti-row:last-child { border-bottom: none; }
-        .roti-col-name { width: 65%; padding: 3px 5px; text-align: center; display: flex; align-items: center; justify-content: center; }
-        .roti-col-val { width: 35%; padding: 3px; text-align: center; border-left: 1px solid #333; outline: none; color: #fff; display: flex; align-items: center; justify-content: center; }
-
-        /* Tabel Utama - Semua Teks di Tengah Tanpa Terkecuali */
-        table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 5px; table-layout: fixed; }
-        th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #333; font-size: 8px; text-align: center; vertical-align: middle; }
-        td { border: 1px solid #222; padding: 4px 2px; text-align: center !important; vertical-align: middle !important; font-weight: 800; height: 26px; outline: none; color: #fff; } 
-        .name-col { color: #d4a373 !important; width: 120px; text-align: center !important; }
-
-        /* Omset Section */
-        .omset-container { display: flex; border: 1px solid #333; margin-top: 10px; }
-        .omset-left { flex: 1; }
-        .omset-right { width: 130px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #fff; color: #000; font-size: 28px; font-weight: 800; outline: none; text-align: center; }
-        .omset-row { display: flex; border-bottom: 1px solid #222; align-items: center; }
-        .omset-label { width: 60%; padding: 5px 10px; font-size: 9px; text-align: center; } 
-        .omset-input { flex: 1; text-align: center !important; outline: none; border-left: 1px solid #222; color: #fff; display: flex; align-items: center; justify-content: center; }
-
-        /* Box Inputs */
-        .box-input-container { margin-top: 10px; border: 1px solid #333; padding: 8px; text-align: center; }
-        .box-title { color: #d4a373; font-weight: 800; font-size: 10px; margin-bottom: 4px; text-align: center; }
-        .box-content { font-size: 10px; color: #fff; min-height: 20px; outline: none; font-weight: 800; text-align: center; }
-
-        /* Button & Download Mode */
-        .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 500px; padding: 12px; font-weight: 800; margin: 15px auto; display: block; border-radius: 4px; }
-        .download-mode#area-laporan { background: #fff !important; color: #000 !important; }
-        .download-mode td, .download-mode .info-val, .download-mode .roti-col-val, .download-mode .omset-input, .download-mode .box-content, .download-mode .roti-col-name { color: #000 !important; border-color: #ccc !important; }
-        .download-mode th, .download-mode .roti-header { background: #f0f0f0 !important; color: #000 !important; border-color: #ccc !important; }
-        .download-mode .history-tool { display: none; }
+        .main-title {
+            text-align: center;
+            color: #c99368;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+        
+        /* Layout Info & Tabel Roti */
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+        
+        .info-section {
+            width: 45%;
+        }
+        
+        .info-item {
+            display: flex;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        
+        .info-label {
+            width: 80px;
+            color: #c99368;
+            font-weight: 800;
+        }
+        
+        .info-value {
+            font-weight: 800;
+            color: #333;
+        }
+        
+        /* Tabel Roti - Dengan padding dan tebal */
+        .roti-section {
+            width: 40%;
+        }
+        
+        .roti-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+        
+        .roti-table th {
+            color: #c99368;
+            border: 1px solid #ddd;
+            padding: 10px; /* Jarak agar tidak nempel garis */
+            font-weight: 800;
+        }
+        
+        .roti-table td {
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px; /* Jarak agar tidak nempel garis */
+            font-weight: 800;
+            color: #333;
+        }
+        
+        /* Tabel Utama - Tebal, Padding Besar, Teks Tengah */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+        
+        .main-table th {
+            color: #c99368;
+            border: 1px solid #ddd;
+            padding: 12px 10px; /* Padding besar agar tidak nempel garis */
+            text-align: center;
+            font-weight: 800;
+        }
+        
+        .main-table td {
+            border: 1px solid #ddd;
+            padding: 10px; /* Padding besar agar tidak nempel garis */
+            text-align: center;
+            font-weight: 800;
+            color: #333;
+        }
+        
+        .main-table .name-col {
+            text-align: left;
+            padding-left: 15px; /* Jarak teks kiri agar rapi */
+        }
+        
+        /* Bagian Omset & Kas */
+        .omset-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .omset-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 8px 0; /* Jarak antar baris */
+        }
+        
+        .omset-label {
+            color: #888;
+            font-weight: 700;
+        }
+        
+        .omset-value {
+            color: #333;
+            font-weight: 800;
+            text-align: right;
+        }
+        
+        .cash-section {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #c99368;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border: 1px solid #ddd;
+        }
+        
+        .ba-section {
+            font-size: 14px;
+            font-weight: 800;
+            color: #c99368;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        
+        .ba-text {
+            color: #333;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        /* Tombol Unduh */
+        .btn-unduh {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            background-color: #c99368;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease;
+        }
+        
+        .btn-unduh:hover {
+            background-color: #a87654;
+        }
     </style>
 </head>
 <body>
 
 <div id="area-laporan">
-    <div class="history-tool">
-        <input type="date" id="datepicker" onchange="loadDataByDate(this.value)">
-    </div>
-    
     <div class="main-title">KOPI SETENGAH-4</div>
     
-    <div class="top-section">
-        <div class="info-group">
-            <div>HARI <span id="label-hari" class="info-val">: SABTU</span></div>
-            <div>TGL <span id="label-tgl" class="info-val">: 28/03/2026</span></div>
-            <div>CABANG <span contenteditable="true" class="info-val">: P.INDAH</span></div>
-            <div>SHIFT <span contenteditable="true" class="info-val">: </span></div>
+    <div class="flex-container">
+        <div class="info-section">
+            <div class="info-item"><span class="info-label">HARI</span><span class="info-value">: SABTU</span></div>
+            <div class="info-item"><span class="info-label">TGL</span><span class="info-value">: 28/03/2026</span></div>
+            <div class="info-item"><span class="info-label">CABANG</span><span class="info-value">: P.INDAH</span></div>
+            <div class="info-item"><span class="info-label">SHIFT</span><span class="info-value">: -</span></div>
         </div>
-        <div class="roti-box">
-            <div class="roti-header">
-                <div style="width:65%; padding:3px 5px; border-right: 1px solid #333;">ROTI</div>
-                <div style="width:35%; padding:3px">SISA</div>
-            </div>
-            <div class="roti-row"><div class="roti-col-name">COKLAT</div><div contenteditable="true" class="roti-col-val" id="r-coklat">18</div></div>
-            <div class="roti-row"><div class="roti-col-name">VANILLA</div><div contenteditable="true" class="roti-col-val" id="r-vanilla">16</div></div>
-            <div class="roti-row"><div class="roti-col-name">BLUEBERRY</div><div contenteditable="true" class="roti-col-val" id="r-blueberry">14</div></div>
+        
+        <div class="roti-section">
+            <table class="roti-table">
+                <thead>
+                    <tr><th>ROTI</th><th>SISA</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>COKLAT</td><td>18</td></tr>
+                    <tr><td>VANILLA</td><td>16</td></tr>
+                    <tr><td>BLUEBERRY</td><td>14</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <table>
+    <table class="main-table">
         <thead>
             <tr>
                 <th class="name-col">NAMA BARANG</th>
@@ -95,78 +235,79 @@
                 <th>SISA STOK</th>
             </tr>
         </thead>
-        <tbody id="body-stok">
-            <tr><td class="name-col">CUP KECIL</td><td contenteditable="true">1.170</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">14</td><td contenteditable="true">1.156</td></tr>
-            <tr><td class="name-col">CUP BESAR</td><td contenteditable="true">135</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2</td><td contenteditable="true">133</td></tr>
-            <tr><td class="name-col">CUP HOT</td><td contenteditable="true">127</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">127</td></tr>
-            <tr><td class="name-col">BOTOL 1 LITER</td><td contenteditable="true">22</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">22</td></tr>
-            <tr><td class="name-col">BOTOL 500 ML</td><td contenteditable="true">49</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">49</td></tr>
-            <tr><td class="name-col">GULA AREN</td><td contenteditable="true">4½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4½</td></tr>
-            <tr><td class="name-col">GULA PUTIH</td><td contenteditable="true">1½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1½</td></tr>
-            <tr><td class="name-col">KOPI</td><td contenteditable="true">15</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">15</td></tr>
-            <tr><td class="name-col">SUSU UHT</td><td contenteditable="true">25/995</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">23/961</td></tr>
-            <tr><td class="name-col">KRIMER</td><td contenteditable="true">10/998</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">10/660</td></tr>
-            <tr><td class="name-col">SEA SALT CREAM</td><td contenteditable="true">1/870</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
-            <tr><td class="name-col">FN</td><td contenteditable="true">4/290</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4</td></tr>
-            <tr><td class="name-col">SKM</td><td contenteditable="true">6/114</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">6/77</td></tr>
-            <tr><td class="name-col">HERSHEY'S</td><td contenteditable="true">1/620</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
-            <tr><td class="name-col">REMON</td><td contenteditable="true">27</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">27</td></tr>
-            <tr><td class="name-col">SEDOTAN KECIL</td><td contenteditable="true">5½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5½</td></tr>
-            <tr><td class="name-col">SEDOTAN BESAR</td><td contenteditable="true">2½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2½</td></tr>
-            <tr><td class="name-col">PLASTIK ISI 2</td><td contenteditable="true">5</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5</td></tr>
-            <tr><td class="name-col">PLASTIK ISI 1</td><td contenteditable="true">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
-            <tr><td class="name-col">PLASTIK BESAR</td><td contenteditable="true">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
-            <tr><td class="name-col">CUP SEALER</td><td contenteditable="true">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
-            <tr><td class="name-col">BASE SUSU</td><td contenteditable="true">1.500</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2.100</td></tr>
-            <tr><td class="name-col">BASE KOPI</td><td contenteditable="true">1.000</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.100</td></tr>
-            <tr><td class="name-col">ROTI</td><td contenteditable="true">49</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td><td contenteditable="true">48</td></tr>
+        <tbody>
+            <tr><td class="name-col">CUP KECIL</td><td>1.170</td><td>0</td><td>0</td><td>14</td><td>1.156</td></tr>
+            <tr><td class="name-col">CUP BESAR</td><td>135</td><td>0</td><td>0</td><td>2</td><td>133</td></tr>
+            <tr><td class="name-col">CUP HOT</td><td>127</td><td>0</td><td>0</td><td>0</td><td>127</td></tr>
+            <tr><td class="name-col">BOTOL 1 LITER</td><td>22</td><td>0</td><td>0</td><td>0</td><td>22</td></tr>
+            <tr><td class="name-col">BOTOL 500 ML</td><td>49</td><td>0</td><td>0</td><td>0</td><td>49</td></tr>
+            <tr><td class="name-col">GULA AREN</td><td>4½</td><td>0</td><td>0</td><td>0</td><td>4½</td></tr>
+            <tr><td class="name-col">GULA PUTIH</td><td>1½</td><td>0</td><td>0</td><td>0</td><td>1½</td></tr>
+            <tr><td class="name-col">KOPI</td><td>15</td><td>0</td><td>0</td><td>0</td><td>15</td></tr>
+            <tr><td class="name-col">SUSU UHT</td><td>25/995</td><td>0</td><td>0</td><td>0</td><td>23/961</td></tr>
+            <tr><td class="name-col">KRIMER</td><td>10/998</td><td>0</td><td>0</td><td>0</td><td>10/660</td></tr>
+            <tr><td class="name-col">SEA SALT CREAM</td><td>1/870</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td class="name-col">FN</td><td>4/290</td><td>0</td><td>0</td><td>0</td><td>4</td></tr>
+            <tr><td class="name-col">SKM</td><td>6/114</td><td>0</td><td>0</td><td>0</td><td>6/77</td></tr>
+            <tr><td class="name-col">HERSHEY'S</td><td>1/620</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td class="name-col">REMON</td><td>27</td><td>0</td><td>0</td><td>0</td><td>27</td></tr>
+            <tr><td class="name-col">SEDOTAN KECIL</td><td>5½</td><td>0</td><td>0</td><td>0</td><td>5½</td></tr>
+            <tr><td class="name-col">SEDOTAN BESAR</td><td>2½</td><td>0</td><td>0</td><td>0</td><td>2½</td></tr>
+            <tr><td class="name-col">PLASTIK ISI 2</td><td>5</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+            <tr><td class="name-col">PLASTIK ISI 1</td><td>7</td><td>0</td><td>0</td><td>0</td><td>7</td></tr>
+            <tr><td class="name-col">PLASTIK BESAR</td><td>7</td><td>0</td><td>0</td><td>0</td><td>7</td></tr>
+            <tr><td class="name-col">CUP SEALER</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td class="name-col">BASE SUSU</td><td>1.500</td><td>0</td><td>0</td><td>0</td><td>2.100</td></tr>
+            <tr><td class="name-col">BASE KOPI</td><td>1.000</td><td>0</td><td>0</td><td>0</td><td>1.100</td></tr>
+            <tr><td class="name-col">ROTI</td><td>49</td><td>0</td><td>0</td><td>1</td><td>48</td></tr>
         </tbody>
     </table>
 
-    <div class="omset-container">
-        <div class="omset-left">
-            <div class="omset-row"><div class="omset-label">CASH (TUNAI)</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">TRANSFER</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">SISA</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">GRAB FOOD</div><div contenteditable="true" class="omset-input">221.000</div></div>
-            <div class="omset-row"><div class="omset-label">QRIS / OVO</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">SHOPEE FOOD</div><div contenteditable="true" class="omset-input">40.800</div></div>
-            <div class="omset-row"><div class="omset-label">SHOPEE PAY</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">GOJEK</div><div contenteditable="true" class="omset-input">113.600</div></div>
-            <div class="omset-row"><div class="omset-label">GOPAY</div><div contenteditable="true" class="omset-input">0</div></div>
-            <div class="omset-row"><div class="omset-label">AIRASIA</div><div contenteditable="true" class="omset-input">0</div></div>
+    <div class="omset-section">
+        <div class="omset-row"><span class="omset-label">CASH (TUNAI)</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">TRANSFER</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">SISA</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">GRAB FOOD</span><span class="omset-value">221.000</span></div>
+        <div class="omset-row"><span class="omset-label">QRIS / OVO</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">SHOPEE FOOD</span><span class="omset-value">40.800</span></div>
+        <div class="omset-row"><span class="omset-label">SHOPEE PAY</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">GOJEK</span><span class="omset-value">113.600</span></div>
+        <div class="omset-row"><span class="omset-label">GOPAY</span><span class="omset-value">0</span></div>
+        <div class="omset-row"><span class="omset-label">AIRASIA</span><span class="omset-value">0</span></div>
+        
+        <div class="omset-row" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <span class="omset-label" style="font-size: 15px;">TOTAL OMSET DIGITAL</span>
+            <span class="omset-value" style="font-size: 20px; color: #333;">375.400</span>
         </div>
-        <div class="omset-right" contenteditable="true">375.400</div>
     </div>
 
-    <div class="box-input-container">
-        <div class="box-title">CASH AWAL / AKHIR</div>
-        <div contenteditable="true" class="box-content">78.500</div>
+    <div class="cash-section">
+        CASH AWAL / AKHIR
+        <div style="font-size: 18px; color: #333; margin-top: 5px;">78.500</div>
     </div>
     
-    <div class="box-input-container">
-        <div class="box-title">BERITA ACARA:</div>
-        <div contenteditable="true" class="box-content">Selesai pengisian data harian.</div>
+    <div class="ba-section">
+        BERITA ACARA:
+        <div class="ba-text">Selesai pengisian data harian.</div>
     </div>
 </div>
 
-<button onclick="unduhLaporan()" class="btn-save">UNDUH LAPORAN</button>
+<button class="btn-unduh" onclick="simpanLaporan()">UNDUH LAPORAN</button>
 
 <script>
-    function unduhLaporan() {
-        const el = document.getElementById('area-laporan');
-        el.classList.add('download-mode');
-        // Pastikan render selesai sebelum capture
-        setTimeout(() => {
-            html2canvas(el, { scale: 3, useCORS: true }).then(c => {
-                const a = document.createElement('a');
-                a.download = `Laporan_KopiSetengah4_Final.png`;
-                a.href = c.toDataURL(); 
-                a.click();
-                el.classList.remove('download-mode');
-            });
-        }, 150);
+    function simpanLaporan() {
+        const input = document.getElementById('area-laporan');
+        
+        // Atur skala tinggi untuk memastikan tangkapan layar jernih
+        html2canvas(input, { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = imgData;
+            a.download = 'LaporanKopiSetengah4_280326.png';
+            a.click();
+        });
     }
 </script>
+
 </body>
 </html>
