@@ -3,41 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 | Laporan Terisi 28 Maret</title>
+    <title>Kopi Setengah-4 Final Precision</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+        
+        /* Layout Dasar */
         body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 2px; }
         #area-laporan { background: #000; padding: 12px; min-width: 480px; margin: auto; position: relative; border: 1px solid #222; }
+        
+        /* Header & Info */
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; letter-spacing: 2px; margin-bottom: 12px; }
         .history-tool { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; background: #111; padding: 4px 8px; border-radius: 4px; border: 1px solid #333; z-index: 100; }
         #datepicker { background: transparent; color: #fff; border: none; font-size: 10px; font-weight: 800; outline: none; cursor: pointer; }
-        .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        
+        .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
         .info-group { font-size: 10px; color: #d4a373; font-weight: 800; }
-        .info-val { color: #fff; outline: none; }
-        .roti-box { width: 140px; border: 1px solid #333; }
-        .roti-header { background: #111; color: #d4a373; font-size: 8px; font-weight: 800; display: flex; }
-        .roti-row { display: flex; font-size: 9px; border-top: 1px solid #222; }
-        .roti-col-name { width: 65%; padding: 3px 5px; }
-        .roti-col-val { width: 35%; padding: 3px; text-align: center; border-left: 1px solid #333; outline: none; color: #fff; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 5px; }
-        th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #333; font-size: 8px; }
-        td { border: 1px solid #222; padding: 4px 2px; text-align: center; font-weight: 800; height: 26px; outline: none; } 
-        .name-col { text-align: left; padding-left: 6px; color: #d4a373; width: 120px; }
+        .info-val { color: #fff; outline: none; margin-left: 4px; }
+
+        /* Roti Box - Semua Teks di Tengah */
+        .roti-box { width: 140px; border: 1px solid #333; text-align: center; }
+        .roti-header { background: #111; color: #d4a373; font-size: 8px; font-weight: 800; display: flex; border-bottom: 1px solid #333; }
+        .roti-row { display: flex; font-size: 9px; border-bottom: 1px solid #222; }
+        .roti-row:last-child { border-bottom: none; }
+        .roti-col-name { width: 65%; padding: 3px 5px; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .roti-col-val { width: 35%; padding: 3px; text-align: center; border-left: 1px solid #333; outline: none; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+        /* Tabel Utama - Semua Teks di Tengah Tanpa Terkecuali */
+        table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 5px; table-layout: fixed; }
+        th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #333; font-size: 8px; text-align: center; vertical-align: middle; }
+        td { border: 1px solid #222; padding: 4px 2px; text-align: center !important; vertical-align: middle !important; font-weight: 800; height: 26px; outline: none; color: #fff; } 
+        .name-col { color: #d4a373 !important; width: 120px; text-align: center !important; }
+
+        /* Omset Section */
         .omset-container { display: flex; border: 1px solid #333; margin-top: 10px; }
         .omset-left { flex: 1; }
-        .omset-right { width: 130px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #fff; color: #000; font-size: 28px; font-weight: 800; outline: none; }
+        .omset-right { width: 130px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #333; background: #fff; color: #000; font-size: 28px; font-weight: 800; outline: none; text-align: center; }
         .omset-row { display: flex; border-bottom: 1px solid #222; align-items: center; }
-        .omset-label { width: 60%; padding: 5px 10px; font-size: 9px; } 
-        .omset-input { flex: 1; text-align: center; outline: none; border-left: 1px solid #222; color: #fff; }
-        .box-input-container { margin-top: 10px; border: 1px solid #333; padding: 8px; }
-        .box-title { color: #d4a373; font-weight: 800; font-size: 10px; margin-bottom: 4px; }
-        .box-content { font-size: 10px; color: #fff; min-height: 20px; outline: none; font-weight: 800; }
+        .omset-label { width: 60%; padding: 5px 10px; font-size: 9px; text-align: center; } 
+        .omset-input { flex: 1; text-align: center !important; outline: none; border-left: 1px solid #222; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+        /* Box Inputs */
+        .box-input-container { margin-top: 10px; border: 1px solid #333; padding: 8px; text-align: center; }
+        .box-title { color: #d4a373; font-weight: 800; font-size: 10px; margin-bottom: 4px; text-align: center; }
+        .box-content { font-size: 10px; color: #fff; min-height: 20px; outline: none; font-weight: 800; text-align: center; }
+
+        /* Button & Download Mode */
         .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 500px; padding: 12px; font-weight: 800; margin: 15px auto; display: block; border-radius: 4px; }
         .download-mode#area-laporan { background: #fff !important; color: #000 !important; }
-        .download-mode td, .download-mode .info-val, .download-mode .roti-col-val, .download-mode .omset-input, .download-mode .box-content { color: #000 !important; }
-        .download-mode th, .download-mode .roti-header { background: #f0f0f0 !important; color: #000 !important; }
+        .download-mode td, .download-mode .info-val, .download-mode .roti-col-val, .download-mode .omset-input, .download-mode .box-content, .download-mode .roti-col-name { color: #000 !important; border-color: #ccc !important; }
+        .download-mode th, .download-mode .roti-header { background: #f0f0f0 !important; color: #000 !important; border-color: #ccc !important; }
         .download-mode .history-tool { display: none; }
     </style>
 </head>
@@ -47,7 +63,9 @@
     <div class="history-tool">
         <input type="date" id="datepicker" onchange="loadDataByDate(this.value)">
     </div>
+    
     <div class="main-title">KOPI SETENGAH-4</div>
+    
     <div class="top-section">
         <div class="info-group">
             <div>HARI <span id="label-hari" class="info-val">: SABTU</span></div>
@@ -56,7 +74,10 @@
             <div>SHIFT <span contenteditable="true" class="info-val">: </span></div>
         </div>
         <div class="roti-box">
-            <div class="roti-header"><div style="width:65%; padding:3px 5px">ROTI</div><div style="width:35%; text-align:center; padding:3px">SISA</div></div>
+            <div class="roti-header">
+                <div style="width:65%; padding:3px 5px; border-right: 1px solid #333;">ROTI</div>
+                <div style="width:35%; padding:3px">SISA</div>
+            </div>
             <div class="roti-row"><div class="roti-col-name">COKLAT</div><div contenteditable="true" class="roti-col-val" id="r-coklat">18</div></div>
             <div class="roti-row"><div class="roti-col-name">VANILLA</div><div contenteditable="true" class="roti-col-val" id="r-vanilla">16</div></div>
             <div class="roti-row"><div class="roti-col-name">BLUEBERRY</div><div contenteditable="true" class="roti-col-val" id="r-blueberry">14</div></div>
@@ -65,7 +86,14 @@
 
     <table>
         <thead>
-            <tr><th class="name-col" style="text-align:center">NAMA BARANG</th><th>STOK</th><th>MASUK</th><th>RUSAK</th><th>TERJUAL</th><th>SISA STOK</th></tr>
+            <tr>
+                <th class="name-col">NAMA BARANG</th>
+                <th>STOK</th>
+                <th>MASUK</th>
+                <th>RUSAK</th>
+                <th>TERJUAL</th>
+                <th>SISA STOK</th>
+            </tr>
         </thead>
         <tbody id="body-stok">
             <tr><td class="name-col">CUP KECIL</td><td contenteditable="true">1.170</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">14</td><td contenteditable="true">1.156</td></tr>
@@ -113,12 +141,12 @@
 
     <div class="box-input-container">
         <div class="box-title">CASH AWAL / AKHIR</div>
-        <div contenteditable="true" class="box-content" id="cash-val">78.500</div>
+        <div contenteditable="true" class="box-content">78.500</div>
     </div>
     
     <div class="box-input-container">
         <div class="box-title">BERITA ACARA:</div>
-        <div contenteditable="true" class="box-content" id="ba-val">Data stok awal disesuaikan dengan laporan terakhir.</div>
+        <div contenteditable="true" class="box-content">Selesai pengisian data harian.</div>
     </div>
 </div>
 
@@ -128,12 +156,16 @@
     function unduhLaporan() {
         const el = document.getElementById('area-laporan');
         el.classList.add('download-mode');
-        html2canvas(el, { scale: 3 }).then(c => {
-            const a = document.createElement('a');
-            a.download = 'Laporan_KopiSetengah4_280326.png';
-            a.href = c.toDataURL(); a.click();
-            el.classList.remove('download-mode');
-        });
+        // Pastikan render selesai sebelum capture
+        setTimeout(() => {
+            html2canvas(el, { scale: 3, useCORS: true }).then(c => {
+                const a = document.createElement('a');
+                a.download = `Laporan_KopiSetengah4_Final.png`;
+                a.href = c.toDataURL(); 
+                a.click();
+                el.classList.remove('download-mode');
+            });
+        }, 150);
     }
 </script>
 </body>
