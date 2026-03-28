@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 Fix v3</title>
+    <title>Kopi Setengah-4 Logic Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -35,7 +35,6 @@
         .omset-input { flex: 1; padding: 6px; color: #fff; text-align: center; outline: none; font-weight: 600; }
         .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 650px; padding: 15px; font-weight: 800; margin: 15px auto; display: block; border-radius: 6px; }
 
-        /* Mode Unduh (Putih) */
         .download-mode#area-laporan { background-color: #fff !important; }
         .download-mode td, .download-mode .info-val, .download-mode .roti-name, .download-mode .roti-val, .download-mode .omset-input, .download-mode #berita-acara { color: #000 !important; }
         .download-mode .main-title, .download-mode th, .download-mode .total-big { color: #000 !important; }
@@ -92,10 +91,14 @@
 </div>
 
 <button onclick="unduhLaporan()" class="btn-save">UNDUH LAPORAN (HASIL PUTIH)</button>
-<button onclick="localStorage.clear(); location.reload();" style="color:#666; font-size:10px; display:block; margin:auto;">Klik jika data tidak muncul (Reset Memori)</button>
+<button onclick="localStorage.clear(); location.reload();" style="color:#666; font-size:10px; display:block; margin:auto; cursor:pointer;">Klik jika data tidak muncul (Reset Memori)</button>
 
 <script>
     const daftarBarang = ["Cup Kecil", "Cup Besar", "Cup Hot", "Botol 1 Liter", "Botol 500 Ml", "Gula Aren", "Gula Putih", "Kopi", "Susu UHT", "Krimer", "Sea Salt Cream", "Fn", "SKM", "Hershey's", "Remon", "Sedotan Kecil", "Sedotan Besar", "Plastik Isi 2", "Plastik Isi 1", "Plastik Besar", "Cup Sealer", "Base Susu", "Base Kopi", "Roti"];
+    
+    // Daftar barang yang sisa stoknya harus dikosongkan (manual)
+    const pengecualianSisa = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+
     const defaultAwal = {"Cup Kecil":"1.170","Cup Besar":"135","Cup Hot":"127","Botol 1 Liter":"22","Botol 500 Ml":"49","Gula Aren":"4½","Gula Putih":"1½","Kopi":"15","Susu UHT":"25/995","Krimer":"10/998","Sea Salt Cream":"1/870","Fn":"4/290","SKM":"6/114","Hershey's":"1/620","Remon":"27","Sedotan Kecil":"5½","Sedotan Besar":"2½","Plastik Isi 2":"5","Plastik Isi 1":"7","Plastik Besar":"7","Cup Sealer":"1","Base Susu":"1.500","Base Kopi":"1.000","Roti":"49"};
 
     function init() {
@@ -104,15 +107,12 @@
         document.getElementById('out-tgl').innerText = ": " + now.toLocaleDateString('id-ID');
 
         let session = JSON.parse(localStorage.getItem('kopi4_session'));
-        
-        // LOGIKA BARU: Jika stok awal kosong atau semua 0, paksa ambil dari defaultAwal
         const tableBody = document.getElementById('body-stok');
         tableBody.innerHTML = '';
 
         daftarBarang.forEach(nama => {
             let sAwal = (session && session.stokAwal[nama]) ? session.stokAwal[nama] : defaultAwal[nama];
             
-            // Pengaman: Jika sAwal masih terbaca "0" padahal di default ada nilainya, ganti ke default
             if ((sAwal === "0" || sAwal === 0) && defaultAwal[nama]) {
                 sAwal = defaultAwal[nama];
             }
@@ -120,7 +120,16 @@
             const msk = session?.inputs[nama]?.msk || "0";
             const rsk = session?.inputs[nama]?.rsk || "0";
             const tjl = session?.inputs[nama]?.tjl || "0";
-            const sisa = session?.inputs[nama]?.sisa || sAwal;
+            
+            // Logika baru untuk Sisa Stok
+            let sisa;
+            if (pengecualianSisa.includes(nama.toUpperCase())) {
+                // Jika masuk daftar pengecualian, biarkan kosong kecuali sudah ada input manual dari user
+                sisa = session?.inputs[nama]?.sisa || "";
+            } else {
+                // Jika tidak masuk daftar, isi otomatis dari Stok Awal jika belum ada input
+                sisa = session?.inputs[nama]?.sisa || sAwal;
+            }
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -149,13 +158,18 @@
     }
 
     function attachLogic() {
-        document.getElementById('area-laporan').addEventListener('input', () => {
+        document.getElementById('area-laporan').addEventListener('input', (e) => {
             document.querySelectorAll('#body-stok tr').forEach(row => {
-                const s = parseVal(row.cells[1].innerText);
-                const m = parseVal(row.cells[2].innerText);
-                const r = parseVal(row.cells[3].innerText);
-                const t = parseVal(row.cells[4].innerText);
-                row.cells[5].innerText = (s + m - r - t).toLocaleString('id-ID').replace(',', '.');
+                const nama = row.cells[0].innerText;
+                
+                // Kalkulasi otomatis hanya untuk yang bukan pengecualian
+                if (!pengecualianSisa.includes(nama)) {
+                    const s = parseVal(row.cells[1].innerText);
+                    const m = parseVal(row.cells[2].innerText);
+                    const r = parseVal(row.cells[3].innerText);
+                    const t = parseVal(row.cells[4].innerText);
+                    row.cells[5].innerText = (s + m - r - t).toLocaleString('id-ID').replace(',', '.');
+                }
             });
             updateTotal();
             save();
@@ -163,7 +177,7 @@
     }
 
     function parseVal(s) {
-        if (!s || s === "0") return 0;
+        if (!s || s === "0" || s === "") return 0;
         let v = s.toString().replace(/\./g, '').replace(',', '.');
         if (v.includes('½')) return parseFloat(v) + 0.5;
         if (v.includes('/')) return parseFloat(v.split('/')[0]);
