@@ -3,32 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopi Setengah-4 Pro Layout</title>
+    <title>Kopi Setengah-4 Pro Fraction</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 2px; overflow-x: hidden; }
-        #area-laporan { background: #000; padding: 8px; min-width: 500px; margin: auto; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 2px; }
+        #area-laporan { background: #000; padding: 8px; min-width: 500px; margin: auto; position: relative; }
         .main-title { text-align: center; color: #d4a373; font-size: 16px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
         
+        .history-tool { position: absolute; top: 5px; right: 5px; display: flex; align-items: center; gap: 5px; background: #111; padding: 3px 6px; border-radius: 4px; border: 1px solid #333; z-index: 100; }
+        .history-tool label { font-size: 7px; color: #d4a373; font-weight: 800; }
+        #datepicker { background: transparent; color: #fff; border: none; font-size: 9px; font-weight: 800; outline: none; cursor: pointer; }
+
         .top-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
-        .info-group { flex: 1; font-size: 9px; color: #d4a373; font-weight: 800; display: flex; flex-direction: column; justify-content: center; height: 45px; }
+        .info-group { flex: 1; font-size: 9px; color: #d4a373; font-weight: 800; }
         .info-item { display: flex; margin-bottom: 1px; }
-        .info-label { width: 55px; font-weight: 800; }
-        .info-val { color: #fff; flex: 1; outline: none; font-weight: 800; }
+        .info-label { width: 55px; }
+        .info-val { color: #fff; flex: 1; outline: none; }
 
         .roti-box { width: 130px; border: 1px solid #333; }
         .roti-header { background: #111; color: #d4a373; font-size: 8px; font-weight: 800; display: flex; text-align: center; }
         .roti-row { display: flex; font-size: 8px; border-top: 1px solid #222; font-weight: 800; }
         .roti-col-name { width: 60%; padding: 2px; color: #fff; text-align: center; }
-        .roti-col-val { width: 40%; padding: 2px; text-align: center; outline: none; border-left: 1px solid #333; color: #fff; font-weight: 800; }
+        .roti-col-val { width: 40%; padding: 2px; text-align: center; outline: none; border-left: 1px solid #333; color: #fff; }
 
         table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
         th { color: #d4a373; background: #111; font-weight: 800; padding: 3px 1px; border: 1px solid #333; font-size: 7px; text-align: center; }
-        td { border: 1px solid #222; padding: 2px; text-align: center; color: #fff; font-weight: 800 !important; height: 22px; vertical-align: middle; } 
+        td { border: 1px solid #222; padding: 2px; text-align: center; color: #fff; font-weight: 800 !important; height: 22px; } 
         
-        .name-col { width: 110px; font-size: 8.5px; }
+        .name-col { width: 110px; font-size: 8.5px; text-align: left; padding-left: 3px; }
 
         .omset-container { display: flex; border: 1px solid #333; margin-top: 5px; }
         .omset-left { flex: 1; }
@@ -39,10 +43,9 @@
         .omset-label { width: 60%; padding: 3px 8px; font-size: 8.5px; color: #fff; text-align: left; } 
         .omset-input { flex: 1; padding: 3px; color: #fff; text-align: center; outline: none; border-left: 1px solid #222; }
 
-        /* Style Baru untuk Cash Awal/Akhir Manual */
         .manual-cash-section { margin-top: 5px; border: 1px solid #d4a373; display: flex; align-items: center; font-weight: 800; }
         .manual-cash-label { width: 60%; padding: 5px 8px; font-size: 9px; color: #d4a373; background: #111; }
-        .manual-cash-val { flex: 1; padding: 5px; color: #fff; text-align: center; outline: none; font-size: 10px; }
+        .manual-cash-val { flex: 1; padding: 5px; color: #fff; text-align: center; outline: none; }
 
         .btn-save { background: #d4a373; color: #000; width: 100%; max-width: 500px; padding: 10px; font-weight: 800; margin: 10px auto; display: block; border-radius: 4px; font-size: 11px; }
 
@@ -50,38 +53,43 @@
         .download-mode td, .download-mode .info-val, .download-mode .roti-col-name, .download-mode .roti-col-val, .download-mode .omset-input, .download-mode #berita-acara, .download-mode .omset-label, .download-mode .manual-cash-val { color: #000 !important; }
         .download-mode .main-title, .download-mode th, .download-mode .ba-title, .download-mode .manual-cash-label { color: #000 !important; }
         .download-mode th, .download-mode .manual-cash-label { background-color: #f0f0f0 !important; }
-        .download-mode table, .download-mode td, .download-mode th, .download-mode .omset-container, .download-mode .roti-box, .download-mode .manual-cash-section { border-color: #ccc !important; }
+        .download-mode .history-tool { display: none; }
     </style>
 </head>
 <body>
 <div id="area-laporan">
+    <div class="history-tool">
+        <label>LIHAT LAPORAN:</label>
+        <input type="date" id="datepicker" onchange="loadHistory(this.value)">
+    </div>
+
     <div class="main-title">KOPI SETENGAH-4</div>
     
     <div class="top-section">
         <div class="info-group">
-            <div class="info-item"><span class="info-label">HARI</span><span id="out-hari" class="info-val">: -</span></div>
+            <div class="info-item"><span class="info-label">HARI</span><span id="out-hari" class="info-val">: SABTU</span></div>
             <div class="info-item"><span class="info-label">TGL</span><span id="out-tgl" class="info-val">: -</span></div>
             <div class="info-item"><span class="info-label">CABANG</span><span id="cabang" contenteditable="true" class="info-val">: P.INDAH</span></div>
             <div class="info-item"><span class="info-label">SHIFT</span><span id="shift" contenteditable="true" class="info-val">: </span></div>
         </div>
         <div class="roti-box">
             <div class="roti-header"><div style="width:60%">ROTI</div><div style="width:40%">SISA</div></div>
-            <div class="roti-row"><div class="roti-col-name">COKLAT</div><div contenteditable="true" class="roti-col-val">0</div></div>
-            <div class="roti-row"><div class="roti-col-name">VANILLA</div><div contenteditable="true" class="roti-col-val">0</div></div>
-            <div class="roti-row"><div class="roti-col-name">BLUEBERRY</div><div contenteditable="true" class="roti-col-val">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">COKLAT</div><div contenteditable="true" class="roti-col-val" id="r-coklat">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">VANILLA</div><div contenteditable="true" class="roti-col-val" id="r-vanilla">0</div></div>
+            <div class="roti-row"><div class="roti-col-name">BLUEBERRY</div><div contenteditable="true" class="roti-col-val" id="r-blueberry">0</div></div>
         </div>
     </div>
 
-    <div style="width: 100%; overflow-x: auto; border: 1px solid #1a1a1a;">
+    <div style="overflow-x: auto; border: 1px solid #1a1a1a;">
         <table>
             <thead>
                 <tr>
-                    <th class="name-col">BARANG</th>
-                    <th style="width:60px">AWAL</th>
-                    <th style="width:45px">MSK</th>
-                    <th style="width:45px">RSK</th>
-                    <th style="width:45px">TJL</th>
-                    <th style="width:65px">SISA</th>
+                    <th class="name-col">NAMA BARANG</th>
+                    <th style="width:60px">STOK</th>
+                    <th style="width:50px">MASUK</th>
+                    <th style="width:50px">RUSAK</th>
+                    <th style="width:55px">TERJUAL</th>
+                    <th style="width:70px">SISA STOK</th>
                 </tr>
             </thead>
             <tbody id="body-stok"></tbody>
@@ -93,12 +101,10 @@
             <div id="omset-list" class="omset-left"></div>
             <div class="omset-right"><div class="total-big" id="total-display">0</div></div>
         </div>
-        
         <div class="manual-cash-section">
             <div class="manual-cash-label">CASH AWAL / AKHIR</div>
             <div id="manual-cash-val" contenteditable="true" class="manual-cash-val">0</div>
         </div>
-
         <div style="border: 1px solid #333; margin-top: 5px; padding: 4px;">
             <div class="ba-title" style="font-size:8px; color:#d4a373; font-weight:800;">BERITA ACARA:</div>
             <div id="berita-acara" contenteditable="true" style="font-size:9px; min-height:18px; outline:none; font-weight:800; text-align: center;">...</div>
@@ -111,35 +117,81 @@
 <script>
     const daftarBarang = ["Cup Kecil", "Cup Besar", "Cup Hot", "Botol 1 Liter", "Botol 500 Ml", "Gula Aren", "Gula Putih", "Kopi", "Susu UHT", "Krimer", "Sea Salt Cream", "Fn", "SKM", "Hershey's", "Remon", "Sedotan Kecil", "Sedotan Besar", "Plastik Isi 2", "Plastik Isi 1", "Plastik Besar", "Cup Sealer", "Base Susu", "Base Kopi", "Roti"];
     const pengecualianSisa = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const defaultAwal = {"Cup Kecil":"1.170","Cup Besar":"135","Cup Hot":"127","Botol 1 Liter":"22","Botol 500 Ml":"49","Gula Aren":"4½","Gula Putih":"1½","Kopi":"15","Susu UHT":"25/995","Krimer":"10/998","Sea Salt Cream":"1/870","Fn":"4/290","SKM":"6/114","Hershey's":"1/620","Remon":"27","Sedotan Kecil":"5½","Sedotan Besar":"2½","Plastik Isi 2":"5","Plastik Isi 1":"7","Plastik Besar":"7","Cup Sealer":"1","Base Susu":"1.500","Base Kopi":"1.000","Roti":"49"};
+    
+    const defaultAwal = {
+        "Cup Kecil":"1.170", "Cup Besar":"135", "Cup Hot":"127", "Botol 1 Liter":"22", "Botol 500 Ml":"49",
+        "Gula Aren":"4½", "Gula Putih":"1½", "Kopi":"15", "Susu UHT":"25/995", "Krimer":"10/998",
+        "Sea Salt Cream":"1/870", "Fn":"4/290", "SKM":"6/114", "Hershey's":"1/620", "Remon":"27",
+        "Sedotan Kecil":"5½", "Sedotan Besar":"2½", "Plastik Isi 2":"5", "Plastik Isi 1":"7",
+        "Plastik Besar":"7", "Cup Sealer":"1", "Base Susu":"1.500", "Base Kopi":"1.000", "Roti":"49"
+    };
 
     function init() {
-        const now = new Date();
-        document.getElementById('out-hari').innerText = ": " + now.toLocaleDateString('id-ID', {weekday:'short'}).toUpperCase();
-        document.getElementById('out-tgl').innerText = ": " + now.toLocaleDateString('id-ID');
-        let session = JSON.parse(localStorage.getItem('kopi4_session'));
-        
-        const tableBody = document.getElementById('body-stok');
-        tableBody.innerHTML = '';
-
-        daftarBarang.forEach(nama => {
-            let sAwal = (session && session.stokAwal[nama]) ? session.stokAwal[nama] : defaultAwal[nama];
-            const msk = session?.inputs[nama]?.msk || "0", rsk = session?.inputs[nama]?.rsk || "0", tjl = session?.inputs[nama]?.tjl || "0";
-            let sisa = session?.inputs[nama]?.sisa;
-            if (sisa === undefined) sisa = pengecualianSisa.includes(nama.toUpperCase()) ? "" : sAwal;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="name-col">${nama.toUpperCase()}</td><td>${sAwal}</td><td contenteditable="true">${msk}</td><td contenteditable="true">${rsk}</td><td contenteditable="true">${tjl}</td><td contenteditable="true" class="sisa-input">${sisa}</td>`;
-            tableBody.appendChild(tr);
-        });
-
-        if(session?.manualCash) document.getElementById('manual-cash-val').innerText = session.manualCash;
-        renderOmset(session?.omset);
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('datepicker').value = today;
+        document.getElementById('out-tgl').innerText = ": " + new Date().toLocaleDateString('id-ID');
+        loadHistory(today);
         attachLogic();
     }
 
+    function parseVal(s) {
+        if (!s || s === "0") return 0;
+        let v = s.toString().replace(/\./g, '').replace(',', '.');
+        if (v.includes('½')) {
+            let part = v.split('½')[0];
+            return (parseFloat(part) || 0) + 0.5;
+        }
+        if (v.includes('/')) return parseFloat(v.split('/')[0]) || 0;
+        return parseFloat(v) || 0;
+    }
+
+    function formatVal(n) {
+        if (n % 1 === 0.5) return Math.floor(n) + "½";
+        return n.toLocaleString('id-ID').replace(',', '.');
+    }
+
+    function getYesterdayDate(dateStr) {
+        let d = new Date(dateStr);
+        d.setDate(d.getDate() - 1);
+        return d.toISOString().split('T')[0];
+    }
+
+    function loadHistory(dateStr) {
+        const key = 'kopi4_data_' + dateStr;
+        let data = JSON.parse(localStorage.getItem(key));
+
+        if (!data) {
+            const yesterdayKey = 'kopi4_data_' + getYesterdayDate(dateStr);
+            const yesterdayData = JSON.parse(localStorage.getItem(yesterdayKey));
+            data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "0", roti: {coklat: "0", vanilla: "0", blueberry: "0"}, ba: "..." };
+            
+            daftarBarang.forEach(nama => {
+                let sisaKemarin = yesterdayData?.inputs[nama]?.sisa || defaultAwal[nama];
+                data.stokAwal[nama] = sisaKemarin;
+                data.inputs[nama] = { 
+                    msk: "0", rsk: "0", tjl: "0", 
+                    sisa: pengecualianSisa.includes(nama.toUpperCase()) ? "" : sisaKemarin 
+                };
+            });
+        }
+
+        const tableBody = document.getElementById('body-stok');
+        tableBody.innerHTML = '';
+        daftarBarang.forEach(nama => {
+            const sAwal = data.stokAwal[nama] || "0";
+            const i = data.inputs[nama];
+            tableBody.innerHTML += `<tr><td class="name-col">${nama.toUpperCase()}</td><td>${sAwal}</td><td contenteditable="true">${i.msk}</td><td contenteditable="true">${i.rsk}</td><td contenteditable="true">${i.tjl}</td><td contenteditable="true" class="sisa-input">${i.sisa}</td></tr>`;
+        });
+
+        document.getElementById('r-coklat').innerText = data.roti?.coklat || "0";
+        document.getElementById('r-vanilla').innerText = data.roti?.vanilla || "0";
+        document.getElementById('r-blueberry').innerText = data.roti?.blueberry || "0";
+        document.getElementById('manual-cash-val').innerText = data.manualCash || "0";
+        document.getElementById('berita-acara').innerText = data.ba || "...";
+        renderOmset(data.omset);
+    }
+
     function renderOmset(saved) {
-        // "CASH AWAL/AKHIR" dihapus dari list ini karena sudah dipindah ke elemen manual
         const list = ["CASH (TUNAI)", "TRANSFER", "SISA", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
         const container = document.getElementById('omset-list');
         container.innerHTML = '';
@@ -156,7 +208,7 @@
                     const nama = row.cells[0].innerText;
                     if (!pengecualianSisa.includes(nama)) {
                         const s = parseVal(row.cells[1].innerText), m = parseVal(row.cells[2].innerText), r = parseVal(row.cells[3].innerText), t = parseVal(row.cells[4].innerText);
-                        row.cells[5].innerText = (s + m - r - t).toLocaleString('id-ID').replace(',', '.');
+                        row.cells[5].innerText = formatVal(s + m - r - t);
                     }
                 });
             }
@@ -164,22 +216,16 @@
         });
     }
 
-    function parseVal(s) {
-        if (!s || s === "0" || s === "") return 0;
-        let v = s.toString().replace(/\./g, '').replace(',', '.');
-        if (v.includes('½')) return parseFloat(v) + 0.5;
-        if (v.includes('/')) return parseFloat(v.split('/')[0]);
-        return parseFloat(v) || 0;
-    }
-
     function updateTotal() {
         let t = 0;
-        document.querySelectorAll('.omset-input').forEach((el) => { t += parseVal(el.innerText); });
+        document.querySelectorAll('.omset-input').forEach(el => t += parseVal(el.innerText));
         document.getElementById('total-display').innerText = t.toLocaleString('id-ID').replace(',', '.');
     }
 
     function save() {
-        let data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "" };
+        const dateStr = document.getElementById('datepicker').value;
+        const key = 'kopi4_data_' + dateStr;
+        let data = { stokAwal: {}, inputs: {}, omset: [], manualCash: "", roti: {}, ba: "" };
         document.querySelectorAll('#body-stok tr').forEach(r => {
             const n = r.cells[0].innerText;
             data.stokAwal[n] = r.cells[1].innerText;
@@ -187,16 +233,18 @@
         });
         document.querySelectorAll('.omset-input').forEach(i => data.omset.push(i.innerText));
         data.manualCash = document.getElementById('manual-cash-val').innerText;
-        localStorage.setItem('kopi4_session', JSON.stringify(data));
+        data.ba = document.getElementById('berita-acara').innerText;
+        data.roti = { coklat: document.getElementById('r-coklat').innerText, vanilla: document.getElementById('r-vanilla').innerText, blueberry: document.getElementById('r-blueberry').innerText };
+        localStorage.setItem(key, JSON.stringify(data));
     }
 
     function unduhLaporan() {
         const el = document.getElementById('area-laporan');
         el.classList.add('download-mode');
         setTimeout(() => {
-            html2canvas(el, { scale: 3, backgroundColor: '#ffffff' }).then(c => {
+            html2canvas(el, { scale: 3, backgroundColor: '#000' }).then(c => {
                 const a = document.createElement('a');
-                a.download = `Lap_Setengah4.png`;
+                a.download = `Laporan_${document.getElementById('datepicker').value}.png`;
                 a.href = c.toDataURL();
                 a.click();
                 el.classList.remove('download-mode');
