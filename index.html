@@ -1,288 +1,188 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kopi Setengah-4 v143</title>
-  
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0f172a">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-    :root { --gold: #c29851; --dark-bg: #0f172a; --card-bg: #1e293b; --border: #334155; }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background-color: var(--dark-bg); color: #f8fafc; margin: 0; overflow-x: hidden; width: 100vw; }
-    .main-container { width: 94%; margin: 0 auto; padding: 15px 0; position: relative; }
-    .btn-back-global { position: absolute; top: 0; left: 0; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; display: flex; align-items: center; gap: 5px; padding: 5px 0; z-index: 50; }
-    .glass-card { background: var(--card-bg); border-radius: 16px; padding: 18px; border: 1px solid var(--border); margin-bottom: 20px; }
-    .btn-pro { width: 100%; height: 52px; border-radius: 12px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; font-size: 13px; border: none; }
-    .btn-gold { background: var(--gold); color: #000; box-shadow: 0 4px 0 #8e6d35; }
-    .btn-dark { background: #334155; color: #cbd5e1; border: 1px solid #475569; }
-    .input-pro { background: #fff !important; color: #000 !important; width: 100%; border-radius: 10px; font-weight: 700; height: 44px; text-align: center; border: 2px solid var(--gold); outline: none; font-size: 12px; }
-    .table-wrapper { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #0f172a; }
-    .pro-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-    .pro-table th { background: #1e293b; color: var(--gold); font-size: 7px; padding: 12px 1px; text-transform: uppercase; border-bottom: 2px solid var(--border); }
-    .pro-table td { font-size: 8px; padding: 12px 1px; border-bottom: 1px solid var(--border); text-align: center; color: #cbd5e1; vertical-align: middle; }
-    .hidden { display: none !important; }
-    .btn-active-shift { border: 2px solid #fff !important; background: #16a34a !important; color: white !important; }
-    #reportOverlay { background: #f1f5f9; position: fixed; inset: 0; z-index: 2000; padding: 20px; overflow-y: auto; color: #1e293b; }
-    .branch-section { background: white; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-    .branch-title { font-size: 14px; font-weight: 800; color: #1e293b; border-bottom: 2px solid #c29851; padding-bottom: 5px; margin-bottom: 12px; display: inline-block; }
-    .white-table { width: 100%; border-collapse: collapse; }
-    .white-table th { background: #f8fafc; color: #64748b; padding: 10px; font-size: 9px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-    .white-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 11px; text-align: center; color: #1e293b; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kopi Setengah-4 | Stable Build</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
+        
+        /* TEMA GELAP APLIKASI */
+        html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+        #area-laporan { background: #000; padding: 15px; width: 480px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
+
+        /* AKSEN WARNA */
+        .white-accent { background-color: #fff !important; color: #000 !important; font-weight: 800; }
+        .col-nama { width: 32%; text-align: left !important; color: #d4a373 !important; padding-left: 5px; background-color: #000; }
+        
+        /* MODE DOWNLOAD (PUTIH BERSIH) */
+        .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
+        .mode-print .main-title, .mode-print .info-group, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
+        .mode-print .info-val { color: #000 !important; border-bottom: 1px solid #000 !important; }
+        .mode-print table { border: 2px solid #000 !important; }
+        .mode-print th { background: #000 !important; color: #fff !important; }
+        .mode-print td { border: 1px solid #000 !important; color: #000 !important; }
+        .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
+        .mode-print .total-box { background: #000 !important; color: #fff !important; }
+
+        /* LAYOUTING */
+        .main-title { text-align: center; color: #d4a373; font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+        .top-section { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .info-group { font-size: 10px; color: #d4a373; font-weight: 800; }
+        .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 65px; display: inline-block; padding-left: 3px; }
+        .roti-box { width: 140px; border: 1px solid #444; }
+        .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 3px; font-size: 9px; }
+        .roti-row { display: flex; justify-content: space-between; padding: 3px 8px; border-bottom: 1px solid #222; font-size: 9px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; margin-top: 5px; }
+        th { color: #d4a373; background: #111; padding: 5px 1px; border: 1px solid #444; font-size: 8px; }
+        td { border: 1px solid #222; padding: 4px 2px; font-weight: 800; outline: none; color: #fff; text-align: center; }
+
+        .omset-section { display: flex; border: 1px solid #333; margin-top: 10px; }
+        .omset-list { flex: 1; display: flex; flex-direction: column; }
+        .omset-row { display: flex; border-bottom: 1px solid #222; height: 20px; align-items: center; }
+        .omset-label { width: 110px; padding: 0 8px; font-size: 8px; color: #d4a373; border-right: 1px solid #333; }
+        .omset-input { flex-grow: 1; padding-left: 10px; outline: none; font-size: 10px; text-align: left; }
+        .total-box { width: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; }
+
+        .footer-grid { display: flex; gap: 8px; margin-top: 10px; }
+        .footer-item { flex: 1; border: 1px solid #333; padding: 8px; text-align: center; }
+        .footer-label { color: #d4a373; font-size: 9px; margin-bottom: 4px; }
+
+        /* TOMBOL KONTROL */
+        .controls { text-align: center; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
+        .btn-save { background: #d4a373; color: #000; width: 80%; padding: 12px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; }
+    </style>
 </head>
-<body>
+<body onload="initSistem()">
 
-<div class="main-container">
-  <div id="home" class="py-24 text-center">
-    <h1 class="text-4xl font-black text-[#c29851] italic mb-12 uppercase">Kopi Setengah-4</h1>
-    <div class="glass-card">
-        <button onclick="nav('karyawan')" class="btn-pro btn-gold mb-4">ABSEN MASUK</button>
-        <button onclick="nav('admin')" class="btn-pro btn-dark">PANEL ADMIN</button>
-    </div>
-  </div>
-
-  <div id="karyawan" class="hidden pt-10">
-    <button onclick="nav('home')" class="btn-back-global">← Kembali</button>
-    <div class="glass-card">
-        <p class="text-[10px] text-gold font-bold mb-4 text-center uppercase">Login Karyawan</p>
-        <input id="inputID" placeholder="ID (KS4-XXXX)" class="input-pro">
-        <button onclick="prosesLogin()" class="btn-pro btn-gold mt-4">MASUK</button>
-    </div>
-  </div>
-
-  <div id="formAbsen" class="hidden pt-10">
-    <button onclick="nav('home')" class="btn-back-global">← Keluar</button>
-    <div class="glass-card text-center">
-        <h2 id="nameGreeting" class="text-xl font-black text-white uppercase mb-4"></h2>
-        <select id="selCabAbsen" class="input-pro mb-6" onchange="updateShiftUI()"><option value="">-- CABANG --</option></select>
-        <div id="shiftGrid" class="grid grid-cols-1 gap-4 mb-8"></div>
-        <div class="border-t border-slate-700 pt-6">
-            <button id="sendBtn" class="btn-pro !bg-green-600 !text-white !h-[64px] opacity-50" disabled>KIRIM ABSEN SEKARANG</button>
-        </div>
-    </div>
-  </div>
-
-  <div id="admin" class="hidden pt-10">
-    <button onclick="nav('home')" class="btn-back-global">← Kembali</button>
-    <div class="glass-card">
-        <p class="text-[10px] text-red-500 font-bold mb-4 text-center uppercase">Akses Admin</p>
-        <input id="pinAdmin" type="password" placeholder="PIN ADMIN" class="input-pro">
-        <button onclick="loginAdmin()" class="btn-pro btn-gold mt-4">MASUK PANEL</button>
-    </div>
-  </div>
-
-  <div id="dashboard" class="hidden pt-10">
-    <button onclick="location.reload()" class="btn-back-global text-red-500">Logout</button>
-    
-    <div class="glass-card !bg-red-900/20 !border-red-900/50 mb-4">
-        <p class="text-[9px] text-red-400 mb-2 text-center font-bold uppercase italic">Jika Download PDF Macet / Keluar:</p>
-        <button onclick="openInChrome()" class="btn-pro !bg-blue-600 !text-white !h-[40px] text-[10px]">BUKA DI CHROME (DOWNLOAD AMAN)</button>
-    </div>
-
-    <div class="glass-card">
-        <p class="text-[10px] text-gold font-bold mb-3 uppercase text-center">Rekap Bulanan</p>
-        <div class="grid grid-cols-2 gap-2 mb-4">
-            <select id="fBulan" class="input-pro"></select>
-            <select id="fTahun" class="input-pro"></select>
-        </div>
-        <button onclick="generateReport()" class="btn-pro btn-gold">LIHAT LAPORAN</button>
-    </div>
-
-    <div class="glass-card !p-2">
-      <div class="grid grid-cols-2 gap-2 mb-3">
-        <select id="selCab" onchange="renderAll()" class="input-pro !h-[38px]"></select>
-        <input type="date" id="selTgl" onchange="renderAll()" class="input-pro !h-[38px]">
-      </div>
-      <div class="table-wrapper">
-        <table class="pro-table">
-            <thead><tr><th style="width:28%">NAMA</th><th style="width:22%">CABANG</th><th style="width:18%">WAKTU</th><th style="width:12%">LOC</th><th style="width:20%">KET</th></tr></thead>
-            <tbody id="tBodyHarian"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="glass-card !p-2">
-        <p class="text-[10px] text-red-500 font-bold mb-3 uppercase text-center">Device Manager</p>
-        <div class="table-wrapper"><table class="pro-table"><thead><tr><th style="width:40%">NAMA</th><th style="width:30%">ID HP</th><th style="width:30%">AKSI</th></tr></thead><tbody id="tBodyDevice"></tbody></table></div>
-    </div>
-  </div>
-
-  <div id="reportOverlay" class="hidden">
-    <div class="flex justify-between items-center mb-6">
-        <button onclick="nav('dashboard')" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold">← TUTUP</button>
-        <button onclick="downloadPDF()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">DOWNLOAD PDF</button>
-    </div>
-    <div id="pdfContent">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-black text-slate-900 italic">KOPI SETENGAH-4</h2>
-            <p id="reportTitle" class="text-[12px] font-bold text-slate-500 uppercase mt-1"></p>
-        </div>
-        <div id="branchTablesContainer"></div>
-    </div>
-  </div>
+<div class="controls">
+    <button onclick="unduhLaporan()" class="btn-save">SIMPAN LAPORAN KE GALERI</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, push, set, serverTimestamp, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<div id="area-laporan">
+    <div class="main-title">KOPI SETENGAH-4</div>
+    
+    <div class="top-section">
+        <div class="info-group">
+            <div>HARI <span contenteditable="true" id="current-day" class="info-val">MINGGU</span></div>
+            <div>TGL <span contenteditable="true" id="current-date" class="info-val">29/03/2026</span></div>
+            <div>CABANG <span contenteditable="true" id="cabang-name" class="info-val">P.INDAH</span></div>
+            <div>SHIFT <span contenteditable="true" class="info-val">-</span></div>
+        </div>
+        
+        <div class="roti-box">
+            <div class="roti-header">SISA ROTI (FISIK)</div>
+            <div class="roti-row"><span>COKLAT</span><span contenteditable="true">18</span></div>
+            <div class="roti-row"><span>VANILLA</span><span contenteditable="true">16</span></div>
+            <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true">14</span></div>
+        </div>
+    </div>
 
-const firebaseConfig = { apiKey: "AIzaSyChFAEgzpZac2yRvkb9r8f0kFT_j_ji1AA", authDomain: "absensi-kopi-setengah-4.firebaseapp.com", databaseURL: "https://absensi-kopi-setengah-4-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "absensi-kopi-setengah-4" };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    <table>
+        <thead>
+            <tr><th class="col-nama">NAMA BARANG</th><th>STOK</th><th>MASUK</th><th>RUSAK</th><th>TERJUAL</th><th>SISA</th></tr>
+        </thead>
+        <tbody id="inventory-body">
+            <tr><td class="col-nama">CUP KECIL</td><td class="white-accent">1.156</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.156</td></tr>
+            <tr><td class="col-nama">CUP BESAR</td><td class="white-accent">133</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">133</td></tr>
+            <tr><td class="col-nama">SUSU UHT</td><td class="white-accent">23/961</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">23/961</td></tr>
+            <tr><td class="col-nama">BASE SUSU</td><td class="white-accent">2.100</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2.100</td></tr>
+            <tr><td class="col-nama">ROTI</td><td class="white-accent">48</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">48</td></tr>
+            </tbody>
+    </table>
 
-const STAFF = { "KS4-1902":"Adryan", "KS4-7721":"Riki", "KS4-3384":"Acong", "KS4-5510":"Oji", "KS4-8892":"David", "KS4-2104":"Fikri", "KS4-6637":"Rizki", "KS4-4429":"Kimoy", "KS4-9012":"Apin" };
-const CABANG = { "Otista": {lat:-6.231607, lng:106.871947, s1:8, s2:15}, "Tanjung Duren": {lat:-6.182202, lng:106.782300, s1:8, s2:15}, "Kebon Jeruk": {lat:-6.210859, lng:106.771180, s1:8, s2:14}, "Pondok Indah": {lat:-6.276248, lng:106.781961, s1:8}, "Menteng": {lat:-6.194873, lng:106.828777, s1:8}, "Cempaka Putih": {lat:-6.176458, lng:106.873310, s1:9} };
+    <div class="omset-section">
+        <div class="omset-list">
+            <div class="omset-row"><div class="omset-label">CASH (TUNAI)</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">TRANSFER</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">GRAB/GOJEK</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row" style="border:none"><div class="omset-label">QRIS / OVO</div><div class="omset-input" contenteditable="true">0</div></div>
+        </div>
+        <div class="total-box white-accent">
+            <div style="font-size: 8px; font-weight: 800;">TOTAL OMSET</div>
+            <div id="total-val" style="font-size: 18px; font-weight: 800;">0</div>
+        </div>
+    </div>
 
-const singkatan = (n) => { if(n === "Tanjung Duren") return "Tandur"; if(n === "Cempaka Putih") return "Cemput"; if(n === "Pondok Indah") return "P.Indah"; if(n === "Kebon Jeruk") return "Jl.Panjang"; return n; };
-const DEVID = localStorage.getItem('ks4_devid') || localStorage.setItem('ks4_devid', 'DEV-'+Math.random().toString(36).substr(2,9).toUpperCase()) || localStorage.getItem('ks4_devid');
-let logs = []; let uData = null; window.pnd = null; let groupedData = {};
+    <div class="footer-grid">
+        <div class="footer-item"><div class="footer-label">CASH AWAL/AKHIR</div><div contenteditable="true" style="font-size: 10px;">0</div></div>
+        <div class="footer-item"><div class="footer-label">BERITA ACARA</div><div contenteditable="true" style="font-size: 9px;">-</div></div>
+    </div>
+</div>
 
-window.nav = (id) => { document.querySelectorAll('.main-container > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); if(id==='dashboard') startSync(); };
-
-window.prosesLogin = async () => {
-    const id = document.getElementById('inputID').value.trim().toUpperCase();
-    if(!STAFF[id]) return alert("ID TIDAK TERDAFTAR!");
-    const snapLock = await get(ref(db, `locks/${id}`));
-    if(!snapLock.exists()) {
-        await set(ref(db, `locks/${id}`), DEVID);
-        alert("DEVICE BERHASIL DIDAFTARKAN!");
-    } else {
-        if(snapLock.val() !== DEVID) return alert("MAAF, ID INI TERKUNCI DI HP LAIN!");
-    }
-    uData = { id, nama: STAFF[id] }; nav('formAbsen');
-    document.getElementById('nameGreeting').innerText = uData.nama;
-    const s = document.getElementById('selCabAbsen'); s.innerHTML = '<option value="">-- CABANG --</option>';
-    Object.keys(CABANG).forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
-};
-
-window.updateShiftUI = () => {
-    const c = document.getElementById('selCabAbsen').value;
-    const g = document.getElementById('shiftGrid'); g.innerHTML = ''; if(!c) return;
-    const ss = CABANG[c].s2 ? [1,2] : [1];
-    ss.forEach(n => g.innerHTML += `<button onclick="selS(this, '${c}', ${n})" class="btn-pro btn-dark btn-shift-item">SHIFT ${n}</button>`);
-};
-
-window.selS = (btn, cab, n) => {
-    document.querySelectorAll('.btn-shift-item').forEach(b => b.classList.remove('btn-active-shift'));
-    btn.classList.add('btn-active-shift'); window.pnd = { cab, n };
-    document.getElementById('sendBtn').disabled = false; document.getElementById('sendBtn').classList.remove('opacity-50');
-};
-
-document.getElementById('sendBtn').onclick = async () => {
-    const {cab, n} = window.pnd; const today = new Date().toLocaleDateString('id-ID');
-    const snapAll = await get(ref(db, 'absensi'));
-    let idL = false; let shL = false;
-    if (snapAll.exists()) {
-        const ad = Object.values(snapAll.val());
-        idL = ad.some(e => e.idKaryawan === uData.id && e.tanggal === today);
-        shL = ad.some(e => e.cabang === cab && e.shift === n && e.tanggal === today);
-    }
-    if (idL) return alert("SUDAH ABSEN!"); if (shL) return alert("SHIFT TERISI!");
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        const dist = getDistance(pos.coords.latitude, pos.coords.longitude, CABANG[cab].lat, CABANG[cab].lng);
-        if(dist > 0.5) return alert("DI LUAR RADIUS!");
-        const now = new Date(); const st = (now.getHours() > CABANG[cab]['s'+n] || (now.getHours() === CABANG[cab]['s'+n] && now.getMinutes() > 0)) ? "TELAT" : "TEPAT";
-        await set(push(ref(db, 'absensi')), { idKaryawan: uData.id, nama: uData.nama, cabang: cab, shift: n, tanggal: today, waktu: now.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'}), ket: st, lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: serverTimestamp() });
-        alert("BERHASIL!"); location.reload();
-    }, () => alert("GPS OFF"), {enableHighAccuracy: true});
-};
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; const dL = (lat2-lat1)*Math.PI/180; const dLo = (lon2-lon1)*Math.PI/180;
-    const a = Math.sin(dL/2)*Math.sin(dL/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-}
-
-window.loginAdmin = () => { if(document.getElementById('pinAdmin').value==='setengah-4all') nav('dashboard'); else alert("SALAH"); };
-
-function startSync() {
-    onValue(ref(db, 'absensi'), (snap) => {
-        logs = []; if(snap.exists()) Object.values(snap.val()).forEach(v => logs.push({...v, dt: v.timestamp ? new Date(v.timestamp) : new Date()}));
-        renderAll();
-    });
-    onValue(ref(db, 'locks'), (snap) => {
-        const b = document.getElementById('tBodyDevice'); b.innerHTML = '';
-        if(snap.exists()) Object.entries(snap.val()).forEach(([id, dev]) => {
-            b.innerHTML += `<tr><td class="font-bold text-white uppercase">${STAFF[id] || id}</td><td>${dev.substring(0,8)}</td><td><button onclick="resetD('${id}')" class="bg-red-600 px-2 py-1 rounded text-[8px] font-black uppercase">Reset</button></td></tr>`;
+<script>
+    function initSistem() {
+        document.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+            cell.addEventListener('input', (e) => {
+                const tr = e.target.parentElement;
+                const index = Array.from(tr.children).indexOf(e.target);
+                if (index >= 2 && index <= 4) hitungBaris(tr);
+            });
         });
-    });
-}
+        document.querySelectorAll('.omset-input').forEach(cell => {
+            cell.addEventListener('input', () => hitungOmset());
+        });
+    }
 
-window.resetD = async (id) => { if(confirm("Reset?")) await remove(ref(db, `locks/${id}`)); };
+    function parseNum(t) { return parseFloat(t.replace('½', '.5').replace(/\./g, '')) || 0; }
 
-window.renderAll = () => {
-    const b = document.getElementById('tBodyHarian');
-    const t = document.getElementById('selTgl').value || new Date().toLocaleDateString('en-CA');
-    const target = new Date(t).toLocaleDateString('id-ID');
-    const cf = document.getElementById('selCab').value; b.innerHTML = '';
-    logs.filter(l => l.tanggal === target && (cf==='Semua' || l.cabang===cf)).forEach(l => {
-        const mapsUrl = `https://www.google.com/maps?q=${l.lat},${l.lng}`;
-        b.innerHTML += `<tr>
-            <td class="font-bold text-white uppercase">${l.nama}</td>
-            <td class="text-gold font-bold">${singkatan(l.cabang)}</td>
-            <td>${l.waktu}</td>
-            <td><a href="${mapsUrl}" target="_blank" style="font-size:12px;text-decoration:none;">📍</a></td>
-            <td><span class="px-1 py-0.5 rounded text-[7px] font-black ${l.ket==='TELAT'?'bg-red-600':'bg-green-600'}">${l.ket}</span></td>
-        </tr>`;
-    });
-};
+    function hitungBaris(tr) {
+        const tds = tr.querySelectorAll('td');
+        if (tds[1].innerText.includes('/')) return;
+        const sisa = parseNum(tds[1].innerText) + parseNum(tds[2].innerText) - parseNum(tds[3].innerText) - parseNum(tds[4].innerText);
+        tds[5].innerText = sisa.toString().replace('.5', '½').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
 
-window.generateReport = () => {
-    const bln = parseInt(document.getElementById('fBulan').value);
-    const thn = parseInt(document.getElementById('fTahun').value);
-    const ms = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    groupedData = {};
-    logs.filter(l => l.dt.getMonth() === bln && l.dt.getFullYear() === thn).forEach(l => {
-        if(!groupedData[l.cabang]) groupedData[l.cabang] = {};
-        if(!groupedData[l.cabang][l.nama]) groupedData[l.cabang][l.nama] = {nama: l.nama, abs: 0, tlt: 0};
-        groupedData[l.cabang][l.nama].abs++; if(l.ket==='TELAT') groupedData[l.cabang][l.nama].tlt++;
-    });
-    document.getElementById('reportTitle').innerText = `Laporan Kehadiran ${ms[bln]} ${thn}`;
-    const container = document.getElementById('branchTablesContainer'); container.innerHTML = '';
-    Object.keys(groupedData).sort().forEach(cabName => {
-        let html = `<div class="branch-section"><div class="branch-title">${cabName.toUpperCase()}</div><table class="white-table"><thead><tr><th class="text-left">NAMA</th><th>HADIR</th><th>TELAT</th></tr></thead><tbody>`;
-        Object.values(groupedData[cabName]).forEach(r => { html += `<tr><td class="text-left font-bold uppercase">${r.nama}</td><td>${r.abs}</td><td class="text-red-600 font-bold">${r.tlt}</td></tr>`; });
-        html += `</tbody></table></div>`; container.innerHTML += html;
-    });
-    nav('reportOverlay');
-};
+    function hitungOmset() {
+        let t = 0;
+        document.querySelectorAll('.omset-input').forEach(i => t += (parseFloat(i.innerText.replace(/\./g, '')) || 0));
+        document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
+    }
 
-window.downloadPDF = () => {
-    const { jsPDF } = window.jspdf; const doc = new jsPDF();
-    const title = document.getElementById('reportTitle').innerText;
-    doc.setFontSize(18); doc.text("KOPI SETENGAH-4", 105, 20, {align: 'center'});
-    doc.setFontSize(11); doc.text(title, 105, 28, {align: 'center'});
-    let y = 40;
-    Object.keys(groupedData).sort().forEach(cab => {
-        doc.setFontSize(12); doc.setTextColor(194, 152, 81); doc.text(cab.toUpperCase(), 14, y); y += 5;
-        const rows = Object.values(groupedData[cab]).map(r => [r.nama, r.abs, r.tlt]);
-        doc.autoTable({ startY: y, head: [['NAMA KARYAWAN', 'HADIR', 'TELAT']], body: rows, theme: 'grid', headStyles: {fillColor: [30, 41, 59]} });
-        y = doc.lastAutoTable.finalY + 15; if(y > 250) { doc.addPage(); y = 20; }
-    });
-    doc.save(`Laporan_${title.replace(/ /g,'_')}.pdf`);
-};
+    async function unduhLaporan() {
+        const btn = document.querySelector('.btn-save');
+        btn.innerText = "PROSES...";
+        btn.disabled = true;
+        
+        document.body.classList.add('mode-print');
 
-window.openInChrome = () => { window.open("https://kopisetengah-4.github.io/Absensi/", "_blank"); };
-
-const msNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-msNames.forEach((m, i) => document.getElementById('fBulan').innerHTML += `<option value="${i}">${m}</option>`);
-[2025, 2026].forEach(y => document.getElementById('fTahun').innerHTML += `<option value="${y}">${y}</option>`);
-document.getElementById('fBulan').value = new Date().getMonth();
-document.getElementById('fTahun').value = new Date().getFullYear();
-document.getElementById('selTgl').value = new Date().toLocaleDateString('en-CA');
-const sc = document.getElementById('selCab'); sc.innerHTML = '<option value="Semua">SEMUA CABANG</option>';
-Object.keys(CABANG).forEach(c => sc.innerHTML += `<option value="${c}">${c}</option>`);
+        // Gunakan timeout agar render browser selesai dulu
+        setTimeout(() => {
+            html2canvas(document.getElementById('area-laporan'), {
+                scale: 2, // Kecilkan skala sedikit (2) agar HP tidak berat/crash
+                useCORS: true,
+                allowTaint: false,
+                logging: false,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Laporan_Setengah4_2903.png`;
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                        document.body.classList.remove('mode-print');
+                        btn.innerText = "SIMPAN LAPORAN KE GALERI";
+                        btn.disabled = false;
+                        alert("Berhasil! Silakan cek folder Download.");
+                    }, 100);
+                }, 'image/png');
+            }).catch(err => {
+                alert("Error Render: " + err);
+                btn.disabled = false;
+                btn.innerText = "SIMPAN LAPORAN KE GALERI";
+            });
+        }, 500);
+    }
 </script>
 </body>
 </html>
