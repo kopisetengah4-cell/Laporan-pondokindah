@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Format Lengkap</title>
+    <title>Kopi Setengah-4 | Format ½ Konsisten</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -31,15 +31,17 @@
         .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 5px; }
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
+        
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         #preview-img { max-width: 85%; border: 3px solid #fff; margin-bottom: 10px; }
+        
+        /* Mode Print Putih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label, .mode-print .roti-header { color: #000 !important; }
         .mode-print .col-nama { color: #000 !important; background: #f2f2f2 !important; }
         .mode-print td, .mode-print th { border: 1px solid #000 !important; color: #000 !important; }
         .mode-print th { background: #000 !important; color: #fff !important; }
         .mode-print .total-box { background: #000 !important; color: #fff !important; }
-        .mode-print .omset-input, .mode-print .info-val { color: #000 !important; }
     </style>
 </head>
 <body onload="muatSemuaData()">
@@ -95,20 +97,18 @@
 </div>
 
 <script>
-    const manualList = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
     const dataAwal28 = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function muatSemuaData() {
         const tbody = document.getElementById('inventory-body');
         Object.keys(dataAwal28).forEach((nama, i) => {
-            const isManual = manualList.includes(nama);
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${nama}</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${dataAwal28[nama]}</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
-                <td contenteditable="${isManual}" class="cell-save ${isManual ? '' : 'auto-calc'}" data-id="sisa-${i}" data-row="${i}">0</td>`;
+                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}">0</td>`;
             tbody.appendChild(tr);
         });
 
@@ -123,7 +123,7 @@
             if (saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
                 localStorage.setItem(el.getAttribute('data-id'), el.innerText);
-                if (el.classList.contains('input-val')) hitungSisa(el.getAttribute('data-row'));
+                if (el.classList.contains('input-val')) hitungSisaOtomatis(el.getAttribute('data-row'));
                 hitungTotal();
             });
         });
@@ -134,31 +134,41 @@
             el.addEventListener('input', () => localStorage.setItem(el.id, el.innerText));
         });
 
-        for(let j=0; j<Object.keys(dataAwal28).length; j++) { hitungSisa(j); }
+        for(let j=0; j<Object.keys(dataAwal28).length; j++) { hitungSisaOtomatis(j); }
         hitungTotal();
     }
 
-    function hitungSisa(rowIdx) {
-        const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
-        if (!sisaCell || !sisaCell.classList.contains('auto-calc')) return;
+    function formatSetengah(num) {
+        let str = num.toString();
+        if (str.endsWith('.5')) {
+            return Math.floor(num) + '½';
+        }
+        return str;
+    }
 
+    function parseVal(str) {
+        if (!str) return 0;
+        return parseFloat(str.replace('½', '.5')) || 0;
+    }
+
+    function hitungSisaOtomatis(rowIdx) {
         const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
-        const msk = parseFloat(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
-        const rsk = parseFloat(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
-        const trjl = parseFloat(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
+        const msk = parseVal(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
+        const rsk = parseVal(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText);
+        const trjl = parseVal(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText);
+        const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
 
-        let hasilSisa = "";
-
+        let sisaHasil = "";
         if (stokStr.includes('/')) {
             let parts = stokStr.split('/');
-            let utama = (parseFloat(parts[0].replace('½', '.5')) || 0) + msk - rsk - trjl;
-            hasilSisa = `${utama}/${parts[1]}`;
+            let utama = parseVal(parts[0]) + msk - rsk - trjl;
+            sisaHasil = formatSetengah(utama) + '/' + parts[1];
         } else {
-            hasilSisa = (parseFloat(stokStr.replace('½', '.5')) || 0) + msk - rsk - trjl;
+            sisaHasil = formatSetengah(parseVal(stokStr) + msk - rsk - trjl);
         }
 
-        sisaCell.innerText = hasilSisa;
-        localStorage.setItem(sisaCell.getAttribute('data-id'), hasilSisa);
+        sisaCell.innerText = sisaHasil;
+        localStorage.setItem(sisaCell.getAttribute('data-id'), sisaHasil);
     }
 
     function hitungTotal() {
