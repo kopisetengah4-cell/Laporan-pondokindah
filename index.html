@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Auto-Sync System</title>
+    <title>Kopi Setengah-4 | Stable Download</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
-        html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; }
         #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
         
-        /* Warna Nama Barang di Web (Emas) vs Download (Hitam) */
         .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; font-weight: 800; }
         .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
         
-        /* Mode Cetak Putih Bersih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
         .mode-print .info-val { border-bottom: 1px solid #000 !important; }
@@ -43,8 +41,8 @@
         .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 5px; }
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-gen { background: #4285F4; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        #preview-img { max-width: 90%; border: 2px solid #fff; margin-bottom: 15px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #preview-img { max-width: 100%; max-height: 70vh; border: 2px solid #fff; margin-bottom: 15px; object-fit: contain; }
     </style>
 </head>
 <body onload="cekDanMuatData()">
@@ -54,9 +52,10 @@
 </div>
 
 <div id="overlay">
+    <div style="color: #fff; margin-bottom: 10px; font-size: 12px; font-weight: 800;">PRATINJAU LAPORAN</div>
     <img id="preview-img" src="">
-    <button id="download-btn" style="background:#28a745; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-bottom:10px; cursor:pointer;">DOWNLOAD GAMBAR</button>
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:#dc3545; color:#fff; border:none; padding:10px; border-radius:5px; font-weight:800; cursor:pointer;">BATAL</button>
+    <button id="download-btn" style="background:#28a745; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-bottom:10px; width: 100%; max-width: 300px; cursor:pointer;">UNDUH KE GALERI</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; border:none; padding:10px; font-weight:800; cursor:pointer; text-decoration: underline;">KEMBALI EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -70,9 +69,9 @@
             </div>
             <div class="roti-box">
                 <div class="roti-header">SISA ROTI (FISIK)</div>
-                <div class="roti-row"><span>COKLAT</span><span contenteditable="true" id="r-coklat">18</span></div>
-                <div class="roti-row"><span>VANILLA</span><span contenteditable="true" id="r-vanilla">16</span></div>
-                <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true" id="r-blue">14</span></div>
+                <div class="roti-row"><span>COKLAT</span><span contenteditable="true">18</span></div>
+                <div class="roti-row"><span>VANILLA</span><span contenteditable="true">16</span></div>
+                <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true">14</span></div>
             </div>
         </div>
 
@@ -94,11 +93,11 @@
         <div class="footer-section">
             <div class="footer-item">
                 <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" id="cash-info" style="font-weight: 800; font-size: 11px;">78.500</div>
+                <div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div>
             </div>
             <div class="footer-item">
                 <div class="footer-label">BERITA ACARA:</div>
-                <div contenteditable="true" id="berita-acara" style="font-size: 10px;">Selesai pengisian harian.</div>
+                <div contenteditable="true" style="font-size: 10px;">Laporan aman.</div>
             </div>
         </div>
     </div>
@@ -106,35 +105,24 @@
 
 <script>
     const manualItems = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    
-    // Data Default (Diambil dari Sisa Stok foto 28/03)
-    const dataKemarin = {
-        "CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22",
-        "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15",
-        "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4",
-        "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½",
-        "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7",
-        "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"
-    };
+    const dataAwalSat = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function cekDanMuatData() {
         const tglSekarang = new Date().toLocaleDateString('id-ID');
-        const tglTerakhir = localStorage.getItem('last_date_4');
+        const tglTerakhir = localStorage.getItem('last_date_v5');
         const labelHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
         
         document.getElementById('lbl-hari').innerText = labelHari;
         document.getElementById('lbl-tgl').innerText = tglSekarang;
 
-        let stokHariIni = dataKemarin;
-
-        // JIKA HARI BARU: Ambil Sisa Kemarin jadi Stok Awal
+        let stokHariIni = dataAwalSat;
         if (tglTerakhir && tglTerakhir !== tglSekarang) {
-            const savedSisa = JSON.parse(localStorage.getItem('saved_sisa_4'));
+            const savedSisa = JSON.parse(localStorage.getItem('saved_sisa_v5'));
             if (savedSisa) stokHariIni = savedSisa;
         }
 
         renderApp(stokHariIni);
-        localStorage.setItem('last_date_4', tglSekarang);
+        localStorage.setItem('last_date_v5', tglSekarang);
     }
 
     function renderApp(stokData) {
@@ -142,55 +130,44 @@
         tbody.innerHTML = "";
         Object.keys(stokData).forEach(nama => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="col-nama">${nama}</td>
-                <td contenteditable="true">${stokData[nama]}</td>
-                <td contenteditable="true">0</td>
-                <td contenteditable="true">0</td>
-                <td contenteditable="true">0</td>
-                <td contenteditable="true">${manualItems.includes(nama) ? "" : stokData[nama]}</td>
-            `;
+            tr.innerHTML = `<td class="col-nama">${nama}</td><td contenteditable="true">${stokData[nama]}</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">${manualItems.includes(nama) ? "" : stokData[nama]}</td>`;
             tbody.appendChild(tr);
         });
 
-        const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
+        const omsets = ["CASH", "TRANSFER", "GRAB", "QRIS", "SHOPEE", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
         oList.innerHTML = "";
-        omsets.forEach(o => {
-            oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`;
-        });
+        omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
 
         document.querySelectorAll('.omset-input').forEach(el => {
             el.addEventListener('input', () => {
-                let total = 0;
-                document.querySelectorAll('.omset-input').forEach(i => total += parseInt(i.innerText.replace(/\./g, '')) || 0);
-                document.getElementById('total-val').innerText = total.toLocaleString('id-ID');
+                let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
+                document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
             });
         });
     }
 
     function prosesLaporan() {
-        // Simpan sisa stok hari ini untuk besok
+        // SIMPAN DATA
         const sisaSekarang = {};
-        document.querySelectorAll('#inventory-body tr').forEach(tr => {
-            sisaSekarang[tr.cells[0].innerText] = tr.cells[5].innerText;
-        });
-        localStorage.setItem('saved_sisa_4', JSON.stringify(sisaSekarang));
+        document.querySelectorAll('#inventory-body tr').forEach(tr => { sisaSekarang[tr.cells[0].innerText] = tr.cells[5].innerText; });
+        localStorage.setItem('saved_sisa_v5', JSON.stringify(sisaSekarang));
 
-        // Ubah warna teks jadi hitam untuk download
         document.body.classList.add('mode-print');
-
-        html2canvas(document.getElementById('area-laporan'), { scale: 3 }).then(canvas => {
+        html2canvas(document.getElementById('area-laporan'), { scale: 2, logging: false, useCORS: true }).then(canvas => {
             const imgData = canvas.toDataURL("image/png");
             document.getElementById('preview-img').src = imgData;
             document.getElementById('overlay').style.display = 'flex';
             document.body.classList.remove('mode-print');
 
+            // PERBAIKAN DOWNLOAD: Menggunakan Trigger Aman
             document.getElementById('download-btn').onclick = function() {
                 const link = document.createElement('a');
-                link.download = `Laporan_${new Date().toLocaleDateString('id-ID')}.png`;
-                link.href = imgData;
+                link.setAttribute('href', imgData);
+                link.setAttribute('download', `Laporan_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.png`);
+                document.body.appendChild(link); // Penting untuk Firefox/Mobile
                 link.click();
+                document.body.removeChild(link);
             };
         });
     }
