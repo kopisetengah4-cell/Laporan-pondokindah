@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Laporan Fix</title>
+    <title>Kopi Setengah-4 | Sisa Otomatis Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -90,23 +90,24 @@
 </div>
 
 <script>
-    // Daftar Pengecualian (Wajib Isi Manual, Awalnya 0)
-    const daftarManual = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    
+    const daftarManualSisa = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
     const dataAwal28 = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function muatSemuaData() {
         const tbody = document.getElementById('inventory-body');
         Object.keys(dataAwal28).forEach((nama, i) => {
-            const isManual = daftarManual.includes(nama);
+            const isManual = daftarManualSisa.includes(nama);
             const tr = document.createElement('tr');
+            // Jika BUKAN manual, sisa = stok awal. Jika manual, sisa = 0.
+            const sisaDefault = isManual ? "0" : dataAwal28[nama];
+            
             tr.innerHTML = `
                 <td class="col-nama">${nama}</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${dataAwal28[nama]}</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-is-manual="${isManual}">0</td>`;
+                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-is-manual="${isManual}">${sisaDefault}</td>`;
             tbody.appendChild(tr);
         });
 
@@ -146,7 +147,6 @@
 
     function hitungSisaOtomatis(rowIdx) {
         const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
-        // JIKA MASUK DAFTAR MANUAL, JANGAN GANTI ANGKA OTOMATIS
         if (sisaCell.getAttribute('data-is-manual') === "true") return;
 
         const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
@@ -169,7 +169,9 @@
 
     function hitungTotal() {
         let t = 0; 
-        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
+        document.querySelectorAll('.omset-input').forEach(i => {
+            t += parseInt(i.innerText.replace(/\./g, '')) || 0;
+        });
         document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
