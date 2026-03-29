@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Laporan 29 Maret</title>
+    <title>Kopi Setengah-4 | Auto-Sisa & Anti-Hilang</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -55,7 +55,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="window.location.href='whatsapp://send?text=Laporan Laporan'" style="background:#25D366; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">BUKA WHATSAPP</button>
+    <button onclick="window.location.href='whatsapp://send?text=Laporan Terkirim'" style="background:#25D366; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">BUKA WHATSAPP</button>
     <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none; text-decoration:underline;">EDIT LAGI</button>
 </div>
 
@@ -97,81 +97,75 @@
 </div>
 
 <script>
-    // DATA STOK AWAL DIAMBIL DARI SISA STOK TANGGAL 28
-    const dataAwal28 = {
-        "CUP KECIL": "1.156",
-        "CUP BESAR": "133",
-        "CUP HOT": "127",
-        "BOTOL 1 LITER": "22",
-        "BOTOL 500 ML": "49",
-        "GULA AREN": "4½",
-        "GULA PUTIH": "1½",
-        "KOPI": "15",
-        "SUSU UHT": "23/961",
-        "KRIMER": "10/660",
-        "SEA SALT CREAM": "1/870",
-        "FN": "4/290",
-        "SKM": "6/77",
-        "HERSHEY'S": "1/620",
-        "REMON": "27",
-        "SEDOTAN KECIL": "5½",
-        "SEDOTAN BESAR": "2½",
-        "PLASTIK ISI 2": "5",
-        "PLASTIK ISI 1": "7",
-        "PLASTIK BESAR": "7",
-        "CUP SEALER": "1",
-        "BASE SUSU": "2.100",
-        "BASE KOPI": "1.100",
-        "ROTI": "48"
-    };
+    const manualList = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const dataAwal28 = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function muatSemuaData() {
-        // Render Tabel Stok
         const tbody = document.getElementById('inventory-body');
         Object.keys(dataAwal28).forEach((nama, i) => {
+            const isManual = manualList.includes(nama);
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${nama}</td>
-                <td contenteditable="true" class="cell-save" data-id="stok-${i}">${dataAwal28[nama]}</td>
-                <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="trjl-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="sisa-${i}">0</td>`;
+                <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${dataAwal28[nama]}</td>
+                <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
+                <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
+                <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
+                <td contenteditable="${isManual}" class="cell-save ${isManual ? '' : 'auto-calc'}" data-id="sisa-${i}" data-row="${i}">0</td>`;
             tbody.appendChild(tr);
         });
 
-        // Render Daftar Omset
         const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
         omsets.forEach((o, i) => { 
             oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">0</div></div>`; 
         });
 
-        // LOAD DATA DARI MEMORI (AUTO-SAVE)
         document.querySelectorAll('[data-id]').forEach(el => {
             const saved = localStorage.getItem(el.getAttribute('data-id'));
             if (saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
                 localStorage.setItem(el.getAttribute('data-id'), el.innerText);
+                if (el.classList.contains('input-val')) hitungSisa(el.getAttribute('data-row'));
                 hitungTotal();
             });
         });
 
-        // LOAD DATA KHUSUS (ROTI, CASH, BERITA)
         document.querySelectorAll('.auto-save').forEach(el => {
             const saved = localStorage.getItem(el.id);
             if (saved !== null) el.innerText = saved;
             el.addEventListener('input', () => localStorage.setItem(el.id, el.innerText));
         });
 
+        // Hitung ulang semua saat load
+        for(let j=0; j<Object.keys(dataAwal28).length; j++) { hitungSisa(j); }
         hitungTotal();
+    }
+
+    function parseNilai(str) {
+        if (!str) return 0;
+        let s = str.replace(/[^\d/½]/g, '').trim();
+        if (s.includes('/')) return parseInt(s.split('/')[0]) || 0; // Ambil angka depan saja untuk kalkulasi sederhana
+        if (s.includes('½')) return parseFloat(s.replace('½', '.5')) || 0;
+        return parseFloat(s) || 0;
+    }
+
+    function hitungSisa(rowIdx) {
+        const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
+        if (!sisaCell || !sisaCell.classList.contains('auto-calc')) return;
+
+        const stok = parseNilai(document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText);
+        const msk = parseNilai(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
+        const rsk = parseNilai(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText);
+        const trjl = parseNilai(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText);
+
+        let hasil = stok + msk - rsk - trjl;
+        sisaCell.innerText = hasil;
+        localStorage.setItem(sisaCell.getAttribute('data-id'), hasil);
     }
 
     function hitungTotal() {
         let t = 0; 
-        document.querySelectorAll('.omset-input').forEach(i => {
-            let val = i.innerText.replace(/\./g, '').trim();
-            t += parseInt(val) || 0;
-        });
+        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
         document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
