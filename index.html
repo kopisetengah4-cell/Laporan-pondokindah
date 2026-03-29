@@ -4,72 +4,62 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo-pi.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <link rel="icon" type="image/png" sizes="192x192" href="logo-pi.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="logo-pi.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Sistem Estafet Fix</title>
+    <title>Kopi Setengah-4 | Multi-Cabang Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 30px; }
-        #area-laporan { background: #000; padding: 10px 15px; width: 480px; margin: 5px auto; box-sizing: border-box; border: 1px solid #333; transition: all 0.2s; }
+        #area-laporan { background: #000; padding: 10px 15px; width: 480px; margin: 5px auto; box-sizing: border-box; border: 1px solid #333; }
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
         
-        /* Header Section */
         .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
-        .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.4; }
+        .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.6; }
         .info-val { color: #fff; border-bottom: 1px solid #444; min-width: 80px; display: inline-block; padding-left: 3px; outline: none; }
         
-        /* Roti Box - DIPERBAIKI: Latar Putih, Tulisan Hitam */
+        /* Input Cabang Permanen */
+        .cabang-input { background: #222; color: #fff; border: 1px solid #d4a373; font-family: 'Montserrat'; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 4px; }
+
         .roti-box { width: 140px; border: 1px solid #444; background: #fff; }
         .roti-header { background: #eee; color: #d4a373; text-align: center; font-weight: 800; padding: 2px; font-size: 9px; border-bottom: 1px solid #444; }
         .roti-row { display: flex; justify-content: space-between; padding: 2px 8px; border-bottom: 1px solid #ddd; font-size: 9px; font-weight: 800; color: #000; }
         .roti-row span[contenteditable] { color: #d4a373; min-width: 20px; text-align: right; }
 
-        /* Tabel Super Ringkas */
         table { width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 5px; }
         th { color: #d4a373; background: #111; padding: 4px 1px; border: 1px solid #444; font-size: 8px; }
         td { border: 1px solid #222; padding: 3px 1px; font-weight: 800; text-align: center; outline: none; color: #fff; }
         .col-nama { width: 150px; text-align: left !important; color: #d4a373; padding-left: 6px; background-color: #050505; }
         
-        /* Omset Section */
         .omset-container { display: flex; border: 1px solid #333; margin-top: 10px; }
         .omset-row { display: flex; border-bottom: 1px solid #222; height: 22px; align-items: center; }
         .omset-label { width: 110px; padding-left: 10px; font-size: 8px; color: #d4a373; font-weight: 800; }
         .omset-input { flex: 1; text-align: left; outline: none; padding-left: 8px; font-size: 10px; color: #fff; }
         .total-box { width: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
         
-        /* Footer Section */
         .footer-section { display: flex; gap: 8px; margin-top: 10px; }
         .footer-item { flex: 1; border: 1px solid #333; padding: 6px; text-align: center; }
         .footer-label { font-size: 9px; font-weight: 800; color: #d4a373; margin-bottom: 4px; }
 
-        /* Mode Putih (Unduh) - FIX AGAR ANGKA OMSET HITAM */
         .white-mode { background: #fff !important; color: #000 !important; border: 1.5px solid #000 !important; }
-        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header, .white-mode .roti-row { color: #000 !important; }
-        
-        /* Menargetkan angka omset agar hitam saat didownload */
-        .white-mode .omset-input { color: #000 !important; } 
-        
-        .white-mode .roti-row span[contenteditable] { color: #000 !important; }
+        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header, .white-mode .roti-row, .white-mode .omset-input { color: #000 !important; }
         .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
         .white-mode th { background: #f0f0f0 !important; }
         .white-mode .col-nama { background: #fafafa !important; color: #000 !important; }
         .white-mode .total-box { background: #f0f0f0 !important; color: #000 !important; }
+        .white-mode .cabang-input { display: none; } /* Sembunyikan dropdown saat download */
+        .white-mode #display-cabang { display: inline-block !important; border-bottom: 1px solid #000; min-width: 80px; }
 
         .controls { text-align: center; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-        .btn-wa { background: #25D366; color: #fff; padding: 12px 25px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 8px; font-size: 14px; }
+        .btn-wa { background: #25D366; color: #fff; padding: 12px 25px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 8px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         #preview-img { max-width: 95%; border: 1px solid #fff; }
     </style>
 </head>
-<body onload="jalankanSistemEstafet()">
+<body onload="initApp()">
 
 <div class="controls">
     <button onclick="prosesKeGambar()" class="btn-wa">BAGIKAN KE WHATSAPP (PUTIH)</button>
@@ -77,7 +67,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">KEMBALI KE EDIT</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px;">KEMBALI</button>
 </div>
 
 <div class="wrapper">
@@ -87,7 +77,15 @@
             <div class="info-group">
                 <div>HARI : <span id="lbl-hari" class="info-val">...</span></div>
                 <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
-                <div>CABANG : <span class="info-val" contenteditable="true" id="save-cabang">PONDOK INDAH</span></div>
+                <div>CABANG : 
+                    <select id="select-cabang" class="cabang-input" onchange="gantiCabang()">
+                        <option value="PONDOK-INDAH">PONDOK INDAH</option>
+                        <option value="CILANDAK">CILANDAK</option>
+                        <option value="BINTARO">BINTARO</option>
+                        <option value="BSD">BSD</option>
+                    </select>
+                    <span id="display-cabang" style="display:none; font-weight:800;"></span>
+                </div>
             </div>
             <div class="roti-box">
                 <div class="roti-header">SISA ROTI (FISIK)</div>
@@ -125,79 +123,88 @@
 
 <script>
     const manualOnly = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    
-    // DATA TERBARU HARI INI (DIUPDATE BERDASARKAN SISA LAPORAN TGL 28)
     const daftarBarangMaster = [
-        {"nama": "CUP KECIL", "stok": "1.156"},
-        {"nama": "CUP BESAR", "stok": "133"},
-        {"nama": "CUP HOT", "stok": "127"},
-        {"nama": "BOTOL 1 LITER", "stok": "22"},
-        {"nama": "BOTOL 500 ML", "stok": "49"},
-        {"nama": "GULA AREN", "stok": "4½"},
-        {"nama": "GULA PUTIH", "stok": "1½"},
-        {"nama": "KOPI", "stok": "15"},
-        {"nama": "SUSU UHT", "stok": "23/961"},
-        {"nama": "KRIMER", "stok": "10/660"},
-        {"nama": "SEA SALT CREAM", "stok": "1/870"},
-        {"nama": "FN", "stok": "4/290"},
-        {"nama": "SKM", "stok": "6/77"},
-        {"nama": "HERSHEY'S", "stok": "1/620"},
-        {"nama": "REMON", "stok": "27"},
-        {"nama": "SEDOTAN KECIL", "stok": "5½"},
-        {"nama": "SEDOTAN BESAR", "stok": "2½"},
-        {"nama": "PLASTIK ISI 2", "stok": "5"},
-        {"nama": "PLASTIK ISI 1", "stok": "7"},
-        {"nama": "PLASTIK BESAR", "stok": "7"},
-        {"nama": "CUP SEALER", "stok": "1"},
-        {"nama": "BASE SUSU", "stok": "2.100"},
-        {"nama": "BASE KOPI", "stok": "1.100"},
-        {"nama": "ROTI", "stok": "48"}
+        {"nama": "CUP KECIL", "stok": "1.156"}, {"nama": "CUP BESAR", "stok": "133"}, {"nama": "CUP HOT", "stok": "127"},
+        {"nama": "BOTOL 1 LITER", "stok": "22"}, {"nama": "BOTOL 500 ML", "stok": "49"}, {"nama": "GULA AREN", "stok": "4½"},
+        {"nama": "GULA PUTIH", "stok": "1½"}, {"nama": "KOPI", "stok": "15"}, {"nama": "SUSU UHT", "stok": "23/961"},
+        {"nama": "KRIMER", "stok": "10/660"}, {"nama": "SEA SALT CREAM", "stok": "1/870"}, {"nama": "FN", "stok": "4/290"},
+        {"nama": "SKM", "stok": "6/77"}, {"nama": "HERSHEY'S", "stok": "1/620"}, {"nama": "REMON", "stok": "27"},
+        {"nama": "SEDOTAN KECIL", "stok": "5½"}, {"nama": "SEDOTAN BESAR", "stok": "2½"}, {"nama": "PLASTIK ISI 2", "stok": "5"},
+        {"nama": "PLASTIK ISI 1", "stok": "7"}, {"nama": "PLASTIK BESAR", "stok": "7"}, {"nama": "CUP SEALER", "stok": "1"},
+        {"nama": "BASE SUSU", "stok": "2.100"}, {"nama": "BASE KOPI", "stok": "1.100"}, {"nama": "ROTI", "stok": "48"}
     ];
+
+    function getStorageKey(key) {
+        const cabang = document.getElementById('select-cabang').value;
+        return `${cabang}_${key}`;
+    }
+
+    function initApp() {
+        // Ambil cabang terakhir yang dipilih di HP ini
+        const lastCabang = localStorage.getItem('user_permanent_cabang');
+        if (lastCabang) {
+            document.getElementById('select-cabang').value = lastCabang;
+        }
+        jalankanSistemEstafet();
+    }
+
+    function gantiCabang() {
+        const cabangBaru = document.getElementById('select-cabang').value;
+        localStorage.setItem('user_permanent_cabang', cabangBaru);
+        jalankanSistemEstafet();
+    }
 
     function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const tglTerakhir = localStorage.getItem('app_last_date_fix');
+        const cabangAktif = document.getElementById('select-cabang').value;
+        const tglTerakhir = localStorage.getItem(`${cabangAktif}_last_date`);
         
         const opsi = { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' };
         const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
         document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
         document.getElementById('lbl-tgl').innerText = hariIni[1];
 
-        // LOGIKA ESTAFET HANYA JIKA TANGGAL BERUBAH
         if (tglTerakhir && tglTerakhir !== tglSkrg) {
             daftarBarangMaster.forEach((barang, i) => {
-                const sisaKemarin = localStorage.getItem(`sisa-${i}`);
+                const sisaKemarin = localStorage.getItem(`${cabangAktif}_sisa-${i}`);
                 if (sisaKemarin) {
-                    localStorage.setItem(`stok-${i}`, sisaKemarin);
-                    localStorage.setItem(`sisa-${i}`, manualOnly.includes(barang.nama) ? "0" : sisaKemarin);
+                    localStorage.setItem(`${cabangAktif}_stok-${i}`, sisaKemarin);
+                    localStorage.setItem(`${cabangAktif}_sisa-${i}`, manualOnly.includes(barang.nama) ? "0" : sisaKemarin);
                 }
-                localStorage.setItem(`msk-${i}`, "0");
-                localStorage.setItem(`rsk-${i}`, "0");
-                localStorage.setItem(`trjl-${i}`, "0");
+                localStorage.setItem(`${cabangAktif}_msk-${i}`, "0");
+                localStorage.setItem(`${cabangAktif}_rsk-${i}`, "0");
+                localStorage.setItem(`${cabangAktif}_trjl-${i}`, "0");
             });
-            localStorage.setItem('app_last_date_fix', tglSkrg);
+            // Reset Omset Harian Cabang Tersebut
+            for(let i=0; i<7; i++) localStorage.setItem(`${cabangAktif}_omset-${i}`, "0");
+            localStorage.setItem(`${cabangAktif}_save-cash`, "0");
+            localStorage.setItem(`${cabangAktif}_save-berita`, "-");
+            
+            localStorage.setItem(`${cabangAktif}_last_date`, tglSkrg);
         }
         tampilkanTabel();
     }
 
     function tampilkanTabel() {
         const tbody = document.getElementById('inventory-body');
+        const cabangAktif = document.getElementById('select-cabang').value;
         tbody.innerHTML = "";
         
         daftarBarangMaster.forEach((barang, i) => {
             const isManual = manualOnly.includes(barang.nama);
-            
-            // Prioritas data: LocalStorage hari ini -> Data Master (Update tgl 28)
-            const valStok = localStorage.getItem(`stok-${i}`) || barang.stok;
-            const valSisa = localStorage.getItem(`sisa-${i}`) || (isManual ? "0" : valStok);
+            const valStok = localStorage.getItem(`${cabangAktif}_stok-${i}`) || barang.stok;
+            const valMsk = localStorage.getItem(`${cabangAktif}_msk-${i}`) || "0";
+            const valRsk = localStorage.getItem(`${cabangAktif}_rsk-${i}`) || "0";
+            const valTrjl = localStorage.getItem(`${cabangAktif}_trjl-${i}`) || "0";
+            const valSisa = localStorage.getItem(`${cabangAktif}_sisa-${i}`) || (isManual ? "0" : valStok);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${barang.nama}</td>
-                <td contenteditable="true" class="cell-save" data-id="stok-${i}">${valStok}</td>
-                <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="trjl-${i}">0</td>
-                <td contenteditable="true" class="cell-save" data-id="sisa-${i}">${valSisa}</td>`;
+                <td contenteditable="true" class="cell-save" data-key="stok-${i}">${valStok}</td>
+                <td contenteditable="true" class="cell-save" data-key="msk-${i}">${valMsk}</td>
+                <td contenteditable="true" class="cell-save" data-key="rsk-${i}">${valRsk}</td>
+                <td contenteditable="true" class="cell-save" data-key="trjl-${i}">${valTrjl}</td>
+                <td contenteditable="true" class="cell-save" data-key="sisa-${i}">${valSisa}</td>`;
             tbody.appendChild(tr);
         });
 
@@ -205,16 +212,21 @@
         const oList = document.getElementById('omset-list');
         oList.innerHTML = "";
         omsets.forEach((o, i) => {
-            const saved = localStorage.getItem(`omset-${i}`) || "0";
-            oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">${saved}</div></div>`;
+            const saved = localStorage.getItem(`${cabangAktif}_omset-${i}`) || "0";
+            oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-key="omset-${i}">${saved}</div></div>`;
+        });
+
+        // Load Roti, Cash, Berita
+        const rotiKeys = ['roti-coklat', 'roti-vanilla', 'roti-blueberry', 'save-cash', 'save-berita'];
+        rotiKeys.forEach(k => {
+            const saved = localStorage.getItem(`${cabangAktif}_${k}`);
+            if(saved) document.getElementById(k).innerText = saved;
         });
 
         document.querySelectorAll('.cell-save, .auto-save').forEach(el => {
-            const id = el.getAttribute('data-id') || el.id;
-            const saved = localStorage.getItem(id);
-            if(saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
-                localStorage.setItem(id, el.innerText);
+                const key = el.getAttribute('data-key') || el.id;
+                localStorage.setItem(`${cabangAktif}_${key}`, el.innerText);
                 hitungTotal();
             });
         });
@@ -229,14 +241,17 @@
 
     function prosesKeGambar() {
         const area = document.getElementById('area-laporan');
-        area.classList.add('white-mode'); // Berubah jadi putih
+        const sel = document.getElementById('select-cabang');
+        const disp = document.getElementById('display-cabang');
         
-        // Kasih jeda dikit biar CSS kerasa sebelum difoto
+        disp.innerText = sel.options[sel.selectedIndex].text;
+        area.classList.add('white-mode');
+        
         setTimeout(() => {
             html2canvas(area, { scale: 2 }).then(canvas => {
                 document.getElementById('preview-img').src = canvas.toDataURL();
                 document.getElementById('overlay').style.display = 'flex';
-                area.classList.remove('white-mode'); // Balik ke hitam setelah difoto
+                area.classList.remove('white-mode');
             });
         }, 100);
     }
