@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Full Report 29 Maret</title>
+    <title>Kopi Setengah-4 | Browser Sync</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -13,7 +13,7 @@
 
         .white-accent { background-color: #fff !important; color: #000 !important; font-weight: 800; }
         
-        /* TEMA PUTIH SAAT DIUNDUH */
+        /* TEMA PUTIH SAAT PROSES DOWNLOAD */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
         .mode-print .info-val { color: #000 !important; border-bottom: 1px solid #000 !important; }
@@ -55,7 +55,7 @@
 <body onload="initSistem()">
 
 <div class="controls">
-    <button id="btnUnduh" onclick="unduhLaporan()" class="btn-save">SIMPAN & UNDUH (FULL)</button>
+    <button id="btnUnduh" onclick="prosesKeBrowser()" class="btn-save">SIMPAN KE BROWSER</button>
 </div>
 
 <div id="area-laporan">
@@ -84,25 +84,7 @@
         <tbody id="inventory-body">
             <tr><td class="col-nama">CUP KECIL</td><td class="white-accent">1.156</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.156</td></tr>
             <tr><td class="col-nama">CUP BESAR</td><td class="white-accent">133</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">133</td></tr>
-            <tr><td class="col-nama">CUP HOT</td><td class="white-accent">127</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">127</td></tr>
-            <tr><td class="col-nama">BOTOL 1 LITER</td><td class="white-accent">22</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">22</td></tr>
-            <tr><td class="col-nama">BOTOL 500 ML</td><td class="white-accent">49</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">49</td></tr>
-            <tr><td class="col-nama">GULA AREN</td><td class="white-accent">4½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4½</td></tr>
-            <tr><td class="col-nama">GULA PUTIH</td><td class="white-accent">1½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1½</td></tr>
-            <tr><td class="col-nama">KOPI</td><td class="white-accent">15</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">15</td></tr>
             <tr><td class="col-nama">SUSU UHT</td><td class="white-accent">23/961</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">23/961</td></tr>
-            <tr><td class="col-nama">KRIMER</td><td class="white-accent">10/660</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">10/660</td></tr>
-            <tr><td class="col-nama">SEA SALT</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
-            <tr><td class="col-nama">FN</td><td class="white-accent">4</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4</td></tr>
-            <tr><td class="col-nama">SKM</td><td class="white-accent">6/77</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">6/77</td></tr>
-            <tr><td class="col-nama">HERSHEY'S</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
-            <tr><td class="col-nama">REMON</td><td class="white-accent">27</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">27</td></tr>
-            <tr><td class="col-nama">SEDOTAN KEC</td><td class="white-accent">5½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5½</td></tr>
-            <tr><td class="col-nama">SEDOTAN BSR</td><td class="white-accent">2½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2½</td></tr>
-            <tr><td class="col-nama">PLASTIK ISI 2</td><td class="white-accent">5</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5</td></tr>
-            <tr><td class="col-nama">PLASTIK ISI 1</td><td class="white-accent">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
-            <tr><td class="col-nama">PLASTIK BSR</td><td class="white-accent">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
-            <tr><td class="col-nama">CUP SEALER</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
             <tr><td class="col-nama">BASE SUSU</td><td class="white-accent">2.100</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2.100</td></tr>
             <tr><td class="col-nama">BASE KOPI</td><td class="white-accent">1.100</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.100</td></tr>
             <tr><td class="col-nama">ROTI</td><td class="white-accent">48</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">48</td></tr>
@@ -113,31 +95,20 @@
         <div class="omset-list">
             <div class="omset-row"><div class="omset-label">CASH (TUNAI)</div><div class="omset-input" contenteditable="true">0</div></div>
             <div class="omset-row"><div class="omset-label">TRANSFER</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row"><div class="omset-label">GRAB FOOD</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row"><div class="omset-label">QRIS / OVO</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row"><div class="omset-label">SHOPEE FOOD</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row"><div class="omset-label">GOJEK</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row" style="border:none"><div class="omset-label">GOPAY</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">GOJEK/GRAB</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row" style="border:none"><div class="omset-label">QRIS / OVO</div><div class="omset-input" contenteditable="true">0</div></div>
         </div>
         <div class="total-box white-accent">
-            <div style="font-size: 9px; font-weight: 800;">TOTAL OMSET</div>
-            <div id="total-val" style="font-size: 22px; font-weight: 800;">0</div>
+            <div style="font-size: 8px; font-weight: 800;">TOTAL OMSET</div>
+            <div id="total-val" style="font-size: 18px; font-weight: 800;">0</div>
         </div>
-    </div>
-
-    <div class="footer-grid">
-        <div class="footer-item"><div class="footer-label">CASH AWAL/AKHIR</div><div contenteditable="true" style="font-size: 11px; font-weight: 800;">0</div></div>
-        <div class="footer-item"><div class="footer-label">BERITA ACARA</div><div contenteditable="true" style="font-size: 9px;">-</div></div>
     </div>
 </div>
 
 <script>
     function initSistem() {
         document.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
-            cell.addEventListener('input', (e) => {
-                const index = Array.from(e.target.parentElement.children).indexOf(e.target);
-                if (index >= 2 && index <= 4) hitungBaris(e.target.parentElement);
-            });
+            cell.addEventListener('input', (e) => hitungBaris(e.target.parentElement));
         });
         document.querySelectorAll('.omset-input').forEach(cell => {
             cell.addEventListener('input', () => hitungOmset());
@@ -159,35 +130,33 @@
         document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
-    async function unduhLaporan() {
+    async function prosesKeBrowser() {
         const btn = document.getElementById('btnUnduh');
-        btn.innerText = "SEDANG MEMPROSES...";
-        btn.disabled = true;
+        btn.innerText = "MENGALIHKAN...";
         document.body.classList.add('mode-print');
 
         setTimeout(() => {
             html2canvas(document.getElementById('area-laporan'), {
-                scale: 2, 
-                useCORS: true,
+                scale: 2,
                 backgroundColor: "#ffffff"
             }).then(canvas => {
-                canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `Laporan_290326.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                        window.URL.revokeObjectURL(url);
-                        document.body.classList.remove('mode-print');
-                        btn.innerText = "SIMPAN & UNDUH (FULL)";
-                        btn.disabled = false;
-                        alert("Laporan Berhasil Tersimpan!");
-                    }, 200);
-                }, 'image/png');
+                const dataUrl = canvas.toDataURL("image/png");
+                
+                // Membuka jendela baru yang hanya berisi gambar laporan
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Tekan Lama Gambar Untuk Simpan</title></head>
+                        <body style="margin:0; background:#f0f0f0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif;">
+                            <p style="margin:20px; font-weight:bold; color:#333;">TEKAN LAMA GAMBAR DI BAWAH & PILIH "DOWNLOAD"</p>
+                            <img src="${dataUrl}" style="max-width:100%; border:2px solid #000; box-shadow:0 0 20px rgba(0,0,0,0.2);">
+                            <button onclick="window.close()" style="margin-top:20px; padding:10px 20px; background:#000; color:#fff; border:none; border-radius:5px;">KEMBALI KE INPUT</button>
+                        </body>
+                    </html>
+                `);
+                
+                document.body.classList.remove('mode-print');
+                btn.innerText = "SIMPAN KE BROWSER";
             });
         }, 500);
     }
