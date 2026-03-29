@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Sistem Ringkas</title>
+    <title>Kopi Setengah-4 | Sistem Estafet Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -17,11 +17,11 @@
         .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.4; }
         .info-val { color: #fff; border-bottom: 1px solid #444; min-width: 80px; display: inline-block; padding-left: 3px; outline: none; }
         
-        /* Roti Box Ringkas */
-        .roti-box { width: 140px; border: 1px solid #444; background: #000; }
-        .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 2px; font-size: 9px; border-bottom: 1px solid #444; }
-        .roti-row { display: flex; justify-content: space-between; padding: 2px 8px; border-bottom: 1px solid #222; font-size: 9px; font-weight: 800; color: #fff; }
-        .roti-row span[contenteditable] { color: #fff; min-width: 20px; text-align: right; }
+        /* Roti Box - DIPERBAIKI: Latar Putih, Tulisan Hitam */
+        .roti-box { width: 140px; border: 1px solid #444; background: #fff; }
+        .roti-header { background: #eee; color: #d4a373; text-align: center; font-weight: 800; padding: 2px; font-size: 9px; border-bottom: 1px solid #444; }
+        .roti-row { display: flex; justify-content: space-between; padding: 2px 8px; border-bottom: 1px solid #ddd; font-size: 9px; font-weight: 800; color: #000; }
+        .roti-row span[contenteditable] { color: #d4a373; min-width: 20px; text-align: right; }
 
         /* Tabel Super Ringkas */
         table { width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 5px; }
@@ -64,7 +64,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">KEMBALI</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">KEMBALI KE EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -112,27 +112,57 @@
 
 <script>
     const manualOnly = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT CREAM", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KECIL", "SEDOTAN BESAR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BESAR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
+    
+    // DATA TERBARU HARI INI (DIUPDATE BERDASARKAN SISA LAPORAN TGL 28)
+    const daftarBarangMaster = [
+        {"nama": "CUP KECIL", "stok": "1.156"},
+        {"nama": "CUP BESAR", "stok": "133"},
+        {"nama": "CUP HOT", "stok": "127"},
+        {"nama": "BOTOL 1 LITER", "stok": "22"},
+        {"nama": "BOTOL 500 ML", "stok": "49"},
+        {"nama": "GULA AREN", "stok": "4½"},
+        {"nama": "GULA PUTIH", "stok": "1½"},
+        {"nama": "KOPI", "stok": "15"},
+        {"nama": "SUSU UHT", "stok": "23/961"},
+        {"nama": "KRIMER", "stok": "10/660"},
+        {"nama": "SEA SALT CREAM", "stok": "1/870"},
+        {"nama": "FN", "stok": "4/290"},
+        {"nama": "SKM", "stok": "6/77"},
+        {"nama": "HERSHEY'S", "stok": "1/620"},
+        {"nama": "REMON", "stok": "27"},
+        {"nama": "SEDOTAN KECIL", "stok": "5½"},
+        {"nama": "SEDOTAN BESAR", "stok": "2½"},
+        {"nama": "PLASTIK ISI 2", "stok": "5"},
+        {"nama": "PLASTIK ISI 1", "stok": "7"},
+        {"nama": "PLASTIK BESAR", "stok": "7"},
+        {"nama": "CUP SEALER", "stok": "1"},
+        {"nama": "BASE SUSU", "stok": "2.100"},
+        {"nama": "BASE KOPI", "stok": "1.100"},
+        {"nama": "ROTI", "stok": "48"}
+    ];
 
     function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const tglTerakhir = localStorage.getItem('app_last_date');
+        const tglTerakhir = localStorage.getItem('app_last_date_fix');
         
         const opsi = { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' };
         const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
         document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
         document.getElementById('lbl-tgl').innerText = hariIni[1];
 
+        // LOGIKA ESTAFET HANYA JIKA TANGGAL BERUBAH
         if (tglTerakhir && tglTerakhir !== tglSkrg) {
-            daftarBarang.forEach((nama, i) => {
-                const sisaKemarin = localStorage.getItem(`sisa-${i}`) || "0";
-                localStorage.setItem(`stok-${i}`, sisaKemarin);
-                localStorage.setItem(`sisa-${i}`, manualOnly.includes(nama) ? "0" : sisaKemarin);
+            daftarBarangMaster.forEach((barang, i) => {
+                const sisaKemarin = localStorage.getItem(`sisa-${i}`);
+                if (sisaKemarin) {
+                    localStorage.setItem(`stok-${i}`, sisaKemarin);
+                    localStorage.setItem(`sisa-${i}`, manualOnly.includes(barang.nama) ? "0" : sisaKemarin);
+                }
                 localStorage.setItem(`msk-${i}`, "0");
                 localStorage.setItem(`rsk-${i}`, "0");
                 localStorage.setItem(`trjl-${i}`, "0");
             });
-            localStorage.setItem('app_last_date', tglSkrg);
+            localStorage.setItem('app_last_date_fix', tglSkrg);
         }
         tampilkanTabel();
     }
@@ -140,13 +170,16 @@
     function tampilkanTabel() {
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
-        daftarBarang.forEach((nama, i) => {
-            const isManual = manualOnly.includes(nama);
-            const valStok = localStorage.getItem(`stok-${i}`) || "0";
+        
+        daftarBarangMaster.forEach((barang, i) => {
+            const isManual = manualOnly.includes(barang.nama);
+            
+            // Prioritas data: LocalStorage hari ini -> Data Master (Update tgl 28)
+            const valStok = localStorage.getItem(`stok-${i}`) || barang.stok;
             const valSisa = localStorage.getItem(`sisa-${i}`) || (isManual ? "0" : valStok);
 
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="col-nama">${nama}</td>
+            tr.innerHTML = `<td class="col-nama">${barang.nama}</td>
                 <td contenteditable="true" class="cell-save" data-id="stok-${i}">${valStok}</td>
                 <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
                 <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
