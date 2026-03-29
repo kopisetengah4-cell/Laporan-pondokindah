@@ -21,8 +21,8 @@
         .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.6; }
         .info-val { color: #fff; border-bottom: 1px solid #444; min-width: 80px; display: inline-block; padding-left: 3px; outline: none; }
         
-        /* Input Cabang Permanen */
-        .cabang-input { background: #222; color: #fff; border: 1px solid #d4a373; font-family: 'Montserrat'; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 4px; }
+        /* Dropdown Cabang */
+        .cabang-input { background: #222; color: #fff; border: 1px solid #d4a373; font-family: 'Montserrat'; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 4px; outline: none; }
 
         .roti-box { width: 140px; border: 1px solid #444; background: #fff; }
         .roti-header { background: #eee; color: #d4a373; text-align: center; font-weight: 800; padding: 2px; font-size: 9px; border-bottom: 1px solid #444; }
@@ -44,17 +44,18 @@
         .footer-item { flex: 1; border: 1px solid #333; padding: 6px; text-align: center; }
         .footer-label { font-size: 9px; font-weight: 800; color: #d4a373; margin-bottom: 4px; }
 
+        /* Mode Download Putih */
         .white-mode { background: #fff !important; color: #000 !important; border: 1.5px solid #000 !important; }
         .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header, .white-mode .roti-row, .white-mode .omset-input { color: #000 !important; }
         .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
         .white-mode th { background: #f0f0f0 !important; }
         .white-mode .col-nama { background: #fafafa !important; color: #000 !important; }
         .white-mode .total-box { background: #f0f0f0 !important; color: #000 !important; }
-        .white-mode .cabang-input { display: none; } /* Sembunyikan dropdown saat download */
+        .white-mode .cabang-input { display: none; } 
         .white-mode #display-cabang { display: inline-block !important; border-bottom: 1px solid #000; min-width: 80px; }
 
         .controls { text-align: center; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-        .btn-wa { background: #25D366; color: #fff; padding: 12px 25px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 8px; }
+        .btn-wa { background: #25D366; color: #fff; padding: 12px 25px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 8px; font-size: 14px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         #preview-img { max-width: 95%; border: 1px solid #fff; }
     </style>
@@ -67,7 +68,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px;">KEMBALI</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:8px 20px; border-radius:5px; margin-top:10px; cursor:pointer;">KEMBALI KE EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -79,10 +80,12 @@
                 <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
                 <div>CABANG : 
                     <select id="select-cabang" class="cabang-input" onchange="gantiCabang()">
+                        <option value="TANDUR">TANDUR</option>
+                        <option value="JL-PANJANG">JL. PANJANG</option>
                         <option value="PONDOK-INDAH">PONDOK INDAH</option>
-                        <option value="CILANDAK">CILANDAK</option>
-                        <option value="BINTARO">BINTARO</option>
-                        <option value="BSD">BSD</option>
+                        <option value="MENTENG">MENTENG</option>
+                        <option value="CEMPUT">CEMPUT</option>
+                        <option value="OTISTA">OTISTA</option>
                     </select>
                     <span id="display-cabang" style="display:none; font-weight:800;"></span>
                 </div>
@@ -134,13 +137,7 @@
         {"nama": "BASE SUSU", "stok": "2.100"}, {"nama": "BASE KOPI", "stok": "1.100"}, {"nama": "ROTI", "stok": "48"}
     ];
 
-    function getStorageKey(key) {
-        const cabang = document.getElementById('select-cabang').value;
-        return `${cabang}_${key}`;
-    }
-
     function initApp() {
-        // Ambil cabang terakhir yang dipilih di HP ini
         const lastCabang = localStorage.getItem('user_permanent_cabang');
         if (lastCabang) {
             document.getElementById('select-cabang').value = lastCabang;
@@ -175,11 +172,9 @@
                 localStorage.setItem(`${cabangAktif}_rsk-${i}`, "0");
                 localStorage.setItem(`${cabangAktif}_trjl-${i}`, "0");
             });
-            // Reset Omset Harian Cabang Tersebut
             for(let i=0; i<7; i++) localStorage.setItem(`${cabangAktif}_omset-${i}`, "0");
             localStorage.setItem(`${cabangAktif}_save-cash`, "0");
             localStorage.setItem(`${cabangAktif}_save-berita`, "-");
-            
             localStorage.setItem(`${cabangAktif}_last_date`, tglSkrg);
         }
         tampilkanTabel();
@@ -216,11 +211,11 @@
             oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-key="omset-${i}">${saved}</div></div>`;
         });
 
-        // Load Roti, Cash, Berita
-        const rotiKeys = ['roti-coklat', 'roti-vanilla', 'roti-blueberry', 'save-cash', 'save-berita'];
-        rotiKeys.forEach(k => {
+        const extraKeys = ['roti-coklat', 'roti-vanilla', 'roti-blueberry', 'save-cash', 'save-berita'];
+        extraKeys.forEach(k => {
             const saved = localStorage.getItem(`${cabangAktif}_${k}`);
             if(saved) document.getElementById(k).innerText = saved;
+            else document.getElementById(k).innerText = (k === 'save-berita' ? '-' : '0');
         });
 
         document.querySelectorAll('.cell-save, .auto-save').forEach(el => {
@@ -243,10 +238,8 @@
         const area = document.getElementById('area-laporan');
         const sel = document.getElementById('select-cabang');
         const disp = document.getElementById('display-cabang');
-        
         disp.innerText = sel.options[sel.selectedIndex].text;
         area.classList.add('white-mode');
-        
         setTimeout(() => {
             html2canvas(area, { scale: 2 }).then(canvas => {
                 document.getElementById('preview-img').src = canvas.toDataURL();
