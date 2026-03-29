@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Direct Share</title>
+    <title>Kopi Setengah-4 | Auto-Chrome Bridge</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -11,10 +11,9 @@
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 20px; }
         #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
         
-        /* Nama Barang Hitam Saat Download */
+        /* Styling Tabel & Warna */
         .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; font-weight: 800; }
         .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
-        
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
         .mode-print .info-val { border-bottom: 1px solid #000 !important; }
@@ -26,39 +25,36 @@
         .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .info-group { font-size: 11px; font-weight: 800; color: #d4a373; }
         .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 80px; display: inline-block; padding-left: 5px; }
-        .roti-box { width: 150px; border: 1px solid #444; }
-        .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 4px; font-size: 10px; }
-        .roti-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #222; font-size: 10px; font-weight: 800; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #444; font-size: 9px; }
         td { border: 1px solid #222; padding: 6px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
+        
         .omset-container { display: flex; border: 1px solid #333; margin-top: 15px; }
         .omset-row { display: flex; border-bottom: 1px solid #222; height: 25px; align-items: center; }
         .omset-label { width: 120px; padding-left: 10px; font-size: 9px; color: #d4a373; }
         .omset-input { flex: 1; text-align: left; outline: none; padding-left: 10px; font-size: 11px; }
         .total-box { width: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; }
-        .footer-section { display: flex; gap: 10px; margin-top: 15px; }
-        .footer-item { flex: 1; border: 1px solid #333; padding: 10px; text-align: center; }
-        .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 5px; }
-        
+
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-        .btn-gen { background: #4285F4; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; }
+        .btn-chrome { background: #4285F4; color: #fff; padding: 15px 25px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; }
         
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        #preview-img { max-width: 100%; max-height: 60vh; border: 2px solid #fff; margin-bottom: 20px; }
-        .btn-share { background: #25D366; color: white; padding: 15px 40px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; font-size: 16px; width: 100%; max-width: 300px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        #preview-img { max-width: 90%; border: 2px solid #fff; margin-bottom: 15px; }
     </style>
 </head>
 <body onload="cekDanMuatData()">
 
 <div class="controls">
-    <button onclick="prosesLaporan()" class="btn-gen">GENERATE & KIRIM</button>
+    <button onclick="prosesDanBukaChrome()" class="btn-chrome">🚀 PROSES & BUKA DI CHROME</button>
 </div>
 
 <div id="overlay">
+    <div style="color: #28a745; font-weight: 800; margin-bottom: 10px;">✓ TERBUKA DI CHROME</div>
     <img id="preview-img" src="">
-    <button id="btnShare" class="btn-share">KIRIM KE WHATSAPP / SIMPAN</button>
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; border:none; padding:15px; font-weight:800; cursor:pointer;">BATAL / EDIT</button>
+    <p style="color: #fff; font-size: 12px; text-align: center; padding: 0 20px;">Sekarang Bos bisa klik tombol Download di bawah ini atau Tekan Lama pada gambar untuk simpan.</p>
+    <button id="real-download" style="background:#28a745; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">DOWNLOAD SEKARANG</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:10px; border:none; text-decoration:underline;">Tutup</button>
 </div>
 
 <div class="wrapper">
@@ -70,45 +66,44 @@
                 <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
                 <div>CABANG : <span class="info-val">PONDOK INDAH</span></div>
             </div>
-            <div class="roti-box">
-                <div class="roti-header">SISA ROTI (FISIK)</div>
-                <div class="roti-row"><span>COKLAT</span><span contenteditable="true">18</span></div>
-                <div class="roti-row"><span>VANILLA</span><span contenteditable="true">16</span></div>
-                <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true">14</span></div>
-            </div>
         </div>
+
         <table>
-            <thead><tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
+            <thead>
+                <tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>
+            </thead>
             <tbody id="inventory-body"></tbody>
         </table>
+
         <div class="omset-container">
             <div style="flex:1" id="omset-list"></div>
-            <div class="total-box"><div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div><div id="total-val" style="font-size: 24px; font-weight: 800;">0</div></div>
-        </div>
-        <div class="footer-section">
-            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div></div>
-            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" style="font-size: 10px;">Aman.</div></div>
+            <div class="total-box">
+                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
+                <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     const manualItems = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const dataAwal = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+    
+    // Deteksi apakah ini dijalankan di Chrome atau di dalam APK/Webview
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
     function cekDanMuatData() {
-        const tglSekarang = new Date().toLocaleDateString('id-ID');
-        const tglTerakhir = localStorage.getItem('last_date_share');
-        const labelHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
-        document.getElementById('lbl-hari').innerText = labelHari;
-        document.getElementById('lbl-tgl').innerText = tglSekarang;
-        let stok = dataAwal;
-        if (tglTerakhir && tglTerakhir !== tglSekarang) {
-            const saved = JSON.parse(localStorage.getItem('saved_sisa_share'));
+        const tgl = new Date().toLocaleDateString('id-ID');
+        const lastTgl = localStorage.getItem('last_date_chrome');
+        document.getElementById('lbl-hari').innerText = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
+        document.getElementById('lbl-tgl').innerText = tgl;
+
+        let stok = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+        
+        if (lastTgl && lastTgl !== tgl) {
+            const saved = JSON.parse(localStorage.getItem('saved_sisa_chrome'));
             if (saved) stok = saved;
         }
         render(stok);
-        localStorage.setItem('last_date_share', tglSekarang);
     }
 
     function render(stokData) {
@@ -121,40 +116,41 @@
         const omsets = ["CASH", "TRANSFER", "GRAB", "QRIS", "SHOPEE", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
         omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
-        document.querySelectorAll('.omset-input').forEach(el => {
-            el.addEventListener('input', () => {
-                let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
-                document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
-            });
-        });
     }
 
-    async function prosesLaporan() {
-        // Simpan sisa stok
+    function prosesDanBukaChrome() {
+        // 1. Simpan Stok
         const sisa = {};
         document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
-        localStorage.setItem('saved_sisa_share', JSON.stringify(sisa));
+        localStorage.setItem('saved_sisa_chrome', JSON.stringify(sisa));
+        localStorage.setItem('last_date_chrome', new Date().toLocaleDateString('id-ID'));
 
+        // 2. Jika di dalam APK, paksa buka Chrome
+        if (!isChrome) {
+            const currentUrl = window.location.href;
+            // Gunakan intent khusus Android untuk memaksa buka Chrome
+            window.location.href = "intent://" + currentUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+        } else {
+            // Jika sudah di Chrome, jalankan proses download biasa
+            generateLaporan();
+        }
+    }
+
+    function generateLaporan() {
         document.body.classList.add('mode-print');
-        const canvas = await html2canvas(document.getElementById('area-laporan'), { scale: 2 });
-        const dataUrl = canvas.toDataURL("image/png");
-        document.getElementById('preview-img').src = dataUrl;
-        document.getElementById('overlay').style.display = 'flex';
-        document.body.classList.remove('mode-print');
+        html2canvas(document.getElementById('area-laporan'), { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL("image/png");
+            document.getElementById('preview-img').src = imgData;
+            document.getElementById('overlay').style.display = 'flex';
+            document.body.classList.remove('mode-print');
 
-        // TOMBOL SHARE API
-        document.getElementById('btnShare').onclick = async () => {
-            const blob = await (await fetch(dataUrl)).blob();
-            const file = new File([blob], `Laporan_Setengah4_${new Date().toLocaleDateString()}.png`, { type: 'image/png' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({ files: [file], title: 'Laporan Kopi Setengah-4' });
-                } catch (e) { alert("Gagal Share: Gunakan Chrome/Safari terbaru."); }
-            } else {
-                alert("Browser Bos tidak support Direct Share. Silakan Screen Shoot saja laporannya.");
-            }
-        };
+            document.getElementById('real-download').onclick = function() {
+                const link = document.createElement('a');
+                link.download = `Laporan_${new Date().toLocaleDateString('id-ID')}.png`;
+                link.href = imgData;
+                link.click();
+            };
+        });
     }
 </script>
 </body>
