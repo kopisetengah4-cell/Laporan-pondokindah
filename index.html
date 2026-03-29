@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Sisa Otomatis Fix</title>
+    <title>Kopi Setengah-4 | Sistem Estafet Otomatis</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 50px; }
-        #area-laporan { background: #000; padding: 20px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
+        #area-laporan { background: #000; padding: 20px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; transition: all 0.3s; }
         .main-title { text-align: center; color: #d4a373; font-size: 20px; font-weight: 800; margin-bottom: 15px; letter-spacing: 2px; }
         .top-section { display: flex; justify-content: space-between; margin-bottom: 15px; }
         .info-group { font-size: 11px; font-weight: 800; color: #d4a373; }
@@ -31,19 +31,29 @@
         .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 8px; }
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
+        
+        /* MODE UNDUH PUTIH */
+        .white-mode { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
+        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header { color: #000 !important; }
+        .white-mode .info-val { border-bottom: 1px solid #000 !important; }
+        .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
+        .white-mode th { background: #eee !important; color: #000 !important; }
+        .white-mode .col-nama { background: #f9f9f9 !important; color: #000 !important; }
+        .white-mode .total-box { background: #eee !important; color: #000 !important; border-left: 1px solid #000 !important; }
+
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        #preview-img { max-width: 90%; border: 2px solid #fff; margin-bottom: 15px; }
+        #preview-img { max-width: 90%; border: 2px solid #fff; }
     </style>
 </head>
-<body onload="muatSemuaData()">
+<body onload="initSistem()">
 
 <div class="controls">
-    <button onclick="prosesKeGambar()" class="btn-wa">BAGIKAN KE WHATSAPP (GAMBAR)</button>
+    <button onclick="prosesKeGambar()" class="btn-wa">BAGIKAN KE WHATSAPP (PUTIH)</button>
 </div>
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:10px 25px; border-radius:5px;">KEMBALI KE EDIT</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:10px 25px; border-radius:5px; margin-top:10px;">KEMBALI KE EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -51,8 +61,8 @@
         <div class="main-title">KOPI SETENGAH-4</div>
         <div class="top-section">
             <div class="info-group">
-                <div>HARI : <span id="lbl-hari" class="info-val">MINGGU</span></div>
-                <div>TGL : <span id="lbl-tgl" class="info-val">29/03/2026</span></div>
+                <div>HARI : <span id="lbl-hari" class="info-val">...</span></div>
+                <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
                 <div>CABANG : <span class="info-val" contenteditable="true" id="save-cabang">PONDOK INDAH</span></div>
             </div>
             <div class="roti-box">
@@ -71,58 +81,92 @@
         <div class="omset-container">
             <div style="flex:1" id="omset-list"></div>
             <div class="total-box">
-                <div style="font-size: 10px; margin-bottom: 5px; color: #d4a373;">TOTAL OMSET</div>
+                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
                 <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
             </div>
         </div>
 
         <div class="footer-section">
-            <div class="footer-item">
-                <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800; font-size: 12px;">0</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">BERITA ACARA:</div>
-                <div contenteditable="true" id="save-berita" class="auto-save" style="font-size: 10px;">Aman.</div>
-            </div>
+            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" id="save-cash" class="auto-save">0</div></div>
+            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" id="save-berita" class="auto-save" style="font-size:10px">Aman.</div></div>
         </div>
     </div>
 </div>
 
 <script>
-    const daftarManualSisa = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const dataAwal28 = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+    const manualList = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT CREAM", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KECIL", "SEDOTAN BESAR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BESAR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
 
-    function muatSemuaData() {
+    // Data Master (Hanya dipakai jika localstorage kosong)
+    const masterStok = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+
+    function initSistem() {
+        const tglSkrg = new Date().toLocaleDateString('id-ID');
+        const tglLalu = localStorage.getItem('last_date');
+        
+        // Atur Label Hari/Tgl
+        const opsi = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
+        const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
+        document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
+        document.getElementById('lbl-tgl').innerText = hariIni[1];
+
+        // LOGIKA ESTAFET: Jika hari baru, pindahkan Sisa kemarin ke Stok hari ini
+        if (tglLalu && tglLalu !== tglSkrg) {
+            daftarBarang.forEach((nama, i) => {
+                const sisaKemarin = localStorage.getItem(`sisa-${i}`);
+                if (sisaKemarin) {
+                    localStorage.setItem(`stok-${i}`, sisaKemarin);
+                    // Reset sisa ke default baru (0 jika manual list, atau samakan stok jika otomatis)
+                    const valSisaBaru = manualList.includes(nama) ? "0" : sisaKemarin;
+                    localStorage.setItem(`sisa-${i}`, valSisaBaru);
+                }
+                // Reset Masuk/Rusak/Terjual ke 0 tiap hari baru
+                localStorage.setItem(`msk-${i}`, "0");
+                localStorage.setItem(`rsk-${i}`, "0");
+                localStorage.setItem(`trjl-${i}`, "0");
+            });
+            localStorage.setItem('last_date', tglSkrg);
+        } else if (!tglLalu) {
+            localStorage.setItem('last_date', tglSkrg);
+        }
+
+        renderTabel();
+    }
+
+    function renderTabel() {
         const tbody = document.getElementById('inventory-body');
-        Object.keys(dataAwal28).forEach((nama, i) => {
-            const isManual = daftarManualSisa.includes(nama);
+        tbody.innerHTML = "";
+        
+        daftarBarang.forEach((nama, i) => {
+            const isManual = manualList.includes(nama);
+            const valStok = localStorage.getItem(`stok-${i}`) || masterStok[nama] || "0";
+            const valSisa = localStorage.getItem(`sisa-${i}`) || (isManual ? "0" : valStok);
+
             const tr = document.createElement('tr');
-            // Jika BUKAN manual, sisa = stok awal. Jika manual, sisa = 0.
-            const sisaDefault = isManual ? "0" : dataAwal28[nama];
-            
             tr.innerHTML = `
                 <td class="col-nama">${nama}</td>
-                <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${dataAwal28[nama]}</td>
+                <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${valStok}</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-is-manual="${isManual}">${sisaDefault}</td>`;
+                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-manual="${isManual}">${valSisa}</td>`;
             tbody.appendChild(tr);
         });
 
         const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
+        oList.innerHTML = "";
         omsets.forEach((o, i) => { 
             oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">0</div></div>`; 
         });
 
+        // Load semua data dari localStorage
         document.querySelectorAll('[data-id]').forEach(el => {
             const saved = localStorage.getItem(el.getAttribute('data-id'));
             if (saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
                 localStorage.setItem(el.getAttribute('data-id'), el.innerText);
-                if (el.classList.contains('input-val')) hitungSisaOtomatis(el.getAttribute('data-row'));
+                if (el.classList.contains('input-val')) hitungSisa(el.getAttribute('data-row'));
                 hitungTotal();
             });
         });
@@ -136,49 +180,44 @@
         hitungTotal();
     }
 
-    function formatSetengah(num) {
-        let str = num.toString();
-        return str.endsWith('.5') ? Math.floor(num) + '½' : str;
-    }
-
-    function parseVal(str) {
-        return parseFloat(str.replace('½', '.5')) || 0;
-    }
-
-    function hitungSisaOtomatis(rowIdx) {
+    function hitungSisa(rowIdx) {
         const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
-        if (sisaCell.getAttribute('data-is-manual') === "true") return;
+        if (sisaCell.getAttribute('data-manual') === "true") return;
 
         const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
         const msk = parseVal(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
         const rsk = parseVal(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText);
         const trjl = parseVal(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText);
 
-        let sisaHasil = "";
+        let sisaFinal = "";
         if (stokStr.includes('/')) {
             let parts = stokStr.split('/');
             let utama = parseVal(parts[0]) + msk - rsk - trjl;
-            sisaHasil = formatSetengah(utama) + '/' + parts[1];
+            sisaFinal = formatSetengah(utama) + '/' + parts[1];
         } else {
-            sisaHasil = formatSetengah(parseVal(stokStr) + msk - rsk - trjl);
+            sisaFinal = formatSetengah(parseVal(stokStr) + msk - rsk - trjl);
         }
-
-        sisaCell.innerText = sisaHasil;
-        localStorage.setItem(sisaCell.getAttribute('data-id'), sisaHasil);
+        sisaCell.innerText = sisaFinal;
+        localStorage.setItem(sisaCell.getAttribute('data-id'), sisaFinal);
     }
+
+    function formatSetengah(n) { return n.toString().endsWith('.5') ? Math.floor(n) + '½' : n.toString(); }
+    function parseVal(s) { return parseFloat(s.replace('½', '.5')) || 0; }
 
     function hitungTotal() {
         let t = 0; 
-        document.querySelectorAll('.omset-input').forEach(i => {
-            t += parseInt(i.innerText.replace(/\./g, '')) || 0;
-        });
+        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
         document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
     function prosesKeGambar() {
-        html2canvas(document.getElementById('area-laporan'), { scale: 2 }).then(canvas => {
+        const area = document.getElementById('area-laporan');
+        area.classList.add('white-mode'); // Berubah jadi putih
+        
+        html2canvas(area, { scale: 2 }).then(canvas => {
             document.getElementById('preview-img').src = canvas.toDataURL();
             document.getElementById('overlay').style.display = 'flex';
+            area.classList.remove('white-mode'); // Balik ke hitam
         });
     }
 </script>
