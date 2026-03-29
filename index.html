@@ -2,19 +2,14 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-
-<link rel="apple-touch-icon" href="logo-pi.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="logo-pi.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000">
-
-<link rel="icon" type="image/png" sizes="192x192" href="logo-pi.png">
-<link rel="apple-touch-icon" sizes="180x180" href="logo-pi.png">
-
-<link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/png" sizes="192x192" href="logo-pi.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo-pi.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kopi Setengah-4 | Sistem Estafet Fix</title>
@@ -23,7 +18,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 30px; }
-        #area-laporan { background: #000; padding: 10px 15px; width: 480px; margin: 5px auto; box-sizing: border-box; border: 1px solid #333; }
+        #area-laporan { background: #000; padding: 10px 15px; width: 480px; margin: 5px auto; box-sizing: border-box; border: 1px solid #333; transition: all 0.2s; }
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
         
         /* Header Section */
@@ -55,9 +50,13 @@
         .footer-item { flex: 1; border: 1px solid #333; padding: 6px; text-align: center; }
         .footer-label { font-size: 9px; font-weight: 800; color: #d4a373; margin-bottom: 4px; }
 
-        /* Mode Putih (Unduh) */
+        /* Mode Putih (Unduh) - FIX AGAR ANGKA OMSET HITAM */
         .white-mode { background: #fff !important; color: #000 !important; border: 1.5px solid #000 !important; }
         .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header, .white-mode .roti-row { color: #000 !important; }
+        
+        /* Menargetkan angka omset agar hitam saat didownload */
+        .white-mode .omset-input { color: #000 !important; } 
+        
         .white-mode .roti-row span[contenteditable] { color: #000 !important; }
         .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
         .white-mode th { background: #f0f0f0 !important; }
@@ -230,12 +229,16 @@
 
     function prosesKeGambar() {
         const area = document.getElementById('area-laporan');
-        area.classList.add('white-mode');
-        html2canvas(area, { scale: 2 }).then(canvas => {
-            document.getElementById('preview-img').src = canvas.toDataURL();
-            document.getElementById('overlay').style.display = 'flex';
-            area.classList.remove('white-mode');
-        });
+        area.classList.add('white-mode'); // Berubah jadi putih
+        
+        // Kasih jeda dikit biar CSS kerasa sebelum difoto
+        setTimeout(() => {
+            html2canvas(area, { scale: 2 }).then(canvas => {
+                document.getElementById('preview-img').src = canvas.toDataURL();
+                document.getElementById('overlay').style.display = 'flex';
+                area.classList.remove('white-mode'); // Balik ke hitam setelah difoto
+            });
+        }, 100);
     }
 </script>
 </body>
