@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Auto-Estafet System</title>
+    <title>Kopi Setengah-4 | Sistem Lengkap</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -22,12 +22,23 @@
         td { border: 1px solid #222; padding: 8px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
         .col-nama { width: 170px; text-align: left !important; color: #d4a373; padding-left: 10px; background-color: #050505; }
         
+        /* OMSET & FOOTER */
+        .omset-container { display: flex; border: 1px solid #333; margin-top: 20px; }
+        .omset-row { display: flex; border-bottom: 1px solid #222; height: 28px; align-items: center; }
+        .omset-label { width: 130px; padding-left: 12px; font-size: 9px; color: #d4a373; font-weight: 800; }
+        .omset-input { flex: 1; text-align: left; outline: none; padding-left: 10px; font-size: 11px; color: #fff; }
+        .total-box { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
+        .footer-section { display: flex; gap: 10px; margin-top: 20px; }
+        .footer-item { flex: 1; border: 1px solid #333; padding: 12px; text-align: center; }
+        .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 8px; }
+
         /* MODE UNDUH PUTIH */
         .white-mode { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
-        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .roti-header { color: #000 !important; }
+        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .footer-label, .white-mode .roti-header { color: #000 !important; }
         .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
         .white-mode th { background: #eee !important; }
         .white-mode .col-nama { background: #f9f9f9 !important; color: #000 !important; }
+        .white-mode .total-box { background: #eee !important; color: #000 !important; }
 
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
@@ -67,6 +78,25 @@
             <thead><tr><th style="width:170px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
+
+        <div class="omset-container">
+            <div style="flex:1" id="omset-list"></div>
+            <div class="total-box">
+                <div style="font-size: 10px; margin-bottom: 5px; color: #d4a373;">TOTAL OMSET</div>
+                <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <div class="footer-item">
+                <div class="footer-label">CASH AWAL / AKHIR</div>
+                <div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800; font-size: 12px;">0</div>
+            </div>
+            <div class="footer-item">
+                <div class="footer-label">BERITA ACARA:</div>
+                <div contenteditable="true" id="save-berita" class="auto-save" style="font-size: 10px;">Aman.</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -78,52 +108,46 @@
         const tglSkrg = new Date().toLocaleDateString('id-ID');
         const tglTerakhir = localStorage.getItem('app_last_date');
         
-        // Update Label Tanggal
         const opsi = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
         const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
         document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
         document.getElementById('lbl-tgl').innerText = hariIni[1];
 
-        // CEK HARI BARU
         if (tglTerakhir && tglTerakhir !== tglSkrg) {
             daftarBarang.forEach((nama, i) => {
                 const sisaKemarin = localStorage.getItem(`sisa-${i}`) || "0";
-                
-                // 1. Stok Hari Ini = Sisa Kemarin
                 localStorage.setItem(`stok-${i}`, sisaKemarin);
-                
-                // 2. Sisa Hari Ini: Kosongkan jika di list manual, samakan stok jika otomatis
                 if (manualOnly.includes(nama)) {
                     localStorage.setItem(`sisa-${i}`, "0"); 
                 } else {
                     localStorage.setItem(`sisa-${i}`, sisaKemarin);
                 }
-
-                // 3. Reset input harian
                 localStorage.setItem(`msk-${i}`, "0");
                 localStorage.setItem(`rsk-${i}`, "0");
                 localStorage.setItem(`trjl-${i}`, "0");
             });
+            // Reset Omset & Cash tiap hari baru
+            for(let o=0; o<7; o++) localStorage.setItem(`omset-${o}`, "0");
+            localStorage.setItem('save-cash', "0");
+            localStorage.setItem('save-berita', "Aman.");
+            
             localStorage.setItem('app_last_date', tglSkrg);
         } else if (!tglTerakhir) {
             localStorage.setItem('app_last_date', tglSkrg);
         }
-
         tampilkanTabel();
     }
 
     function tampilkanTabel() {
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
-        
         daftarBarang.forEach((nama, i) => {
             const isManual = manualOnly.includes(nama);
             const valStok = localStorage.getItem(`stok-${i}`) || "0";
             const valSisa = localStorage.getItem(`sisa-${i}`) || (isManual ? "0" : valStok);
 
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="col-nama">${nama}</td>
+            tr.innerHTML = `<td class="col-nama">${nama}</td>
                 <td contenteditable="true" class="cell-save" data-id="stok-${i}">${valStok}</td>
                 <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
                 <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
@@ -132,12 +156,30 @@
             tbody.appendChild(tr);
         });
 
-        // Simpan otomatis saat diketik
-        document.querySelectorAll('.cell-save').forEach(el => {
+        const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
+        const oList = document.getElementById('omset-list');
+        oList.innerHTML = "";
+        omsets.forEach((o, i) => { 
+            const savedO = localStorage.getItem(`omset-${i}`) || "0";
+            oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">${savedO}</div></div>`; 
+        });
+
+        document.querySelectorAll('.cell-save, .auto-save').forEach(el => {
+            const id = el.getAttribute('data-id') || el.id;
+            const saved = localStorage.getItem(id);
+            if(saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
-                localStorage.setItem(el.getAttribute('data-id'), el.innerText);
+                localStorage.setItem(id, el.innerText);
+                hitungTotal();
             });
         });
+        hitungTotal();
+    }
+
+    function hitungTotal() {
+        let t = 0; 
+        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
+        document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
     function prosesKeGambar() {
