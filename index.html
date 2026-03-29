@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Auto-Sisa & Anti-Hilang</title>
+    <title>Kopi Setengah-4 | Format Lengkap</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -33,8 +33,6 @@
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         #preview-img { max-width: 85%; border: 3px solid #fff; margin-bottom: 10px; }
-        
-        /* Mode Print Putih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label, .mode-print .roti-header { color: #000 !important; }
         .mode-print .col-nama { color: #000 !important; background: #f2f2f2 !important; }
@@ -136,31 +134,31 @@
             el.addEventListener('input', () => localStorage.setItem(el.id, el.innerText));
         });
 
-        // Hitung ulang semua saat load
         for(let j=0; j<Object.keys(dataAwal28).length; j++) { hitungSisa(j); }
         hitungTotal();
-    }
-
-    function parseNilai(str) {
-        if (!str) return 0;
-        let s = str.replace(/[^\d/½]/g, '').trim();
-        if (s.includes('/')) return parseInt(s.split('/')[0]) || 0; // Ambil angka depan saja untuk kalkulasi sederhana
-        if (s.includes('½')) return parseFloat(s.replace('½', '.5')) || 0;
-        return parseFloat(s) || 0;
     }
 
     function hitungSisa(rowIdx) {
         const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
         if (!sisaCell || !sisaCell.classList.contains('auto-calc')) return;
 
-        const stok = parseNilai(document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText);
-        const msk = parseNilai(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
-        const rsk = parseNilai(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText);
-        const trjl = parseNilai(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText);
+        const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
+        const msk = parseFloat(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
+        const rsk = parseFloat(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
+        const trjl = parseFloat(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText.replace('½', '.5')) || 0;
 
-        let hasil = stok + msk - rsk - trjl;
-        sisaCell.innerText = hasil;
-        localStorage.setItem(sisaCell.getAttribute('data-id'), hasil);
+        let hasilSisa = "";
+
+        if (stokStr.includes('/')) {
+            let parts = stokStr.split('/');
+            let utama = (parseFloat(parts[0].replace('½', '.5')) || 0) + msk - rsk - trjl;
+            hasilSisa = `${utama}/${parts[1]}`;
+        } else {
+            hasilSisa = (parseFloat(stokStr.replace('½', '.5')) || 0) + msk - rsk - trjl;
+        }
+
+        sisaCell.innerText = hasilSisa;
+        localStorage.setItem(sisaCell.getAttribute('data-id'), hasilSisa);
     }
 
     function hitungTotal() {
