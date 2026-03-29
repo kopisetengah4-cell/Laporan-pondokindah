@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#000000">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Multi-Cabang Fix</title>
+    <title>Kopi Setengah-4 | Multi-Shift</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -19,10 +19,10 @@
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
         
         .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
-        .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.6; }
+        .info-group { font-size: 10px; font-weight: 800; color: #d4a373; line-height: 1.8; }
         .info-val { color: #fff; border-bottom: 1px solid #444; min-width: 80px; display: inline-block; padding-left: 3px; outline: none; }
         
-        .cabang-input { background: #222; color: #fff; border: 1px solid #d4a373; font-family: 'Montserrat'; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 4px; outline: none; }
+        .dropdown-style { background: #222; color: #fff; border: 1px solid #d4a373; font-family: 'Montserrat'; font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 4px; outline: none; margin-bottom: 3px; }
 
         .roti-box { width: 140px; border: 1px solid #444; background: #fff; }
         .roti-header { background: #eee; color: #d4a373; text-align: center; font-weight: 800; padding: 2px; font-size: 9px; border-bottom: 1px solid #444; }
@@ -50,10 +50,9 @@
         .white-mode th { background: #f0f0f0 !important; }
         .white-mode .col-nama { background: #fafafa !important; color: #000 !important; }
         .white-mode .total-box { background: #f0f0f0 !important; color: #000 !important; }
-        .white-mode .cabang-input { display: none; } 
-        .white-mode #display-cabang { display: inline-block !important; border-bottom: 1px solid #000; min-width: 80px; }
+        .white-mode .dropdown-style { display: none; } 
+        .white-mode #display-cabang, .white-mode #display-shift { display: inline-block !important; border-bottom: 1px solid #000; min-width: 50px; }
 
-        /* Controls Section */
         .controls { text-align: center; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 10px; }
         .btn-wa { background: #25D366; color: #fff; padding: 12px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
         .btn-reset { background: #dc3545; color: #fff; padding: 8px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; }
@@ -66,7 +65,7 @@
 
 <div class="controls">
     <button onclick="prosesKeGambar()" class="btn-wa">BAGIKAN KE WHATSAPP (PUTIH)</button>
-    <button onclick="konfirmasiReset()" class="btn-reset">RESET MANUAL (PINDAH KE HARI BARU)</button>
+    <button onclick="konfirmasiReset()" class="btn-reset">RESET MANUAL (PINDAH HARI/SHIFT)</button>
 </div>
 
 <div id="overlay">
@@ -82,7 +81,7 @@
                 <div>HARI : <span id="lbl-hari" class="info-val">...</span></div>
                 <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
                 <div>CABANG : 
-                    <select id="select-cabang" class="cabang-input" onchange="gantiCabang()">
+                    <select id="select-cabang" class="dropdown-style" onchange="gantiIdentitas()">
                         <option value="TANDUR">TANDUR</option>
                         <option value="JL-PANJANG">JL. PANJANG</option>
                         <option value="PONDOK-INDAH">PONDOK INDAH</option>
@@ -91,6 +90,13 @@
                         <option value="OTISTA">OTISTA</option>
                     </select>
                     <span id="display-cabang" style="display:none; font-weight:800;"></span>
+                </div>
+                <div>SHIFT : 
+                    <select id="select-shift" class="dropdown-style" onchange="gantiIdentitas()">
+                        <option value="SHIFT-1">SHIFT 1</option>
+                        <option value="SHIFT-2">SHIFT 2</option>
+                    </select>
+                    <span id="display-shift" style="display:none; font-weight:800;"></span>
                 </div>
             </div>
             <div class="roti-box">
@@ -141,82 +147,69 @@
     ];
 
     function initApp() {
-        const lastCabang = localStorage.getItem('user_permanent_cabang');
-        if (lastCabang) {
-            document.getElementById('select-cabang').value = lastCabang;
-        }
+        const lastCab = localStorage.getItem('user_permanent_cabang');
+        const lastShift = localStorage.getItem('user_permanent_shift');
+        if (lastCab) document.getElementById('select-cabang').value = lastCab;
+        if (lastShift) document.getElementById('select-shift').value = lastShift;
         jalankanSistemEstafet();
     }
 
-    function gantiCabang() {
-        const cabangBaru = document.getElementById('select-cabang').value;
-        localStorage.setItem('user_permanent_cabang', cabangBaru);
+    function gantiIdentitas() {
+        const cab = document.getElementById('select-cabang').value;
+        const shf = document.getElementById('select-shift').value;
+        localStorage.setItem('user_permanent_cabang', cab);
+        localStorage.setItem('user_permanent_shift', shf);
         jalankanSistemEstafet();
     }
 
     function konfirmasiReset() {
-        if(confirm("PERINGATAN: Semua angka omset akan jadi 0 dan sisa stok akan dipindahkan ke stok awal besok. Lanjutkan?")) {
+        if(confirm("PERINGATAN: Semua angka omset akan jadi 0 dan sisa stok akan dipindahkan ke stok awal. Lanjutkan?")) {
             eksekusiResetManual();
         }
     }
-    
-function eksekusiResetManual() {
-    const tglSkrg = new Date().toLocaleDateString('id-ID');
-    const cabangAktif = document.getElementById('select-cabang').value;
-    
-    // Daftar barang yang WAJIB KOSONG (0) di kolom sisa saat reset
-    const wajibKosong = [
-        "CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", 
-        "SKM", "BASE SUSU", "BASE KOPI", "ROTI"
-    ];
 
-    daftarBarangMaster.forEach((barang, i) => {
-        // 1. Ambil sisa dari hari sebelumnya (dari memori)
-        const sisaKemarin = localStorage.getItem(`${cabangAktif}_sisa-${i}`) || "0";
+    function eksekusiResetManual() {
+        const tglSkrg = new Date().toLocaleDateString('id-ID');
+        const cab = document.getElementById('select-cabang').value;
+        const shf = document.getElementById('select-shift').value;
+        const keyPrefix = `${cab}_${shf}`;
         
-        // 2. Pindahkan sisa kemarin ke STOK hari ini (Estafet)
-        localStorage.setItem(`${cabangAktif}_stok-${i}`, sisaKemarin);
+        const wajibKosong = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+
+        daftarBarangMaster.forEach((barang, i) => {
+            const sisaKemarin = localStorage.getItem(`${keyPrefix}_sisa-${i}`) || "0";
+            localStorage.setItem(`${keyPrefix}_stok-${i}`, sisaKemarin);
+            if (wajibKosong.includes(barang.nama)) {
+                localStorage.setItem(`${keyPrefix}_sisa-${i}`, "0");
+            } else {
+                localStorage.setItem(`${keyPrefix}_sisa-${i}`, sisaKemarin);
+            }
+            localStorage.setItem(`${keyPrefix}_msk-${i}`, "0");
+            localStorage.setItem(`${keyPrefix}_rsk-${i}`, "0");
+            localStorage.setItem(`${keyPrefix}_trjl-${i}`, "0");
+        });
+
+        for(let i=0; i<7; i++) localStorage.setItem(`${keyPrefix}_omset-${i}`, "0");
+        localStorage.setItem(`${keyPrefix}_save-cash`, "0");
+        localStorage.setItem(`${keyPrefix}_save-berita`, "-");
+        localStorage.setItem(`${keyPrefix}_last_date`, tglSkrg);
         
-        // 3. Isi kolom SISA otomatis
-        if (wajibKosong.includes(barang.nama)) {
-            // Jika barang sensitif, kosongkan (0)
-            localStorage.setItem(`${cabangAktif}_sisa-${i}`, "0");
-        } else {
-            // Jika barang umum, samakan SISA dengan STOK baru
-            localStorage.setItem(`${cabangAktif}_sisa-${i}`, sisaKemarin);
-        }
+        alert("Reset Berhasil! Laporan siap digunakan.");
+        location.reload();
+    }
 
-        // 4. Reset kolom transaksi lainnya
-        localStorage.setItem(`${cabangAktif}_msk-${i}`, "0");
-        localStorage.setItem(`${cabangAktif}_rsk-${i}`, "0");
-        localStorage.setItem(`${cabangAktif}_trjl-${i}`, "0");
-    });
-
-    // Reset Omset Harian
-    for(let i=0; i<7; i++) localStorage.setItem(`${cabangAktif}_omset-${i}`, "0");
-    
-    // Reset Catatan & Cash
-    localStorage.setItem(`${cabangAktif}_save-cash`, "0");
-    localStorage.setItem(`${cabangAktif}_save-berita`, "-");
-    
-    // Update Tanggal Terakhir ke hari ini
-    localStorage.setItem(`${cabangAktif}_last_date`, tglSkrg);
-    
-    alert("Reset Berhasil! Laporan sudah siap untuk hari baru.");
-    location.reload();
-}
-    
     function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const cabangAktif = document.getElementById('select-cabang').value;
-        const tglTerakhir = localStorage.getItem(`${cabangAktif}_last_date`);
+        const cab = document.getElementById('select-cabang').value;
+        const shf = document.getElementById('select-shift').value;
+        const keyPrefix = `${cab}_${shf}`;
+        const tglTerakhir = localStorage.getItem(`${keyPrefix}_last_date`);
         
         const opsi = { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' };
         const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
         document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
         document.getElementById('lbl-tgl').innerText = hariIni[1];
 
-        // Otomatis Pindah Hari
         if (tglTerakhir && tglTerakhir !== tglSkrg) {
             eksekusiResetManual(); 
         }
@@ -225,16 +218,18 @@ function eksekusiResetManual() {
 
     function tampilkanTabel() {
         const tbody = document.getElementById('inventory-body');
-        const cabangAktif = document.getElementById('select-cabang').value;
+        const cab = document.getElementById('select-cabang').value;
+        const shf = document.getElementById('select-shift').value;
+        const keyPrefix = `${cab}_${shf}`;
         tbody.innerHTML = "";
         
         daftarBarangMaster.forEach((barang, i) => {
             const isManual = manualOnly.includes(barang.nama);
-            const valStok = localStorage.getItem(`${cabangAktif}_stok-${i}`) || barang.stok;
-            const valMsk = localStorage.getItem(`${cabangAktif}_msk-${i}`) || "0";
-            const valRsk = localStorage.getItem(`${cabangAktif}_rsk-${i}`) || "0";
-            const valTrjl = localStorage.getItem(`${cabangAktif}_trjl-${i}`) || "0";
-            const valSisa = localStorage.getItem(`${cabangAktif}_sisa-${i}`) || (isManual ? "0" : valStok);
+            const valStok = localStorage.getItem(`${keyPrefix}_stok-${i}`) || barang.stok;
+            const valMsk = localStorage.getItem(`${keyPrefix}_msk-${i}`) || "0";
+            const valRsk = localStorage.getItem(`${keyPrefix}_rsk-${i}`) || "0";
+            const valTrjl = localStorage.getItem(`${keyPrefix}_trjl-${i}`) || "0";
+            const valSisa = localStorage.getItem(`${keyPrefix}_sisa-${i}`) || (isManual ? "0" : valStok);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${barang.nama}</td>
@@ -250,13 +245,13 @@ function eksekusiResetManual() {
         const oList = document.getElementById('omset-list');
         oList.innerHTML = "";
         omsets.forEach((o, i) => {
-            const saved = localStorage.getItem(`${cabangAktif}_omset-${i}`) || "0";
+            const saved = localStorage.getItem(`${keyPrefix}_omset-${i}`) || "0";
             oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-key="omset-${i}">${saved}</div></div>`;
         });
 
         const extraKeys = ['roti-coklat', 'roti-vanilla', 'roti-blueberry', 'save-cash', 'save-berita'];
         extraKeys.forEach(k => {
-            const saved = localStorage.getItem(`${cabangAktif}_${k}`);
+            const saved = localStorage.getItem(`${keyPrefix}_${k}`);
             if(saved) document.getElementById(k).innerText = saved;
             else document.getElementById(k).innerText = (k === 'save-berita' ? '-' : '0');
         });
@@ -264,7 +259,7 @@ function eksekusiResetManual() {
         document.querySelectorAll('.cell-save, .auto-save').forEach(el => {
             el.addEventListener('input', () => {
                 const key = el.getAttribute('data-key') || el.id;
-                localStorage.setItem(`${cabangAktif}_${key}`, el.innerText);
+                localStorage.setItem(`${keyPrefix}_${key}`, el.innerText);
                 hitungTotal();
             });
         });
@@ -279,9 +274,14 @@ function eksekusiResetManual() {
 
     function prosesKeGambar() {
         const area = document.getElementById('area-laporan');
-        const sel = document.getElementById('select-cabang');
-        const disp = document.getElementById('display-cabang');
-        disp.innerText = sel.options[sel.selectedIndex].text;
+        const selCab = document.getElementById('select-cabang');
+        const selShf = document.getElementById('select-shift');
+        const dispCab = document.getElementById('display-cabang');
+        const dispShf = document.getElementById('display-shift');
+        
+        dispCab.innerText = selCab.options[selCab.selectedIndex].text;
+        dispShf.innerText = selShf.options[selShf.selectedIndex].text;
+        
         area.classList.add('white-mode');
         setTimeout(() => {
             html2canvas(area, { scale: 2 }).then(canvas => {
