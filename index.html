@@ -168,36 +168,57 @@
         }
     }
 
-    function eksekusiResetManual() {
-        const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const cab = document.getElementById('select-cabang').value;
-        const shf = document.getElementById('select-shift').value;
-        const keyPrefix = `${cab}_${shf}`;
-        
-        const wajibKosong = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+function eksekusiResetManual() {
+    const tglSkrg = new Date().toLocaleDateString('id-ID');
+    const cab = document.getElementById('select-cabang').value;
+    const shf = document.getElementById('select-shift').value;
+    const keyPrefix = `${cab}_${shf}`;
+    
+    // Daftar barang yang WAJIB KOSONG (0) di kolom sisa saat reset
+    const wajibKosong = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
-        daftarBarangMaster.forEach((barang, i) => {
-            const sisaKemarin = localStorage.getItem(`${keyPrefix}_sisa-${i}`) || "0";
-            localStorage.setItem(`${keyPrefix}_stok-${i}`, sisaKemarin);
-            if (wajibKosong.includes(barang.nama)) {
-                localStorage.setItem(`${keyPrefix}_sisa-${i}`, "0");
-            } else {
-                localStorage.setItem(`${keyPrefix}_sisa-${i}`, sisaKemarin);
-            }
-            localStorage.setItem(`${keyPrefix}_msk-${i}`, "0");
-            localStorage.setItem(`${keyPrefix}_rsk-${i}`, "0");
-            localStorage.setItem(`${keyPrefix}_trjl-${i}`, "0");
-        });
-
-        for(let i=0; i<7; i++) localStorage.setItem(`${keyPrefix}_omset-${i}`, "0");
-        localStorage.setItem(`${keyPrefix}_save-cash`, "0");
-        localStorage.setItem(`${keyPrefix}_save-berita`, "-");
-        localStorage.setItem(`${keyPrefix}_last_date`, tglSkrg);
+    daftarBarangMaster.forEach((barang, i) => {
+        // 1. Ambil sisa terakhir dari memori shift tersebut
+        const sisaTerakhir = localStorage.getItem(`${keyPrefix}_sisa-${i}`) || "0";
         
-        alert("Reset Berhasil! Laporan siap digunakan.");
-        location.reload();
+        // 2. Pindahkan sisa terakhir ke STOK awal (Estafet)
+        localStorage.setItem(`${keyPrefix}_stok-${i}`, sisaTerakhir);
+        
+        // 3. Logika pengisian kolom SISA otomatis
+        if (wajibKosong.includes(barang.nama)) {
+            // Jika barang Cup/Susu/Roti, kolom SISA wajib 0
+            localStorage.setItem(`${keyPrefix}_sisa-${i}`, "0");
+        } else {
+            // Jika barang umum (Gula/Kopi/Plastik), SISA = STOK (biar tidak ngetik ulang)
+            localStorage.setItem(`${keyPrefix}_sisa-${i}`, sisaTerakhir);
+        }
+
+        // 4. Reset kolom input harian lainnya ke 0
+        localStorage.setItem(`${keyPrefix}_msk-${i}`, "0");
+        localStorage.setItem(`${keyPrefix}_rsk-${i}`, "0");
+        localStorage.setItem(`${keyPrefix}_trjl-${i}`, "0");
+    });
+
+    // 5. Reset TOTAL OMSET per baris
+    for(let i=0; i<7; i++) {
+        localStorage.setItem(`${keyPrefix}_omset-${i}`, "0");
     }
+    
+    // 6. Reset Roti Fisik di kotak atas (Wajib Cek Ulang)
+    localStorage.setItem(`${keyPrefix}_roti-coklat`, "0");
+    localStorage.setItem(`${keyPrefix}_roti-vanilla`, "0");
+    localStorage.setItem(`${keyPrefix}_roti-blueberry`, "0");
 
+    // 7. Reset Cash & Berita Acara
+    localStorage.setItem(`${keyPrefix}_save-cash`, "0");
+    localStorage.setItem(`${keyPrefix}_save-berita`, "-");
+    
+    // 8. Kunci tanggal terakhir reset
+    localStorage.setItem(`${keyPrefix}_last_date`, tglSkrg);
+    
+    alert("Reset Berhasil! Laporan " + cab + " " + shf + " sudah siap.");
+    location.reload();
+}    
     function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
         const cab = document.getElementById('select-cabang').value;
