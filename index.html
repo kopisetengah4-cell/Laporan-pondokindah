@@ -3,42 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Laporan 29 Maret</title>
+    <title>Kopi Setengah-4 | Laporan Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 50px; }
-        #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
-        .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 15px; }
-        .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        #area-laporan { background: #000; padding: 20px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
+        .main-title { text-align: center; color: #d4a373; font-size: 20px; font-weight: 800; margin-bottom: 15px; letter-spacing: 2px; }
+        .top-section { display: flex; justify-content: space-between; margin-bottom: 15px; }
         .info-group { font-size: 11px; font-weight: 800; color: #d4a373; }
-        .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 80px; display: inline-block; padding-left: 5px; outline: none; }
-        .roti-box { width: 150px; border: 1px solid #444; }
-        .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 4px; font-size: 10px; }
-        .roti-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #222; font-size: 10px; font-weight: 800; }
+        .info-val { color: #fff; border-bottom: 1px solid #444; min-width: 90px; display: inline-block; padding-left: 5px; outline: none; }
+        .roti-box { width: 160px; border: 1px solid #444; }
+        .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 5px; font-size: 10px; border-bottom: 1px solid #444; }
+        .roti-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid #222; font-size: 10px; font-weight: 800; }
         table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
-        th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #444; font-size: 9px; }
-        td { border: 1px solid #222; padding: 6px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
-        .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; }
-        .omset-container { display: flex; border: 1px solid #333; margin-top: 15px; }
-        .omset-row { display: flex; border-bottom: 1px solid #222; height: 25px; align-items: center; }
-        .omset-label { width: 120px; padding-left: 10px; font-size: 9px; color: #d4a373; }
+        th { color: #d4a373; background: #111; padding: 8px 2px; border: 1px solid #444; font-size: 9px; }
+        td { border: 1px solid #222; padding: 8px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
+        .col-nama { width: 170px; text-align: left !important; color: #d4a373; padding-left: 10px; background-color: #050505; }
+        .omset-container { display: flex; border: 1px solid #333; margin-top: 20px; }
+        .omset-row { display: flex; border-bottom: 1px solid #222; height: 28px; align-items: center; }
+        .omset-label { width: 130px; padding-left: 12px; font-size: 9px; color: #d4a373; font-weight: 800; }
         .omset-input { flex: 1; text-align: left; outline: none; padding-left: 10px; font-size: 11px; color: #fff; }
-        .total-box { width: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
-        .footer-section { display: flex; gap: 10px; margin-top: 15px; }
-        .footer-item { flex: 1; border: 1px solid #333; padding: 10px; text-align: center; }
-        .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 5px; }
+        .total-box { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
+        .footer-section { display: flex; gap: 10px; margin-top: 20px; }
+        .footer-item { flex: 1; border: 1px solid #333; padding: 12px; text-align: center; }
+        .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 8px; }
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        #preview-img { max-width: 85%; border: 3px solid #fff; margin-bottom: 10px; }
-        .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
-        .mode-print .main-title, .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label, .mode-print .roti-header { color: #000 !important; }
-        .mode-print .col-nama { color: #000 !important; background: #f2f2f2 !important; }
-        .mode-print td, .mode-print th { border: 1px solid #000 !important; color: #000 !important; }
-        .mode-print th { background: #000 !important; color: #fff !important; }
-        .mode-print .total-box { background: #000 !important; color: #fff !important; }
+        #preview-img { max-width: 90%; border: 2px solid #fff; margin-bottom: 15px; }
     </style>
 </head>
 <body onload="muatSemuaData()">
@@ -49,7 +43,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:red; border:none; padding:10px 20px; border-radius:5px; margin-top:10px;">EDIT LAGI</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:10px 25px; border-radius:5px;">KEMBALI KE EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -70,14 +64,14 @@
         </div>
 
         <table>
-            <thead><tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
+            <thead><tr><th style="width:170px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
 
         <div class="omset-container">
             <div style="flex:1" id="omset-list"></div>
             <div class="total-box">
-                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
+                <div style="font-size: 10px; margin-bottom: 5px; color: #d4a373;">TOTAL OMSET</div>
                 <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
             </div>
         </div>
@@ -85,7 +79,7 @@
         <div class="footer-section">
             <div class="footer-item">
                 <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800;">0</div>
+                <div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800; font-size: 12px;">0</div>
             </div>
             <div class="footer-item">
                 <div class="footer-label">BERITA ACARA:</div>
@@ -96,13 +90,15 @@
 </div>
 
 <script>
-    const manualList = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+    // Daftar Pengecualian (Wajib Isi Manual, Awalnya 0)
+    const daftarManual = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+    
     const dataAwal28 = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1/870", "FN": "4/290", "SKM": "6/77", "HERSHEY'S": "1/620", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function muatSemuaData() {
         const tbody = document.getElementById('inventory-body');
         Object.keys(dataAwal28).forEach((nama, i) => {
-            const isManual = manualList.includes(nama);
+            const isManual = daftarManual.includes(nama);
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="col-nama">${nama}</td>
@@ -110,7 +106,7 @@
                 <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
                 <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-manual="${isManual}">0</td>`;
+                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-is-manual="${isManual}">0</td>`;
             tbody.appendChild(tr);
         });
 
@@ -125,7 +121,7 @@
             if (saved !== null) el.innerText = saved;
             el.addEventListener('input', () => {
                 localStorage.setItem(el.getAttribute('data-id'), el.innerText);
-                if (el.classList.contains('input-val')) hitungSisa(el.getAttribute('data-row'));
+                if (el.classList.contains('input-val')) hitungSisaOtomatis(el.getAttribute('data-row'));
                 hitungTotal();
             });
         });
@@ -148,10 +144,10 @@
         return parseFloat(str.replace('½', '.5')) || 0;
     }
 
-    function hitungSisa(rowIdx) {
+    function hitungSisaOtomatis(rowIdx) {
         const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
-        // JIKA MANUAL, JANGAN GANTI ANGKA (BIAR TETAP 0 ATAU SESUAI KETIKAN KARYAWAN)
-        if (sisaCell.getAttribute('data-manual') === "true") return;
+        // JIKA MASUK DAFTAR MANUAL, JANGAN GANTI ANGKA OTOMATIS
+        if (sisaCell.getAttribute('data-is-manual') === "true") return;
 
         const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
         const msk = parseVal(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
@@ -178,11 +174,9 @@
     }
 
     function prosesKeGambar() {
-        document.body.classList.add('mode-print');
         html2canvas(document.getElementById('area-laporan'), { scale: 2 }).then(canvas => {
             document.getElementById('preview-img').src = canvas.toDataURL();
             document.getElementById('overlay').style.display = 'flex';
-            document.body.classList.remove('mode-print');
         });
     }
 </script>
