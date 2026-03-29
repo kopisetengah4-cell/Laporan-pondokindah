@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Anti-Hilang</title>
+    <title>Kopi Setengah-4 | Laporan 29 Maret</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -33,6 +33,7 @@
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         #preview-img { max-width: 85%; border: 3px solid #fff; margin-bottom: 10px; }
+        
         /* Mode Print Putih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label, .mode-print .roti-header { color: #000 !important; }
@@ -63,15 +64,15 @@
         <div class="main-title">KOPI SETENGAH-4</div>
         <div class="top-section">
             <div class="info-group">
-                <div>HARI : <span id="lbl-hari" class="info-val">...</span></div>
-                <div>TGL : <span id="lbl-tgl" class="info-val">...</span></div>
+                <div>HARI : <span id="lbl-hari" class="info-val">MINGGU</span></div>
+                <div>TGL : <span id="lbl-tgl" class="info-val">29/03/2026</span></div>
                 <div>CABANG : <span class="info-val" contenteditable="true" id="save-cabang">PONDOK INDAH</span></div>
             </div>
             <div class="roti-box">
                 <div class="roti-header">SISA ROTI (FISIK)</div>
-                <div class="roti-row"><span>COKLAT</span><span contenteditable="true" id="roti-coklat" class="auto-save">0</span></div>
-                <div class="roti-row"><span>VANILLA</span><span contenteditable="true" id="roti-vanilla" class="auto-save">0</span></div>
-                <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true" id="roti-blueberry" class="auto-save">0</span></div>
+                <div class="roti-row"><span>COKLAT</span><span contenteditable="true" id="roti-coklat" class="auto-save">18</span></div>
+                <div class="roti-row"><span>VANILLA</span><span contenteditable="true" id="roti-vanilla" class="auto-save">16</span></div>
+                <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true" id="roti-blueberry" class="auto-save">14</span></div>
             </div>
         </div>
 
@@ -89,26 +90,48 @@
         </div>
 
         <div class="footer-section">
-            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800;">0</div></div>
-            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" id="save-berita" class="auto-save" style="font-size: 10px;">-</div></div>
+            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" id="save-cash" class="auto-save" style="font-weight: 800;">78.500</div></div>
+            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" id="save-berita" class="auto-save" style="font-size: 10px;">Aman.</div></div>
         </div>
     </div>
 </div>
 
 <script>
-    const dataAwal = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+    // DATA STOK AWAL DIAMBIL DARI SISA STOK TANGGAL 28
+    const dataAwal28 = {
+        "CUP KECIL": "1.156",
+        "CUP BESAR": "133",
+        "CUP HOT": "127",
+        "BOTOL 1 LITER": "22",
+        "BOTOL 500 ML": "49",
+        "GULA AREN": "4½",
+        "GULA PUTIH": "1½",
+        "KOPI": "15",
+        "SUSU UHT": "23/961",
+        "KRIMER": "10/660",
+        "SEA SALT CREAM": "1/870",
+        "FN": "4/290",
+        "SKM": "6/77",
+        "HERSHEY'S": "1/620",
+        "REMON": "27",
+        "SEDOTAN KECIL": "5½",
+        "SEDOTAN BESAR": "2½",
+        "PLASTIK ISI 2": "5",
+        "PLASTIK ISI 1": "7",
+        "PLASTIK BESAR": "7",
+        "CUP SEALER": "1",
+        "BASE SUSU": "2.100",
+        "BASE KOPI": "1.100",
+        "ROTI": "48"
+    };
 
     function muatSemuaData() {
-        const tgl = new Date().toLocaleDateString('id-ID');
-        document.getElementById('lbl-hari').innerText = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
-        document.getElementById('lbl-tgl').innerText = tgl;
-
-        // Render Tabel
+        // Render Tabel Stok
         const tbody = document.getElementById('inventory-body');
-        Object.keys(dataAwal).forEach((nama, i) => {
+        Object.keys(dataAwal28).forEach((nama, i) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${nama}</td>
-                <td contenteditable="true" class="cell-save" data-id="stok-${i}">${dataAwal[nama]}</td>
+                <td contenteditable="true" class="cell-save" data-id="stok-${i}">${dataAwal28[nama]}</td>
                 <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
                 <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
                 <td contenteditable="true" class="cell-save" data-id="trjl-${i}">0</td>
@@ -116,14 +139,14 @@
             tbody.appendChild(tr);
         });
 
-        // Render Omset
+        // Render Daftar Omset
         const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
         omsets.forEach((o, i) => { 
             oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">0</div></div>`; 
         });
 
-        // LOAD DATA DARI MEMORI
+        // LOAD DATA DARI MEMORI (AUTO-SAVE)
         document.querySelectorAll('[data-id]').forEach(el => {
             const saved = localStorage.getItem(el.getAttribute('data-id'));
             if (saved !== null) el.innerText = saved;
@@ -145,7 +168,10 @@
 
     function hitungTotal() {
         let t = 0; 
-        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
+        document.querySelectorAll('.omset-input').forEach(i => {
+            let val = i.innerText.replace(/\./g, '').trim();
+            t += parseInt(val) || 0;
+        });
         document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
