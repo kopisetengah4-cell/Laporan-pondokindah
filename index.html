@@ -159,35 +159,53 @@
             eksekusiResetManual();
         }
     }
+    
+function eksekusiResetManual() {
+    const tglSkrg = new Date().toLocaleDateString('id-ID');
+    const cabangAktif = document.getElementById('select-cabang').value;
+    
+    // Daftar barang yang WAJIB KOSONG (0) di kolom sisa saat reset
+    const wajibKosong = [
+        "CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", 
+        "SKM", "BASE SUSU", "BASE KOPI", "ROTI"
+    ];
 
-    function eksekusiResetManual() {
-        const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const cabangAktif = document.getElementById('select-cabang').value;
+    daftarBarangMaster.forEach((barang, i) => {
+        // 1. Ambil sisa dari hari sebelumnya (dari memori)
+        const sisaKemarin = localStorage.getItem(`${cabangAktif}_sisa-${i}`) || "0";
         
-        daftarBarangMaster.forEach((barang, i) => {
-            const sisaHariIni = localStorage.getItem(`${cabangAktif}_sisa-${i}`) || "0";
-            // Estafet: Sisa jadi Stok Baru
-            localStorage.setItem(`${cabangAktif}_stok-${i}`, sisaHariIni);
-            // Reset kolom lainnya
-            localStorage.setItem(`${cabangAktif}_msk-${i}`, "0");
-            localStorage.setItem(`${cabangAktif}_rsk-${i}`, "0");
-            localStorage.setItem(`${cabangAktif}_trjl-${i}`, "0");
-            // Barang wajib cek fisik dikosongkan sisanya
-            localStorage.setItem(`${cabangAktif}_sisa-${i}`, manualOnly.includes(barang.nama) ? "0" : sisaHariIni);
-        });
+        // 2. Pindahkan sisa kemarin ke STOK hari ini (Estafet)
+        localStorage.setItem(`${cabangAktif}_stok-${i}`, sisaKemarin);
+        
+        // 3. Isi kolom SISA otomatis
+        if (wajibKosong.includes(barang.nama)) {
+            // Jika barang sensitif, kosongkan (0)
+            localStorage.setItem(`${cabangAktif}_sisa-${i}`, "0");
+        } else {
+            // Jika barang umum, samakan SISA dengan STOK baru
+            localStorage.setItem(`${cabangAktif}_sisa-${i}`, sisaKemarin);
+        }
 
-        // Reset Omset & Footer
-        for(let i=0; i<7; i++) localStorage.setItem(`${cabangAktif}_omset-${i}`, "0");
-        localStorage.setItem(`${cabangAktif}_save-cash`, "0");
-        localStorage.setItem(`${cabangAktif}_save-berita`, "-");
-        
-        // Update Tanggal Terakhir
-        localStorage.setItem(`${cabangAktif}_last_date`, tglSkrg);
-        
-        alert("Reset Berhasil! Selamat bekerja di hari baru.");
-        location.reload();
-    }
+        // 4. Reset kolom transaksi lainnya
+        localStorage.setItem(`${cabangAktif}_msk-${i}`, "0");
+        localStorage.setItem(`${cabangAktif}_rsk-${i}`, "0");
+        localStorage.setItem(`${cabangAktif}_trjl-${i}`, "0");
+    });
 
+    // Reset Omset Harian
+    for(let i=0; i<7; i++) localStorage.setItem(`${cabangAktif}_omset-${i}`, "0");
+    
+    // Reset Catatan & Cash
+    localStorage.setItem(`${cabangAktif}_save-cash`, "0");
+    localStorage.setItem(`${cabangAktif}_save-berita`, "-");
+    
+    // Update Tanggal Terakhir ke hari ini
+    localStorage.setItem(`${cabangAktif}_last_date`, tglSkrg);
+    
+    alert("Reset Berhasil! Laporan sudah siap untuk hari baru.");
+    location.reload();
+}
+    
     function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
         const cabangAktif = document.getElementById('select-cabang').value;
