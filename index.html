@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Sistem Estafet Manual-Hybrid</title>
+    <title>Kopi Setengah-4 | Auto-Estafet System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -21,19 +21,13 @@
         th { color: #d4a373; background: #111; padding: 8px 2px; border: 1px solid #444; font-size: 9px; }
         td { border: 1px solid #222; padding: 8px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
         .col-nama { width: 170px; text-align: left !important; color: #d4a373; padding-left: 10px; background-color: #050505; }
-        .omset-container { display: flex; border: 1px solid #333; margin-top: 20px; }
-        .omset-row { display: flex; border-bottom: 1px solid #222; height: 28px; align-items: center; }
-        .omset-label { width: 130px; padding-left: 12px; font-size: 9px; color: #d4a373; font-weight: 800; }
-        .omset-input { flex: 1; text-align: left; outline: none; padding-left: 10px; font-size: 11px; color: #fff; }
-        .total-box { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
         
         /* MODE UNDUH PUTIH */
         .white-mode { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
-        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .omset-label, .white-mode .roti-header { color: #000 !important; }
+        .white-mode .main-title, .white-mode .info-group, .white-mode .info-val, .white-mode .roti-header { color: #000 !important; }
         .white-mode td, .white-mode th { border: 1px solid #000 !important; color: #000 !important; }
         .white-mode th { background: #eee !important; }
         .white-mode .col-nama { background: #f9f9f9 !important; color: #000 !important; }
-        .white-mode .total-box { background: #eee !important; color: #000 !important; }
 
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
@@ -41,7 +35,7 @@
         #preview-img { max-width: 90%; border: 2px solid #fff; }
     </style>
 </head>
-<body onload="initSistem()">
+<body onload="jalankanSistemEstafet()">
 
 <div class="controls">
     <button onclick="prosesKeGambar()" class="btn-wa">BAGIKAN KE WHATSAPP (PUTIH)</button>
@@ -49,7 +43,7 @@
 
 <div id="overlay">
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:10px 25px; border-radius:5px; margin-top:10px;">KEMBALI</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="color:#fff; background:#555; border:none; padding:10px 25px; border-radius:5px; margin-top:10px;">KEMBALI KE EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -73,118 +67,77 @@
             <thead><tr><th style="width:170px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
-
-        <div class="omset-container">
-            <div style="flex:1" id="omset-list"></div>
-            <div class="total-box">
-                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
-                <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
-    // Barang yang WAJIB isi manual (Kolom sisa dikosongkan)
-    const manualList = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const manualOnly = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT CREAM", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KECIL", "SEDOTAN BESAR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BESAR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
 
-    function initSistem() {
+    function jalankanSistemEstafet() {
         const tglSkrg = new Date().toLocaleDateString('id-ID');
-        const tglLalu = localStorage.getItem('last_date');
+        const tglTerakhir = localStorage.getItem('app_last_date');
         
+        // Update Label Tanggal
         const opsi = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
         const hariIni = new Date().toLocaleDateString('id-ID', opsi).split(', ');
         document.getElementById('lbl-hari').innerText = hariIni[0].toUpperCase();
         document.getElementById('lbl-tgl').innerText = hariIni[1];
 
-        // LOGIKA ESTAFET DATA
-        if (tglLalu && tglLalu !== tglSkrg) {
+        // CEK HARI BARU
+        if (tglTerakhir && tglTerakhir !== tglSkrg) {
             daftarBarang.forEach((nama, i) => {
-                const sisaKemarin = localStorage.getItem(`sisa-${i}`);
-                if (sisaKemarin) {
-                    localStorage.setItem(`stok-${i}`, sisaKemarin); // Sisa kemarin jadi Stok hari ini
-                    
-                    // Kolom sisa diisi otomatis KECUALI yang di manualList
-                    if (manualList.includes(nama)) {
-                        localStorage.setItem(`sisa-${i}`, "0"); // Kosongkan untuk cek fisik
-                    } else {
-                        localStorage.setItem(`sisa-${i}`, sisaKemarin); // Isi otomatis sama dengan stok
-                    }
+                const sisaKemarin = localStorage.getItem(`sisa-${i}`) || "0";
+                
+                // 1. Stok Hari Ini = Sisa Kemarin
+                localStorage.setItem(`stok-${i}`, sisaKemarin);
+                
+                // 2. Sisa Hari Ini: Kosongkan jika di list manual, samakan stok jika otomatis
+                if (manualOnly.includes(nama)) {
+                    localStorage.setItem(`sisa-${i}`, "0"); 
+                } else {
+                    localStorage.setItem(`sisa-${i}`, sisaKemarin);
                 }
+
+                // 3. Reset input harian
                 localStorage.setItem(`msk-${i}`, "0");
                 localStorage.setItem(`rsk-${i}`, "0");
                 localStorage.setItem(`trjl-${i}`, "0");
             });
-            localStorage.setItem('last_date', tglSkrg);
+            localStorage.setItem('app_last_date', tglSkrg);
+        } else if (!tglTerakhir) {
+            localStorage.setItem('app_last_date', tglSkrg);
         }
-        renderTabel();
+
+        tampilkanTabel();
     }
 
-    function renderTabel() {
+    function tampilkanTabel() {
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
+        
         daftarBarang.forEach((nama, i) => {
-            const isManual = manualList.includes(nama);
+            const isManual = manualOnly.includes(nama);
             const valStok = localStorage.getItem(`stok-${i}`) || "0";
             const valSisa = localStorage.getItem(`sisa-${i}`) || (isManual ? "0" : valStok);
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="col-nama">${nama}</td>
-                <td contenteditable="true" class="cell-save input-val" data-id="stok-${i}" data-row="${i}">${valStok}</td>
-                <td contenteditable="true" class="cell-save input-val" data-id="msk-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save input-val" data-id="rsk-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save input-val" data-id="trjl-${i}" data-row="${i}">0</td>
-                <td contenteditable="true" class="cell-save sisa-cell" data-id="sisa-${i}" data-row="${i}" data-manual="${isManual}">${valSisa}</td>`;
+                <td contenteditable="true" class="cell-save" data-id="stok-${i}">${valStok}</td>
+                <td contenteditable="true" class="cell-save" data-id="msk-${i}">0</td>
+                <td contenteditable="true" class="cell-save" data-id="rsk-${i}">0</td>
+                <td contenteditable="true" class="cell-save" data-id="trjl-${i}">0</td>
+                <td contenteditable="true" class="cell-save" data-id="sisa-${i}">${valSisa}</td>`;
             tbody.appendChild(tr);
         });
 
-        const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
-        const oList = document.getElementById('omset-list');
-        oList.innerHTML = "";
-        omsets.forEach((o, i) => { 
-            oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input cell-save" contenteditable="true" data-id="omset-${i}">0</div></div>`; 
-        });
-
-        document.querySelectorAll('[data-id]').forEach(el => {
-            const saved = localStorage.getItem(el.getAttribute('data-id'));
-            if (saved !== null) el.innerText = saved;
+        // Simpan otomatis saat diketik
+        document.querySelectorAll('.cell-save').forEach(el => {
             el.addEventListener('input', () => {
                 localStorage.setItem(el.getAttribute('data-id'), el.innerText);
-                if (el.classList.contains('input-val')) hitungSisa(el.getAttribute('data-row'));
-                hitungTotal();
             });
         });
-        hitungTotal();
-    }
-
-    function hitungSisa(rowIdx) {
-        const sisaCell = document.querySelector(`[data-id="sisa-${rowIdx}"]`);
-        if (sisaCell.getAttribute('data-manual') === "true") return;
-
-        const stokStr = document.querySelector(`[data-id="stok-${rowIdx}"]`).innerText;
-        const msk = parseVal(document.querySelector(`[data-id="msk-${rowIdx}"]`).innerText);
-        const rsk = parseVal(document.querySelector(`[data-id="rsk-${rowIdx}"]`).innerText);
-        const trjl = parseVal(document.querySelector(`[data-id="trjl-${rowIdx}"]`).innerText);
-
-        let hasil = "";
-        if (stokStr.includes('/')) {
-            let pts = stokStr.split('/');
-            hasil = formatSetengah(parseVal(pts[0]) + msk - rsk - trjl) + '/' + pts[1];
-        } else {
-            hasil = formatSetengah(parseVal(stokStr) + msk - rsk - trjl);
-        }
-        sisaCell.innerText = hasil;
-        localStorage.setItem(sisaCell.getAttribute('data-id'), hasil);
-    }
-
-    function formatSetengah(n) { return n.toString().endsWith('.5') ? Math.floor(n) + '½' : n.toString(); }
-    function parseVal(s) { return parseFloat(s.replace('½', '.5')) || 0; }
-    function hitungTotal() {
-        let t = 0; 
-        document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
-        document.getElementById('total-val').innerText = t.toLocaleString('id-ID');
     }
 
     function prosesKeGambar() {
