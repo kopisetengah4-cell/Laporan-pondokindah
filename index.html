@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Full System</title>
+    <title>Kopi Setengah-4 | Versi Lengkap & Auto-Chrome</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -11,17 +11,12 @@
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 50px; }
         #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
         
-        /* Warna Nama Barang: Emas di Web, Hitam di Download */
         .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; font-weight: 800; }
         .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
-        
-        /* Mode Cetak Putih Bersih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
-        .mode-print .info-val { border-bottom: 1px solid #000 !important; }
         .mode-print td { border: 1px solid #000 !important; color: #000 !important; }
         .mode-print th { background: #000 !important; color: #fff !important; }
-        .mode-print .total-box { background: #000 !important; color: #fff !important; }
 
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 15px; }
         .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -57,13 +52,13 @@
 <body onload="cekDanMuatData()">
 
 <div class="controls">
-    <button onclick="prosesLaporan()" class="btn-main">🚀 PROSES & BUKA DI CHROME</button>
+    <button onclick="handleAction()" class="btn-main">🚀 PROSES & LANGSUNG KE CHROME</button>
 </div>
 
 <div id="overlay">
     <img id="preview-img" src="">
     <button id="btn-download" style="background:#28a745; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">DOWNLOAD SEKARANG</button>
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:10px; border:none; text-decoration:underline; font-weight:800;">BATAL / EDIT</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:10px; border:none; text-decoration:underline;">KEMBALI EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -84,29 +79,18 @@
         </div>
 
         <table>
-            <thead>
-                <tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>
-            </thead>
+            <thead><tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
 
         <div class="omset-container">
             <div style="flex:1" id="omset-list"></div>
-            <div class="total-box">
-                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
-                <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
-            </div>
+            <div class="total-box"><div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div><div id="total-val" style="font-size: 24px; font-weight: 800;">0</div></div>
         </div>
 
         <div class="footer-section">
-            <div class="footer-item">
-                <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">BERITA ACARA:</div>
-                <div contenteditable="true" style="font-size: 10px;">Laporan aman.</div>
-            </div>
+            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div></div>
+            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" style="font-size: 10px;">Laporan aman.</div></div>
         </div>
     </div>
 </div>
@@ -117,15 +101,11 @@
 
     function cekDanMuatData() {
         const tgl = new Date().toLocaleDateString('id-ID');
-        const lastTgl = localStorage.getItem('last_date_vFinal');
         document.getElementById('lbl-hari').innerText = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
         document.getElementById('lbl-tgl').innerText = tgl;
-
         let stok = dataAwal;
-        if (lastTgl && lastTgl !== tgl) {
-            const saved = JSON.parse(localStorage.getItem('saved_sisa_vFinal'));
-            if (saved) stok = saved;
-        }
+        const saved = JSON.parse(localStorage.getItem('saved_sisa_final'));
+        if (localStorage.getItem('last_date_final') !== tgl && saved) stok = saved;
         render(stok);
     }
 
@@ -141,7 +121,6 @@
         const oList = document.getElementById('omset-list');
         oList.innerHTML = "";
         omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
-        
         document.querySelectorAll('.omset-input').forEach(el => {
             el.addEventListener('input', () => {
                 let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
@@ -150,26 +129,23 @@
         });
     }
 
-    function prosesLaporan() {
-        // 1. Simpan data sisa untuk besok ke memori HP
+    function handleAction() {
+        // Simpan sisa stok
         const sisa = {};
-        document.querySelectorAll('#inventory-body tr').forEach(tr => { 
-            sisa[tr.cells[0].innerText] = tr.cells[5].innerText; 
-        });
-        localStorage.setItem('saved_sisa_vFinal', JSON.stringify(sisa));
-        localStorage.setItem('last_date_vFinal', new Date().toLocaleDateString('id-ID'));
+        document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
+        localStorage.setItem('saved_sisa_final', JSON.stringify(sisa));
+        localStorage.setItem('last_date_final', new Date().toLocaleDateString('id-ID'));
 
-        // 2. Cek apakah sudah di Chrome atau masih di APK
         const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-        
         if (!isChrome) {
-            // KODE BARU: Memaksa langsung buka Chrome tanpa lewat Play Store
-            const urlTujuan = window.location.href.replace(/^https?:\/\//, "");
-            const intentUrl = `intent://${urlTujuan}#Intent;scheme=https;action=android.intent.action.VIEW;package=com.android.chrome;S.browser_fallback_url=${window.location.href};end`;
-            
-            window.location.href = intentUrl;
+            // PAKSA PINDAH KE CHROME (TURBO PROTOCOL)
+            const fullUrl = window.location.href;
+            const urlWithoutProtocol = fullUrl.replace(/^https?:\/\//, "");
+            const chromeIntent = "intent://" + urlWithoutProtocol + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(fullUrl) + ";end";
+            window.location.href = chromeIntent;
+            // Backup jika Intent utama terhalang
+            setTimeout(() => { window.location.href = "googlechrome://navigate?url=" + fullUrl; }, 400);
         } else {
-            // Jika sudah di Chrome, langsung munculkan gambar untuk download
             generateImg();
         }
     }
