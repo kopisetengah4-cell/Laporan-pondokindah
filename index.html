@@ -151,17 +151,25 @@
     }
 
     function prosesLaporan() {
-        // Simpan data sisa untuk besok
+        // 1. Simpan data sisa untuk besok ke memori HP
         const sisa = {};
-        document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
+        document.querySelectorAll('#inventory-body tr').forEach(tr => { 
+            sisa[tr.cells[0].innerText] = tr.cells[5].innerText; 
+        });
         localStorage.setItem('saved_sisa_vFinal', JSON.stringify(sisa));
         localStorage.setItem('last_date_vFinal', new Date().toLocaleDateString('id-ID'));
 
-        // Jika tidak di Chrome, paksa pindah
+        // 2. Cek apakah sudah di Chrome atau masih di APK
         const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        
         if (!isChrome) {
-            window.location.href = "intent://" + window.location.href.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+            // KODE BARU: Memaksa langsung buka Chrome tanpa lewat Play Store
+            const urlTujuan = window.location.href.replace(/^https?:\/\//, "");
+            const intentUrl = `intent://${urlTujuan}#Intent;scheme=https;action=android.intent.action.VIEW;package=com.android.chrome;S.browser_fallback_url=${window.location.href};end`;
+            
+            window.location.href = intentUrl;
         } else {
+            // Jika sudah di Chrome, langsung munculkan gambar untuk download
             generateImg();
         }
     }
