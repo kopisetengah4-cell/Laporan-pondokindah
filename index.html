@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Anti-Gagal Download</title>
+    <title>Kopi Setengah-4 | Direct Share</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        .wrapper { width: 100%; overflow-x: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; }
+        .wrapper { width: 100%; overflow-x: auto; padding-bottom: 20px; }
         #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
         
-        /* Warna Nama Barang di Web (Emas) vs Download (Hitam) */
+        /* Nama Barang Hitam Saat Download */
         .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; font-weight: 800; }
         .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
         
-        /* Mode Cetak Putih Bersih */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
         .mode-print .info-val { border-bottom: 1px solid #000 !important; }
@@ -45,22 +44,21 @@
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-gen { background: #4285F4; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; }
         
-        /* OVERLAY ANTI-GAGAL */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding-top: 30px; }
-        #preview-img { width: 90%; border: 2px solid #fff; margin-bottom: 15px; display: block; }
-        .instruksi { color: #28a745; font-weight: 800; text-align: center; margin-bottom: 20px; padding: 0 20px; font-size: 14px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #preview-img { max-width: 100%; max-height: 60vh; border: 2px solid #fff; margin-bottom: 20px; }
+        .btn-share { background: #25D366; color: white; padding: 15px 40px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; font-size: 16px; width: 100%; max-width: 300px; }
     </style>
 </head>
 <body onload="cekDanMuatData()">
 
 <div class="controls">
-    <button onclick="prosesLaporan()" class="btn-gen">GENERATE LAPORAN</button>
+    <button onclick="prosesLaporan()" class="btn-gen">GENERATE & KIRIM</button>
 </div>
 
 <div id="overlay">
-    <div class="instruksi">✓ BERHASIL TERBENTUK!<br>TEKAN LAMA PADA GAMBAR DI BAWAH<br>LALU PILIH "SIMPAN/DOWNLOAD GAMBAR"</div>
     <img id="preview-img" src="">
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:#dc3545; color:#fff; border:none; padding:12px 30px; border-radius:5px; font-weight:800; margin: 20px 0; cursor:pointer;">TUTUP & EDIT LAGI</button>
+    <button id="btnShare" class="btn-share">KIRIM KE WHATSAPP / SIMPAN</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; border:none; padding:15px; font-weight:800; cursor:pointer;">BATAL / EDIT</button>
 </div>
 
 <div class="wrapper">
@@ -79,71 +77,50 @@
                 <div class="roti-row"><span>BLUEBERRY</span><span contenteditable="true">14</span></div>
             </div>
         </div>
-
         <table>
-            <thead>
-                <tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>
-            </thead>
+            <thead><tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
-
         <div class="omset-container">
             <div style="flex:1" id="omset-list"></div>
-            <div class="total-box">
-                <div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div>
-                <div id="total-val" style="font-size: 24px; font-weight: 800;">0</div>
-            </div>
+            <div class="total-box"><div style="font-size: 10px; margin-bottom: 5px;">TOTAL OMSET</div><div id="total-val" style="font-size: 24px; font-weight: 800;">0</div></div>
         </div>
-
         <div class="footer-section">
-            <div class="footer-item">
-                <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">BERITA ACARA:</div>
-                <div contenteditable="true" style="font-size: 10px;">Laporan harian selesai.</div>
-            </div>
+            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div></div>
+            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" style="font-size: 10px;">Aman.</div></div>
         </div>
     </div>
 </div>
 
 <script>
     const manualItems = ["CUP KECIL", "CUP BESAR", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const dataKemarin = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
+    const dataAwal = {"CUP KECIL": "1.156", "CUP BESAR": "133", "CUP HOT": "127", "BOTOL 1 LITER": "22", "BOTOL 500 ML": "49", "GULA AREN": "4½", "GULA PUTIH": "1½", "KOPI": "15", "SUSU UHT": "23/961", "KRIMER": "10/660", "SEA SALT CREAM": "1", "FN": "4", "SKM": "6/77", "HERSHEY'S": "1", "REMON": "27", "SEDOTAN KECIL": "5½", "SEDOTAN BESAR": "2½", "PLASTIK ISI 2": "5", "PLASTIK ISI 1": "7", "PLASTIK BESAR": "7", "CUP SEALER": "1", "BASE SUSU": "2.100", "BASE KOPI": "1.100", "ROTI": "48"};
 
     function cekDanMuatData() {
         const tglSekarang = new Date().toLocaleDateString('id-ID');
-        const tglTerakhir = localStorage.getItem('last_date_final');
+        const tglTerakhir = localStorage.getItem('last_date_share');
         const labelHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
-        
         document.getElementById('lbl-hari').innerText = labelHari;
         document.getElementById('lbl-tgl').innerText = tglSekarang;
-
-        let stokHariIni = dataKemarin;
+        let stok = dataAwal;
         if (tglTerakhir && tglTerakhir !== tglSekarang) {
-            const savedSisa = JSON.parse(localStorage.getItem('saved_sisa_final'));
-            if (savedSisa) stokHariIni = savedSisa;
+            const saved = JSON.parse(localStorage.getItem('saved_sisa_share'));
+            if (saved) stok = saved;
         }
-
-        renderApp(stokHariIni);
-        localStorage.setItem('last_date_final', tglSekarang);
+        render(stok);
+        localStorage.setItem('last_date_share', tglSekarang);
     }
 
-    function renderApp(stokData) {
+    function render(stokData) {
         const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = "";
         Object.keys(stokData).forEach(nama => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${nama}</td><td contenteditable="true">${stokData[nama]}</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">${manualItems.includes(nama) ? "" : stokData[nama]}</td>`;
             tbody.appendChild(tr);
         });
-
         const omsets = ["CASH", "TRANSFER", "GRAB", "QRIS", "SHOPEE", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
-        oList.innerHTML = "";
         omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
-
         document.querySelectorAll('.omset-input').forEach(el => {
             el.addEventListener('input', () => {
                 let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
@@ -152,18 +129,32 @@
         });
     }
 
-    function prosesLaporan() {
-        const sisaSekarang = {};
-        document.querySelectorAll('#inventory-body tr').forEach(tr => { sisaSekarang[tr.cells[0].innerText] = tr.cells[5].innerText; });
-        localStorage.setItem('saved_sisa_final', JSON.stringify(sisaSekarang));
+    async function prosesLaporan() {
+        // Simpan sisa stok
+        const sisa = {};
+        document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
+        localStorage.setItem('saved_sisa_share', JSON.stringify(sisa));
 
         document.body.classList.add('mode-print');
-        html2canvas(document.getElementById('area-laporan'), { scale: 2 }).then(canvas => {
-            const imgData = canvas.toDataURL("image/png");
-            document.getElementById('preview-img').src = imgData;
-            document.getElementById('overlay').style.display = 'flex';
-            document.body.classList.remove('mode-print');
-        });
+        const canvas = await html2canvas(document.getElementById('area-laporan'), { scale: 2 });
+        const dataUrl = canvas.toDataURL("image/png");
+        document.getElementById('preview-img').src = dataUrl;
+        document.getElementById('overlay').style.display = 'flex';
+        document.body.classList.remove('mode-print');
+
+        // TOMBOL SHARE API
+        document.getElementById('btnShare').onclick = async () => {
+            const blob = await (await fetch(dataUrl)).blob();
+            const file = new File([blob], `Laporan_Setengah4_${new Date().toLocaleDateString()}.png`, { type: 'image/png' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({ files: [file], title: 'Laporan Kopi Setengah-4' });
+                } catch (e) { alert("Gagal Share: Gunakan Chrome/Safari terbaru."); }
+            } else {
+                alert("Browser Bos tidak support Direct Share. Silakan Screen Shoot saja laporannya.");
+            }
+        };
     }
 </script>
 </body>
