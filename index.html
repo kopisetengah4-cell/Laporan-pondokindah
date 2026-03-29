@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Stable Build</title>
+    <title>Kopi Setengah-4 | Full Report 29 Maret</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         
-        /* TEMA GELAP APLIKASI */
-        html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
-        #area-laporan { background: #000; padding: 15px; width: 480px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
+        html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        #area-laporan { background: #000; padding: 15px; width: 500px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
 
-        /* AKSEN WARNA */
         .white-accent { background-color: #fff !important; color: #000 !important; font-weight: 800; }
-        .col-nama { width: 32%; text-align: left !important; color: #d4a373 !important; padding-left: 5px; background-color: #000; }
         
-        /* MODE DOWNLOAD (PUTIH BERSIH) */
+        /* TEMA PUTIH SAAT DIUNDUH */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .omset-label, .mode-print .footer-label { color: #000 !important; }
         .mode-print .info-val { color: #000 !important; border-bottom: 1px solid #000 !important; }
@@ -26,11 +23,11 @@
         .mode-print .col-nama { background: #f2f2f2 !important; color: #000 !important; }
         .mode-print .total-box { background: #000 !important; color: #fff !important; }
 
-        /* LAYOUTING */
         .main-title { text-align: center; color: #d4a373; font-size: 16px; font-weight: 800; margin-bottom: 10px; }
         .top-section { display: flex; justify-content: space-between; margin-bottom: 8px; }
         .info-group { font-size: 10px; color: #d4a373; font-weight: 800; }
         .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 65px; display: inline-block; padding-left: 3px; }
+
         .roti-box { width: 140px; border: 1px solid #444; }
         .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 3px; font-size: 9px; }
         .roti-row { display: flex; justify-content: space-between; padding: 3px 8px; border-bottom: 1px solid #222; font-size: 9px; }
@@ -38,6 +35,7 @@
         table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; margin-top: 5px; }
         th { color: #d4a373; background: #111; padding: 5px 1px; border: 1px solid #444; font-size: 8px; }
         td { border: 1px solid #222; padding: 4px 2px; font-weight: 800; outline: none; color: #fff; text-align: center; }
+        .col-nama { width: 32%; text-align: left !important; color: #d4a373 !important; padding-left: 5px; background-color: #000; }
 
         .omset-section { display: flex; border: 1px solid #333; margin-top: 10px; }
         .omset-list { flex: 1; display: flex; flex-direction: column; }
@@ -50,15 +48,14 @@
         .footer-item { flex: 1; border: 1px solid #333; padding: 8px; text-align: center; }
         .footer-label { color: #d4a373; font-size: 9px; margin-bottom: 4px; }
 
-        /* TOMBOL KONTROL */
         .controls { text-align: center; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-        .btn-save { background: #d4a373; color: #000; width: 80%; padding: 12px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; }
+        .btn-save { background: #d4a373; color: #000; width: 220px; padding: 12px; font-weight: 800; border-radius: 4px; border: none; cursor: pointer; }
     </style>
 </head>
 <body onload="initSistem()">
 
 <div class="controls">
-    <button onclick="unduhLaporan()" class="btn-save">SIMPAN LAPORAN KE GALERI</button>
+    <button id="btnUnduh" onclick="unduhLaporan()" class="btn-save">SIMPAN & UNDUH (FULL)</button>
 </div>
 
 <div id="area-laporan">
@@ -87,27 +84,49 @@
         <tbody id="inventory-body">
             <tr><td class="col-nama">CUP KECIL</td><td class="white-accent">1.156</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.156</td></tr>
             <tr><td class="col-nama">CUP BESAR</td><td class="white-accent">133</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">133</td></tr>
+            <tr><td class="col-nama">CUP HOT</td><td class="white-accent">127</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">127</td></tr>
+            <tr><td class="col-nama">BOTOL 1 LITER</td><td class="white-accent">22</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">22</td></tr>
+            <tr><td class="col-nama">BOTOL 500 ML</td><td class="white-accent">49</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">49</td></tr>
+            <tr><td class="col-nama">GULA AREN</td><td class="white-accent">4½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4½</td></tr>
+            <tr><td class="col-nama">GULA PUTIH</td><td class="white-accent">1½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1½</td></tr>
+            <tr><td class="col-nama">KOPI</td><td class="white-accent">15</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">15</td></tr>
             <tr><td class="col-nama">SUSU UHT</td><td class="white-accent">23/961</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">23/961</td></tr>
+            <tr><td class="col-nama">KRIMER</td><td class="white-accent">10/660</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">10/660</td></tr>
+            <tr><td class="col-nama">SEA SALT</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
+            <tr><td class="col-nama">FN</td><td class="white-accent">4</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">4</td></tr>
+            <tr><td class="col-nama">SKM</td><td class="white-accent">6/77</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">6/77</td></tr>
+            <tr><td class="col-nama">HERSHEY'S</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
+            <tr><td class="col-nama">REMON</td><td class="white-accent">27</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">27</td></tr>
+            <tr><td class="col-nama">SEDOTAN KEC</td><td class="white-accent">5½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5½</td></tr>
+            <tr><td class="col-nama">SEDOTAN BSR</td><td class="white-accent">2½</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2½</td></tr>
+            <tr><td class="col-nama">PLASTIK ISI 2</td><td class="white-accent">5</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">5</td></tr>
+            <tr><td class="col-nama">PLASTIK ISI 1</td><td class="white-accent">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
+            <tr><td class="col-nama">PLASTIK BSR</td><td class="white-accent">7</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">7</td></tr>
+            <tr><td class="col-nama">CUP SEALER</td><td class="white-accent">1</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1</td></tr>
             <tr><td class="col-nama">BASE SUSU</td><td class="white-accent">2.100</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">2.100</td></tr>
+            <tr><td class="col-nama">BASE KOPI</td><td class="white-accent">1.100</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">1.100</td></tr>
             <tr><td class="col-nama">ROTI</td><td class="white-accent">48</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">48</td></tr>
-            </tbody>
+        </tbody>
     </table>
 
     <div class="omset-section">
         <div class="omset-list">
             <div class="omset-row"><div class="omset-label">CASH (TUNAI)</div><div class="omset-input" contenteditable="true">0</div></div>
             <div class="omset-row"><div class="omset-label">TRANSFER</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row"><div class="omset-label">GRAB/GOJEK</div><div class="omset-input" contenteditable="true">0</div></div>
-            <div class="omset-row" style="border:none"><div class="omset-label">QRIS / OVO</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">GRAB FOOD</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">QRIS / OVO</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">SHOPEE FOOD</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row"><div class="omset-label">GOJEK</div><div class="omset-input" contenteditable="true">0</div></div>
+            <div class="omset-row" style="border:none"><div class="omset-label">GOPAY</div><div class="omset-input" contenteditable="true">0</div></div>
         </div>
         <div class="total-box white-accent">
-            <div style="font-size: 8px; font-weight: 800;">TOTAL OMSET</div>
-            <div id="total-val" style="font-size: 18px; font-weight: 800;">0</div>
+            <div style="font-size: 9px; font-weight: 800;">TOTAL OMSET</div>
+            <div id="total-val" style="font-size: 22px; font-weight: 800;">0</div>
         </div>
     </div>
 
     <div class="footer-grid">
-        <div class="footer-item"><div class="footer-label">CASH AWAL/AKHIR</div><div contenteditable="true" style="font-size: 10px;">0</div></div>
+        <div class="footer-item"><div class="footer-label">CASH AWAL/AKHIR</div><div contenteditable="true" style="font-size: 11px; font-weight: 800;">0</div></div>
         <div class="footer-item"><div class="footer-label">BERITA ACARA</div><div contenteditable="true" style="font-size: 9px;">-</div></div>
     </div>
 </div>
@@ -116,9 +135,8 @@
     function initSistem() {
         document.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
             cell.addEventListener('input', (e) => {
-                const tr = e.target.parentElement;
-                const index = Array.from(tr.children).indexOf(e.target);
-                if (index >= 2 && index <= 4) hitungBaris(tr);
+                const index = Array.from(e.target.parentElement.children).indexOf(e.target);
+                if (index >= 2 && index <= 4) hitungBaris(e.target.parentElement);
             });
         });
         document.querySelectorAll('.omset-input').forEach(cell => {
@@ -142,44 +160,34 @@
     }
 
     async function unduhLaporan() {
-        const btn = document.querySelector('.btn-save');
-        btn.innerText = "PROSES...";
+        const btn = document.getElementById('btnUnduh');
+        btn.innerText = "SEDANG MEMPROSES...";
         btn.disabled = true;
-        
         document.body.classList.add('mode-print');
 
-        // Gunakan timeout agar render browser selesai dulu
         setTimeout(() => {
             html2canvas(document.getElementById('area-laporan'), {
-                scale: 2, // Kecilkan skala sedikit (2) agar HP tidak berat/crash
+                scale: 2, 
                 useCORS: true,
-                allowTaint: false,
-                logging: false,
                 backgroundColor: "#ffffff"
             }).then(canvas => {
                 canvas.toBlob((blob) => {
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `Laporan_Setengah4_2903.png`;
-                    
+                    link.download = `Laporan_290326.png`;
                     document.body.appendChild(link);
                     link.click();
                     
-                    // Cleanup
                     setTimeout(() => {
                         document.body.removeChild(link);
                         window.URL.revokeObjectURL(url);
                         document.body.classList.remove('mode-print');
-                        btn.innerText = "SIMPAN LAPORAN KE GALERI";
+                        btn.innerText = "SIMPAN & UNDUH (FULL)";
                         btn.disabled = false;
-                        alert("Berhasil! Silakan cek folder Download.");
-                    }, 100);
+                        alert("Laporan Berhasil Tersimpan!");
+                    }, 200);
                 }, 'image/png');
-            }).catch(err => {
-                alert("Error Render: " + err);
-                btn.disabled = false;
-                btn.innerText = "SIMPAN LAPORAN KE GALERI";
             });
         }, 500);
     }
