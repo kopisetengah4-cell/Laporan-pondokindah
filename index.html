@@ -3,56 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Share WhatsApp</title>
+    <title>Kopi Setengah-4 | Share Image WA</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
         
-        /* Tema Gelap untuk Input (Agar Nyaman di Mata) */
+        /* Tampilan Input (Gelap) */
         html, body { background-color: #111; color: #fff; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         .wrapper { width: 100%; overflow-x: auto; padding-bottom: 50px; }
-        
-        /* AREA LAPORAN */
         #area-laporan { background: #000; padding: 15px; width: 520px; margin: 10px auto; box-sizing: border-box; border: 1px solid #333; }
         
-        /* Judul & Info Atas */
         .main-title { text-align: center; color: #d4a373; font-size: 18px; font-weight: 800; margin-bottom: 15px; }
         .top-section { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .info-group { font-size: 11px; font-weight: 800; color: #d4a373; }
         .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 80px; display: inline-block; padding-left: 5px; }
         
-        /* Box Roti */
         .roti-box { width: 150px; border: 1px solid #444; }
         .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 4px; font-size: 10px; }
         .roti-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #222; font-size: 10px; font-weight: 800; }
 
-        /* Tabel Inventori */
         table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         th { color: #d4a373; background: #111; padding: 6px 2px; border: 1px solid #444; font-size: 9px; }
         td { border: 1px solid #222; padding: 6px 2px; font-weight: 800; text-align: center; outline: none; color: #fff; }
         .col-nama { width: 160px; text-align: left !important; color: #d4a373; padding-left: 8px; background-color: #000; }
 
-        /* Omset Section */
         .omset-container { display: flex; border: 1px solid #333; margin-top: 15px; }
         .omset-row { display: flex; border-bottom: 1px solid #222; height: 25px; align-items: center; }
         .omset-label { width: 120px; padding-left: 10px; font-size: 9px; color: #d4a373; }
         .omset-input { flex: 1; text-align: left; outline: none; padding-left: 10px; font-size: 11px; color: #fff; }
         .total-box { width: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #333; background: #111; }
 
-        /* Footer Section */
         .footer-section { display: flex; gap: 10px; margin-top: 15px; }
         .footer-item { flex: 1; border: 1px solid #333; padding: 10px; text-align: center; }
         .footer-label { font-size: 10px; font-weight: 800; color: #d4a373; margin-bottom: 5px; }
 
-        /* Tombol Kontrol */
         .controls { text-align: center; padding: 20px; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
         .btn-wa { background: #25D366; color: #fff; padding: 15px 30px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px; }
 
-        /* Preview Overlay */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        #preview-img { max-width: 90%; border: 2px solid #fff; margin-bottom: 15px; }
+        /* Overlay Gambar untuk di-Share */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        #preview-img { max-width: 85%; border: 3px solid #fff; margin-bottom: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* Mode Cetak (Putih untuk Gambar) */
+        /* MODE PRINT (PUTIH BERSIH UNTUK GAMBAR) */
         .mode-print #area-laporan { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
         .mode-print .main-title, .mode-print .info-group, .mode-print .info-val, .mode-print .omset-label, .mode-print .footer-label, .mode-print .roti-header { color: #000 !important; }
         .mode-print .col-nama { color: #000 !important; background: #f2f2f2 !important; }
@@ -65,18 +57,21 @@
 <body onload="cekDanMuatData()">
 
 <div class="controls">
-    <button onclick="bagikanKeWA()" class="btn-wa">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" alt="">
-        PROSES & BAGIKAN KE WA
+    <button onclick="prosesKeGambar()" class="btn-wa">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20">
+        BAGIKAN KE WHATSAPP (GAMBAR)
     </button>
 </div>
 
 <div id="overlay">
-    <h3 style="margin-bottom: 10px;">LAPORAN SIAP!</h3>
+    <h4 style="margin-bottom: 5px;">HASIL LAPORAN:</h4>
     <img id="preview-img" src="">
-    <p style="font-size: 12px; color: #ccc; margin-bottom: 15px;">Silakan screenshot atau simpan gambar, lalu kirim ke WhatsApp.</p>
-    <button onclick="bukaWhatsApp()" style="background:#25D366; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800;">LANJUT KE WHATSAPP</button>
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none; text-decoration:underline;">KEMBALI EDIT</button>
+    <p style="font-size: 11px; color: #fff; text-align: center; padding: 0 20px;">
+        1. <b>Simpan/Screenshot</b> gambar di atas.<br>
+        2. Klik tombol di bawah untuk kirim ke WA.
+    </p>
+    <button onclick="bukaWhatsApp()" style="background:#25D366; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">BUKA WHATSAPP</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none; text-decoration:underline;">EDIT ULANG</button>
 </div>
 
 <div class="wrapper">
@@ -97,9 +92,7 @@
         </div>
 
         <table>
-            <thead>
-                <tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>
-            </thead>
+            <thead><tr><th style="width:160px">NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
 
@@ -112,14 +105,8 @@
         </div>
 
         <div class="footer-section">
-            <div class="footer-item">
-                <div class="footer-label">CASH AWAL / AKHIR</div>
-                <div contenteditable="true" style="font-weight: 800; font-size: 11px; color: #fff;">78.500</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">BERITA ACARA:</div>
-                <div contenteditable="true" style="font-size: 10px; color: #fff;">-</div>
-            </div>
+            <div class="footer-item"><div class="footer-label">CASH AWAL / AKHIR</div><div contenteditable="true" style="font-weight: 800; font-size: 11px;">78.500</div></div>
+            <div class="footer-item"><div class="footer-label">BERITA ACARA:</div><div contenteditable="true" style="font-size: 10px;">Laporan aman.</div></div>
         </div>
     </div>
 </div>
@@ -132,27 +119,23 @@
         const tgl = new Date().toLocaleDateString('id-ID');
         document.getElementById('lbl-hari').innerText = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
         document.getElementById('lbl-tgl').innerText = tgl;
-
         let stok = dataAwal;
-        const saved = JSON.parse(localStorage.getItem('saved_sisa_wa'));
+        const saved = JSON.parse(localStorage.getItem('saved_sisa_final_wa'));
         if (localStorage.getItem('last_date_wa') !== tgl && saved) stok = saved;
         render(stok);
     }
 
     function render(stokData) {
         const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = "";
         Object.keys(stokData).forEach(nama => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="col-nama">${nama}</td><td contenteditable="true">${stokData[nama]}</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">0</td><td contenteditable="true">${manualItems.includes(nama) ? "" : stokData[nama]}</td>`;
             tbody.appendChild(tr);
         });
-
         const omsets = ["CASH (TUNAI)", "TRANSFER", "GRAB FOOD", "QRIS / OVO", "SHOPEE FOOD", "GOJEK", "GOPAY"];
         const oList = document.getElementById('omset-list');
-        oList.innerHTML = "";
         omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
-
+        
         document.querySelectorAll('.omset-input').forEach(el => {
             el.addEventListener('input', () => {
                 let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
@@ -161,15 +144,16 @@
         });
     }
 
-    function bagikanKeWA() {
-        // Simpan sisa stok untuk besok
+    function prosesKeGambar() {
+        // Simpan sisa stok
         const sisa = {};
         document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
-        localStorage.setItem('saved_sisa_wa', JSON.stringify(sisa));
+        localStorage.setItem('saved_sisa_final_wa', JSON.stringify(sisa));
         localStorage.setItem('last_date_wa', new Date().toLocaleDateString('id-ID'));
 
-        // Proses Gambar
+        // Ubah tampilan jadi putih bersih sebelum difoto
         document.body.classList.add('mode-print');
+        
         html2canvas(document.getElementById('area-laporan'), { scale: 2 }).then(canvas => {
             document.getElementById('preview-img').src = canvas.toDataURL("image/png");
             document.getElementById('overlay').style.display = 'flex';
@@ -178,8 +162,8 @@
     }
 
     function bukaWhatsApp() {
-        const teks = encodeURIComponent("Halo Bos, ini Laporan Stok & Omset Kopi Setengah-4 Hari Ini.");
-        window.location.href = `whatsapp://send?text=${teks}`;
+        // Karena APK tidak bisa kirim file otomatis, kita buka WA agar user tinggal tempel/kirim gambar tadi
+        window.location.href = "whatsapp://send?text=" + encodeURIComponent("Halo Bos, ini Laporan Stok Kopi Setengah-4.");
     }
 </script>
 </body>
