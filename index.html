@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopi Setengah-4 | Versi Lengkap & Auto-Chrome</title>
+    <title>Kopi Setengah-4 | Ultimate Chrome Launcher</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -23,7 +23,6 @@
         .info-group { font-size: 11px; font-weight: 800; color: #d4a373; }
         .info-val { color: #fff; border-bottom: 1px solid #333; min-width: 80px; display: inline-block; padding-left: 5px; }
         
-        /* Box Roti */
         .roti-box { width: 150px; border: 1px solid #444; }
         .roti-header { background: #111; color: #d4a373; text-align: center; font-weight: 800; padding: 4px; font-size: 10px; }
         .roti-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #222; font-size: 10px; font-weight: 800; }
@@ -52,13 +51,13 @@
 <body onload="cekDanMuatData()">
 
 <div class="controls">
-    <button onclick="handleAction()" class="btn-main">🚀 PROSES & LANGSUNG KE CHROME</button>
+    <button onclick="handleAction()" class="btn-main">🚀 PROSES & BUKA CHROME</button>
 </div>
 
 <div id="overlay">
     <img id="preview-img" src="">
     <button id="btn-download" style="background:#28a745; color:#fff; border:none; padding:15px 40px; border-radius:5px; font-weight:800; margin-top:10px;">DOWNLOAD SEKARANG</button>
-    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:10px; border:none; text-decoration:underline;">KEMBALI EDIT</button>
+    <button onclick="document.getElementById('overlay').style.display='none'" style="background:transparent; color:#aaa; margin-top:10px; border:none; text-decoration:underline;">EDIT ULANG</button>
 </div>
 
 <div class="wrapper">
@@ -104,8 +103,8 @@
         document.getElementById('lbl-hari').innerText = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][new Date().getDay()];
         document.getElementById('lbl-tgl').innerText = tgl;
         let stok = dataAwal;
-        const saved = JSON.parse(localStorage.getItem('saved_sisa_final'));
-        if (localStorage.getItem('last_date_final') !== tgl && saved) stok = saved;
+        const saved = JSON.parse(localStorage.getItem('saved_sisa_turbo'));
+        if (localStorage.getItem('last_date_turbo') !== tgl && saved) stok = saved;
         render(stok);
     }
 
@@ -121,6 +120,7 @@
         const oList = document.getElementById('omset-list');
         oList.innerHTML = "";
         omsets.forEach(o => { oList.innerHTML += `<div class="omset-row"><div class="omset-label">${o}</div><div class="omset-input" contenteditable="true">0</div></div>`; });
+        
         document.querySelectorAll('.omset-input').forEach(el => {
             el.addEventListener('input', () => {
                 let t = 0; document.querySelectorAll('.omset-input').forEach(i => t += parseInt(i.innerText.replace(/\./g, '')) || 0);
@@ -130,21 +130,29 @@
     }
 
     function handleAction() {
-        // Simpan sisa stok
         const sisa = {};
         document.querySelectorAll('#inventory-body tr').forEach(tr => { sisa[tr.cells[0].innerText] = tr.cells[5].innerText; });
-        localStorage.setItem('saved_sisa_final', JSON.stringify(sisa));
-        localStorage.setItem('last_date_final', new Date().toLocaleDateString('id-ID'));
+        localStorage.setItem('saved_sisa_turbo', JSON.stringify(sisa));
+        localStorage.setItem('last_date_turbo', new Date().toLocaleDateString('id-ID'));
 
         const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
         if (!isChrome) {
-            // PAKSA PINDAH KE CHROME (TURBO PROTOCOL)
-            const fullUrl = window.location.href;
-            const urlWithoutProtocol = fullUrl.replace(/^https?:\/\//, "");
-            const chromeIntent = "intent://" + urlWithoutProtocol + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(fullUrl) + ";end";
-            window.location.href = chromeIntent;
-            // Backup jika Intent utama terhalang
-            setTimeout(() => { window.location.href = "googlechrome://navigate?url=" + fullUrl; }, 400);
+            const link = window.location.href;
+            
+            // TEKNIK 1: Google Search Link (Paling stabil)
+            const googleLink = "http://www.google.com/url?q=" + encodeURIComponent(link);
+            
+            // TEKNIK 2: Chrome Intent (Spesifik Android)
+            const urlNoHttp = link.replace(/^https?:\/\//, "");
+            const intentLink = `intent://${urlNoHttp}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(link)};end`;
+
+            // EKSEKUSI BERLAPIS
+            window.location.href = intentLink;
+            
+            setTimeout(() => { window.location.assign(googleLink); }, 300);
+            setTimeout(() => { window.location.href = "googlechrome://navigate?url=" + link; }, 800);
+            
         } else {
             generateImg();
         }
@@ -158,10 +166,10 @@
             document.getElementById('overlay').style.display = 'flex';
             document.body.classList.remove('mode-print');
             document.getElementById('btn-download').onclick = () => {
-                const link = document.createElement('a');
-                link.download = `Laporan_KopiSetengah4.png`;
-                link.href = imgData;
-                link.click();
+                const a = document.createElement('a');
+                a.download = `Laporan_KopiSetengah4.png`;
+                a.href = imgData;
+                a.click();
             };
         });
     }
