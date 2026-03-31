@@ -23,7 +23,6 @@
         .btn-new { background-color: #007bff; }
 
         .container { width: 100%; max-width: 600px; }
-        /* Style untuk logo bulat (.logo-pi) telah dihapus */
         .header-title { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; margin-bottom: 8px; }
 
         /* TABEL UTAMA */
@@ -221,7 +220,13 @@
     }
 
     function renderLaporan(data, t, c, s) {
-        if(!data) return alert("Data tidak ditemukan.");
+        if(!data) {
+            alert("Data tidak ditemukan.");
+            return;
+        }
+        // Pastikan overlay pencarian tertutup sebelum menampilkan laporan
+        tutupSemua();
+        
         document.getElementById('rep-info').innerHTML = `HARI: ${getHari(t)}<br>TGL: ${t}<br>CABANG: ${c.toUpperCase()}<br>SHIFT: ${s}`;
         document.getElementById('rep-roti-body').innerHTML = `<tr><th colspan="2">ROTI</th></tr><tr><td>COKLAT</td><td>${data['roti-coklat']||0}</td></tr><tr><td>VANILLA</td><td>${data['roti-vanilla']||0}</td></tr><tr><td>BLUEBERRY</td><td>${data['roti-blueberry']||0}</td></tr>`;
         const mainB = document.getElementById('rep-main-body'); mainB.innerHTML = "";
@@ -239,12 +244,33 @@
 
     function getHari(tgl) { const d = new Date(tgl); return ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][d.getDay()]; }
     function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; document.getElementById('f-tgl').value = new Date().toISOString().split('T')[0]; }
-    function lihatRiwayat() { const t = document.getElementById('f-tgl').value, c = document.getElementById('f-cab').value, s = document.getElementById('f-shf').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
-    function bukaLaporanSekarang() { const t = new Date().toISOString().split('T')[0], c = document.getElementById('main-cabang').value, s = document.getElementById('main-shift').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
-    function tutupSemua() { document.getElementById('report-page').style.display='none'; document.getElementById('overlay-filter').style.display='none'; }
+    
+    function lihatRiwayat() { 
+        const t = document.getElementById('f-tgl').value, 
+              c = document.getElementById('f-cab').value, 
+              s = document.getElementById('f-shf').value; 
+        db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { 
+            renderLaporan(snap.val(), t, c, s); 
+        }); 
+    }
+    
+    function bukaLaporanSekarang() { 
+        const t = new Date().toISOString().split('T')[0], 
+              c = document.getElementById('main-cabang').value, 
+              s = document.getElementById('main-shift').value; 
+        db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { 
+            renderLaporan(snap.val(), t, c, s); 
+        }); 
+    }
+    
+    function tutupSemua() { 
+        document.getElementById('report-page').style.display='none'; 
+        document.getElementById('overlay-filter').style.display='none'; 
+    }
+    
     function downloadPng() { html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => { const a = document.createElement('a'); a.download = `Lap_${new Date().getTime()}.png`; a.href = canvas.toDataURL(); a.click(); }); }
     
     window.onload = inisialisasi;
 </script>
 </body>
-</html>
+    </html>
