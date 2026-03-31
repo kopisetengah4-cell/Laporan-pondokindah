@@ -169,6 +169,13 @@
         daftarOmset.forEach(m => { 
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
         });
+
+        // Ambil Cabang & Shift terakhir dari memori HP (LocalStorage)
+        const lastCab = localStorage.getItem('last_cabang');
+        const lastShf = localStorage.getItem('last_shift');
+        if(lastCab) document.getElementById('main-cabang').value = lastCab;
+        if(lastShf) document.getElementById('main-shift').value = lastShf;
+
         muatData();
     }
 
@@ -198,6 +205,11 @@
         const tgl = new Date().toISOString().split('T')[0];
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
+        
+        // SIMPAN KE MEMORI HP (Agar tetap sama saat refresh)
+        localStorage.setItem('last_cabang', cab);
+        localStorage.setItem('last_shift', shf);
+
         let total = 0;
         document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
         document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
@@ -211,6 +223,11 @@
         const tgl = new Date().toISOString().split('T')[0];
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
+        
+        // Simpan setiap kali ganti pilihan dropdown
+        localStorage.setItem('last_cabang', cab);
+        localStorage.setItem('last_shift', shf);
+
         document.getElementById('label-tgl').innerText = tgl;
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
             const saved = snapshot.val();
@@ -220,13 +237,8 @@
     }
 
     function renderLaporan(data, t, c, s) {
-        if(!data) {
-            alert("Data tidak ditemukan.");
-            return;
-        }
-        // Pastikan overlay pencarian tertutup sebelum menampilkan laporan
+        if(!data) { alert("Data tidak ditemukan."); return; }
         tutupSemua();
-        
         document.getElementById('rep-info').innerHTML = `HARI: ${getHari(t)}<br>TGL: ${t}<br>CABANG: ${c.toUpperCase()}<br>SHIFT: ${s}`;
         document.getElementById('rep-roti-body').innerHTML = `<tr><th colspan="2">ROTI</th></tr><tr><td>COKLAT</td><td>${data['roti-coklat']||0}</td></tr><tr><td>VANILLA</td><td>${data['roti-vanilla']||0}</td></tr><tr><td>BLUEBERRY</td><td>${data['roti-blueberry']||0}</td></tr>`;
         const mainB = document.getElementById('rep-main-body'); mainB.innerHTML = "";
@@ -244,33 +256,12 @@
 
     function getHari(tgl) { const d = new Date(tgl); return ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][d.getDay()]; }
     function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; document.getElementById('f-tgl').value = new Date().toISOString().split('T')[0]; }
-    
-    function lihatRiwayat() { 
-        const t = document.getElementById('f-tgl').value, 
-              c = document.getElementById('f-cab').value, 
-              s = document.getElementById('f-shf').value; 
-        db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { 
-            renderLaporan(snap.val(), t, c, s); 
-        }); 
-    }
-    
-    function bukaLaporanSekarang() { 
-        const t = new Date().toISOString().split('T')[0], 
-              c = document.getElementById('main-cabang').value, 
-              s = document.getElementById('main-shift').value; 
-        db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { 
-            renderLaporan(snap.val(), t, c, s); 
-        }); 
-    }
-    
-    function tutupSemua() { 
-        document.getElementById('report-page').style.display='none'; 
-        document.getElementById('overlay-filter').style.display='none'; 
-    }
-    
+    function lihatRiwayat() { const t = document.getElementById('f-tgl').value, c = document.getElementById('f-cab').value, s = document.getElementById('f-shf').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
+    function bukaLaporanSekarang() { const t = new Date().toISOString().split('T')[0], c = document.getElementById('main-cabang').value, s = document.getElementById('main-shift').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
+    function tutupSemua() { document.getElementById('report-page').style.display='none'; document.getElementById('overlay-filter').style.display='none'; }
     function downloadPng() { html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => { const a = document.createElement('a'); a.download = `Lap_${new Date().getTime()}.png`; a.href = canvas.toDataURL(); a.click(); }); }
     
     window.onload = inisialisasi;
 </script>
 </body>
-    </html>
+</html>
