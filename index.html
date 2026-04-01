@@ -231,12 +231,10 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        // Cari tanggal kemarin
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
-        // Ambil data sisa dari database hari kemarin
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dataKemarin = s.val();
             
@@ -245,15 +243,21 @@
                 const inputStok = document.getElementById(`stok_${id}`);
                 const inputSisa = document.getElementById(`sisa_${id}`);
                 
-                // Reset semua input dulu
+                // Reset input
                 inputStok.value = "";
                 inputSisa.value = "";
 
-                // Jika bukan barang manual, tarik data sisa kemarin menjadi stok hari ini
-                if (!daftarManual.includes(item)) {
-                    if (dataKemarin && dataKemarin[`sisa_${id}`]) {
-                        inputStok.value = dataKemarin[`sisa_${id}`];
-                        inputSisa.value = dataKemarin[`sisa_${id}`]; // Set sisa awal sama dengan stok
+                if (dataKemarin && dataKemarin[`sisa_${id}`]) {
+                    // SEMUA BARANG: Stok hari ini = Sisa kemarin
+                    inputStok.value = dataKemarin[`sisa_${id}`];
+
+                    // LOGIKA PENGECEKAN SISA:
+                    if (!daftarManual.includes(item)) {
+                        // Jika BUKAN barang manual, kolom sisa otomatis terisi sama dengan stok
+                        inputSisa.value = dataKemarin[`sisa_${id}`];
+                    } else {
+                        // Jika barang manual (Cup, Susu, Roti, dll), kolom sisa dibiarkan KOSONG
+                        inputSisa.value = ""; 
                     }
                 }
             });
