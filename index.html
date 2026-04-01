@@ -19,13 +19,14 @@
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-new { background-color: #007bff; }
+        .btn-import { background-color: #ff4444; margin-top: 5px; font-size: 9px; padding: 5px; }
 
         .container { width: 100%; max-width: 600px; }
         .header-title { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; margin-bottom: 8px; }
 
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 4px 0; color: #888; font-size: 9px; }
-        table.main-table td { border: 1px solid #333; height: 20px; text-align: center; padding: 0; }
+        table.main-table td { border: 1px solid #333; height: 22px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 11px; }
         .col-nama { width: 40%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
 
@@ -52,6 +53,8 @@
     <button class="btn-main btn-menu" onclick="alert('Buka Riwayat...')">RIWAYAT</button>
     <button class="btn-main btn-new" onclick="jalankanNewSistem()">NEW RESET</button>
 </div>
+
+<button class="btn-main btn-import" onclick="importDataJson()">MASUKKAN DATA KEMARIN (JSON)</button>
 
 <div class="container">
     <div class="header-title">KOPI SETENGAH-4</div>
@@ -118,11 +121,13 @@
 
     function inisialisasi() {
         const tbody = document.getElementById('inventory-body');
+        tbody.innerHTML = "";
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
             tbody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="msk_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="rsk_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="trjl_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="sisa_${id}" oninput="simpanFirebase()"></td></tr>`;
         });
         const oDiv = document.getElementById('omset-inputs');
+        oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
         });
@@ -152,11 +157,9 @@
             if (dataHariIni) {
                 isiFormulir(dataHariIni);
             } else {
-                // JIKA DATA HARI INI KOSONG -> MIGRASI SISA KEMARIN KE STOK HARI INI
                 const dataTerakhir = localStorage.getItem(`draft_${cab}_${shf}`);
                 if (dataTerakhir) {
-                    const dataLama = JSON.parse(dataTerakhir);
-                    migrasiData(dataLama);
+                    migrasiData(JSON.parse(dataTerakhir));
                 } else {
                     bersihkanForm();
                 }
@@ -165,22 +168,14 @@
     }
 
     function migrasiData(dataLama) {
-        // Bersihkan semua input dulu
         bersihkanForm();
-        
-        // Pindahkan SISA kemarin ke STOK hari ini
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            const sisaKemarin = dataLama[`sisa_${id}`] || "";
-            document.getElementById(`stok_${id}`).value = sisaKemarin;
+            document.getElementById(`stok_${id}`).value = dataLama[`sisa_${id}`] || "";
         });
-
-        // Pindahkan sisa roti spesifik
         document.getElementById('roti-coklat').value = dataLama['roti-coklat'] || "";
         document.getElementById('roti-vanilla').value = dataLama['roti-vanilla'] || "";
         document.getElementById('roti-blueberry').value = dataLama['roti-blueberry'] || "";
-        
-        // Simpan sebagai draft baru hari ini
         simpanFirebase();
     }
 
@@ -201,11 +196,29 @@
         localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
     }
 
+    // FUNGSI KHUSUS UNTUK MEMASUKKAN DATA JSON ANDA
+    function importDataJson() {
+        const jsonInput = prompt("Tempel (Paste) data JSON dari Chat di sini:");
+        if (jsonInput) {
+            try {
+                const dataObj = JSON.parse(jsonInput);
+                // Loop untuk setiap cabang yang ada di JSON
+                for (let cab in dataObj) {
+                    for (let shf in dataObj[cab]) {
+                        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(dataObj[cab][shf]));
+                    }
+                }
+                alert("Data berhasil di-import! Silakan refresh atau ganti cabang untuk melihat hasil.");
+                muatData();
+            } catch (e) {
+                alert("Format JSON tidak valid!");
+            }
+        }
+    }
+
     function isiFormulir(data) {
-        document.querySelectorAll('input').forEach(el => { 
-            el.value = (data && data[el.id]) ? data[el.id] : ""; 
-        });
-        document.getElementById('display-total').innerText = (data && data.total) ? data.total : "0";
+        document.querySelectorAll('input').forEach(el => { el.value = (data && data[el.id]) ? data[el.id] : ""; });
+        if(data && data.total) document.getElementById('display-total').innerText = data.total;
     }
 
     function bersihkanForm() {
@@ -213,14 +226,13 @@
         document.getElementById('display-total').innerText = "0";
     }
 
-    function simpanManual() { simpanFirebase(); alert("Data Disimpan Online & Offline!"); }
+    function simpanManual() { simpanFirebase(); alert("Data Tersimpan!"); }
 
     function jalankanNewSistem() {
-        if(confirm("Lakukan Reset? Sisa akan dipindah ke Stok dan kolom lain dikosongkan.")) {
-            const dataSekarang = {};
-            document.querySelectorAll('input').forEach(el => { if(el.id) dataSekarang[el.id] = el.value; });
-            migrasiData(dataSekarang);
-            alert("Reset Berhasil!");
+        if(confirm("Lakukan Reset NEW?")) {
+            const currentData = {};
+            document.querySelectorAll('input').forEach(el => { if(el.id) currentData[el.id] = el.value; });
+            migrasiData(currentData);
         }
     }
 
