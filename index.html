@@ -273,7 +273,7 @@
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Konfirmasi:");
+        const pin = prompt("Masukkan PIN Konfirmasi (Hapus Semua Data Hari Ini & Data Kosong):");
         if (pin === "9812") {
             const tglHariIni = document.getElementById('label-tgl').innerText;
             const d = new Date(tglHariIni);
@@ -285,27 +285,34 @@
                 if (!allData) return;
 
                 Object.keys(allData).forEach(tanggal => {
-                    // 1. Hapus data yang lebih tua dari kemarin (Arsip Lama)
-                    if (tanggal !== tglHariIni && tanggal !== tglKemarin) {
+                    // 1. Hapus SEMUA data hari ini
+                    if (tanggal === tglHariIni) {
+                        db.ref('Laporan/' + tanggal).remove();
+                        console.log("Menghapus seluruh data hari ini: " + tanggal);
+                    }
+                    
+                    // 2. Hapus data yang lebih tua dari kemarin (Arsip lama)
+                    else if (tanggal !== tglKemarin) {
                         db.ref('Laporan/' + tanggal).remove();
                     }
                     
-                    // 2. Khusus data kemarin: Hapus jika belum diisi (Total Omset kosong atau 0)
-                    if (tanggal === tglKemarin) {
+                    // 3. Khusus data kemarin: Hapus hanya jika belum diisi (Total 0 atau kosong)
+                    else if (tanggal === tglKemarin) {
                         const cabangKemarin = allData[tanggal];
                         Object.keys(cabangKemarin).forEach(cab => {
                             Object.keys(cabangKemarin[cab]).forEach(shf => {
                                 const dataDetail = cabangKemarin[cab][shf];
-                                // Indikator data belum diisi: total kosong, "0", atau tidak ada Note
                                 if (!dataDetail.total || dataDetail.total === "0" || dataDetail.total === "") {
                                     db.ref(`Laporan/${tanggal}/${cab}/${shf}`).remove();
-                                    console.log(`Menghapus data kosong: ${cab} - ${shf}`);
+                                    console.log(`Menghapus data kosong kemarin: ${cab} - ${shf}`);
                                 }
                             });
                         });
                     }
                 });
-                alert("Pembersihan Selesai: Data lama dihapus & Data kosong kemarin dibersihkan.");
+                alert("Pembersihan Berhasil: Data hari ini dihapus & data kosong kemarin dibersihkan.");
+                // Refresh halaman agar tampilan input kembali bersih
+                location.reload();
             });
         } else if (pin !== null) {
             alert("PIN Salah!");
