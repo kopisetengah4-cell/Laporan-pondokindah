@@ -170,7 +170,6 @@
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
         });
 
-        // Ambil Cabang & Shift terakhir dari memori HP (LocalStorage)
         const lastCab = localStorage.getItem('last_cabang');
         const lastShf = localStorage.getItem('last_shift');
         if(lastCab) document.getElementById('main-cabang').value = lastCab;
@@ -181,6 +180,10 @@
 
     function jalankanNewSistem() {
         if(confirm("Jalankan NEW? Sisa hari ini akan dipindah ke Stok esok hari.")) {
+            // Bersihkan memori draft lokal
+            const cab = document.getElementById('main-cabang').value;
+            const shf = document.getElementById('main-shift').value;
+            
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 const currentSisa = document.getElementById(`sisa_${id}`).value;
@@ -196,6 +199,8 @@
             document.getElementById('roti-coklat').value = "";
             document.getElementById('roti-vanilla').value = "";
             document.getElementById('roti-blueberry').value = "";
+            
+            // Simpan kondisi "bersih" ini ke Firebase dan Draft Lokal
             simpanFirebase();
             alert("Sistem di-reset ke Stok baru!");
         }
@@ -206,17 +211,22 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        // SIMPAN KE MEMORI HP (Agar tetap sama saat refresh)
         localStorage.setItem('last_cabang', cab);
         localStorage.setItem('last_shift', shf);
 
         let total = 0;
         document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
         document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
+        
         const data = {};
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
         data.total = total.toLocaleString('id-ID');
+        
+        // Simpan ke Firebase (Data Resmi Tanggal Ini)
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
+        
+        // Simpan ke LocalStorage (Draft Backup agar tidak hilang saat ganti hari)
+        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
     }
 
     function muatData() {
@@ -224,18 +234,39 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        // Simpan setiap kali ganti pilihan dropdown
         localStorage.setItem('last_cabang', cab);
         localStorage.setItem('last_shift', shf);
-
         document.getElementById('label-tgl').innerText = tgl;
+
+        // 1. Cek dulu data di Firebase untuk hari ini
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
             const saved = snapshot.val();
-            document.querySelectorAll('input').forEach(el => { el.value = (saved && saved[el.id]) ? saved[el.id] : ""; });
-            document.getElementById('display-total').innerText = (saved && saved.total) ? saved.total : "0";
+            
+            if (saved) {
+                // Jika sudah ada data hari ini di Firebase, pakai itu
+                isiFormulir(saved);
+            } else {
+                // Jika Firebase kosong (Ganti Hari), cek Draft dari LocalStorage
+                const draft = localStorage.getItem(`draft_${cab}_${shf}`);
+                if (draft) {
+                    isiFormulir(JSON.parse(draft));
+                } else {
+                    // Benar-benar kosong
+                    document.querySelectorAll('input').forEach(el => el.value = "");
+                    document.getElementById('display-total').innerText = "0";
+                }
+            }
         });
     }
 
+    function isiFormulir(data) {
+        document.querySelectorAll('input').forEach(el => { 
+            el.value = (data && data[el.id]) ? data[el.id] : ""; 
+        });
+        document.getElementById('display-total').innerText = (data && data.total) ? data.total : "0";
+    }
+
+    // Fungsi lainnya tetap sama (renderLaporan, download, dll)
     function renderLaporan(data, t, c, s) {
         if(!data) { alert("Data tidak ditemukan."); return; }
         tutupSemua();
