@@ -73,7 +73,7 @@
                 <option value="Menteng">Menteng</option>
             </select><br>
             SHIFT: <select id="main-shift" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
-                </select>
+            </select>
         </div>
         <div class="roti-container">
             <table class="roti-table-main">
@@ -147,13 +147,13 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
 
     let inputManualUser = new Set();
 
     function updateShiftOptions() {
         const cab = document.getElementById('main-cabang').value;
         const shiftSelect = document.getElementById('main-shift');
-        const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
         let options = '<option value="SHIFT 1">SHIFT 1</option>';
         if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
         shiftSelect.innerHTML = options;
@@ -162,7 +162,6 @@
     function updateShiftOptionsHistory() {
         const cab = document.getElementById('hist-cabang').value;
         const shiftSelect = document.getElementById('hist-shift');
-        const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
         let options = '<option value="SHIFT 1">SHIFT 1</option>';
         if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
         shiftSelect.innerHTML = options;
@@ -184,7 +183,6 @@
         const isValid = Array.from(shiftSelect.options).some(o => o.value === ss);
         shiftSelect.value = isValid ? ss : "SHIFT 1";
 
-        // Render Tabel Barang
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -197,7 +195,6 @@
                 <td><input type="text" id="sisa_${id}" oninput="inputBerubah(this)"></td></tr>`;
         });
 
-        // Render Omset
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -208,6 +205,7 @@
     }
 
     function muatDataAwal(tgl, cab, shf) {
+        // 1. Muat Draft Lokal
         const saved = localStorage.getItem(`draft_${cab}_${shf}`);
         const listManual = localStorage.getItem(`manual_${cab}_${shf}`);
         if(listManual) inputManualUser = new Set(JSON.parse(listManual));
@@ -218,18 +216,36 @@
             hitungTotal();
         }
 
+        // 2. SISTEM TARIK OTOMATIS (LOGIKA BARU)
+        const dObj = new Date(tgl);
+        dObj.setDate(dObj.getDate() - 1);
+        const tglKemarin = dObj.toISOString().split('T')[0];
+
+        // LOGIKA:
+        // - Jika Shift 1: Tarik dari Shift 2 Kemarin (untuk cabang 2 shift) atau Shift 1 Kemarin (untuk cabang 1 shift)
+        // - Jika Shift 2: Tarik dari Shift 1 Hari Ini
+        
+        let pathSumber;
         if (shf === "SHIFT 2") {
-            db.ref('LiveSync/' + tgl + '/' + cab + '/SHIFT 1').on('value', s => {
-                const dataS1 = s.val();
-                if(dataS1) {
-                    Object.keys(dataS1).forEach(id => {
-                        const el = document.getElementById(id);
-                        if(el && !inputManualUser.has(id)) { el.value = dataS1[id]; }
-                    });
-                    hitungTotal();
-                }
-            });
+            pathSumber = `LiveSync/${tgl}/${cab}/SHIFT 1`; // Shift 2 narik dari Shift 1 hari yang sama
+        } else {
+            const shiftKemarin = cabangSatuShift.includes(cab) ? "SHIFT 1" : "SHIFT 2";
+            pathSumber = `LiveSync/${tglKemarin}/${cab}/${shiftKemarin}`; // Shift 1 narik data terakhir (S2 kemarin atau S1 kemarin)
         }
+
+        db.ref(pathSumber).on('value', s => {
+            const dataSumber = s.val();
+            if(dataSumber) {
+                Object.keys(dataSumber).forEach(id => {
+                    const el = document.getElementById(id);
+                    // Update hanya jika user belum ngetik manual di kolom itu (agar tidak menimpa editan user)
+                    if(el && !inputManualUser.has(id)) { 
+                        el.value = dataSumber[id]; 
+                    }
+                });
+                hitungTotal();
+            }
+        });
     }
 
     function inputBerubah(el) {
@@ -301,46 +317,4 @@
 
     function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
     function downloadLaporanGambar() {
-        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
-            link.href = canvas.toDataURL("image/png"); link.click();
-        });
-    }
-
-    function simpanDanTampilkanLaporan() {
-        const tgl = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        const data = {};
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        data.total = document.getElementById('display-total').innerText;
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
-            alert("Laporan Terkirim!");
-            localStorage.removeItem(`draft_${cab}_${shf}`);
-            localStorage.removeItem(`manual_${cab}_${shf}`);
-            renderLaporanPutih(data, tgl, cab, shf);
-            document.getElementById('report-overlay').style.display = 'block';
-        });
-    }
-
-    function gantiCabangAtauShift() {
-        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
-        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
-        location.reload(); 
-    }
-
-    function resetDraftHalaman() {
-        if(confirm("Hapus draf?")) {
-            const cab = document.getElementById('main-cabang').value;
-            const shf = document.getElementById('main-shift').value;
-            localStorage.removeItem(`draft_${cab}_${shf}`);
-            localStorage.removeItem(`manual_${cab}_${shf}`);
-            location.reload();
-        }
-    }
-
-    window.onload = inisialisasi;
-</script>
-</body>
-</html>
+        html2canvas(document.getElementById('printable-a
