@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PI Dashboard | Kopi Setengah-4</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <style>
+        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; }
+        .top-nav { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin-bottom: 5px; gap: 3px; }
+        .btn-main { padding: 12px 6px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; color: white; text-transform: uppercase; }
+        .btn-wa { background-color: #25D366; }
+        .btn-menu { background-color: #d4af37; color: #000; }
+        .btn-reset { background-color: #e74c3c; }
+
+        .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
+        
+        table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
+        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
+        .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
+        .col-data { width: 13%; }
+        table.main-table td { border: 1px solid #333; height: 25px; text-align: center; padding: 0; }
+        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 12px; }
+
+        .roti-container { width: 30%; }
+        .roti-table-main { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
+        .roti-table-main td { border: 1px solid #333; height: 22px; width: 50%; padding: 0 4px; }
+        .roti-table-main input { width: 100%; background: transparent; border: none; color: #fff; text-align: center; outline: none; }
+
+        .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
+        .omset-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; }
+        .omset-row input { background: transparent; border: none; color: white; width: 80px; text-align: right; outline: none; }
+        .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
+
+        .bottom-section { display: flex; gap: 5px; margin-top: 5px; width: 100%; }
+        .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; flex: 1; }
+        .footer-box label { font-size: 8px; color: #888; display: block; margin-bottom: 2px; }
+        .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
+
+        #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:2000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
+        .white-report-container { background: #fff; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #000; }
+        
+        /* Modal Riwayat Style */
+        #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; padding: 20px; box-sizing: border-box; }
+        .modal-content { max-width: 400px; margin: 40px auto; background: #111; padding: 15px; border: 1px solid #d4af37; border-radius: 8px; }
+        .modal-content select, .modal-content input { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <button class="btn-main btn-wa" onclick="simpanDanTampilkanLaporan()">SIMPAN DATA</button>
+    <button class="btn-main btn-menu" onclick="bukaRiwayat()">RIWAYAT</button>
+    <button class="btn-main btn-reset" onclick="resetDraftHalaman()">RESET DRAFT</button>
+</div>
+
+<div class="container">
+    <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0;">KOPI SETENGAH-4</div>
+    
+    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
+        <div style="flex: 1;">
+            <span id="label-hari" style="font-weight:bold; display:block;">-</span>
+            TGL: <span id="label-tgl">-</span><br>
+            CAB: <select id="main-cabang" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+                <option value="Tandur">Tandur</option>
+                <option value="Kebon Jeruk">Kebon Jeruk</option>
+                <option value="Pondok Indah">Pondok Indah</option>
+                <option value="Otista">Otista</option>
+                <option value="Cemput">Cemput</option>
+                <option value="Menteng">Menteng</option>
+            </select><br>
+            SHIFT: <select id="main-shift" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+                <option value="SHIFT 1">SHIFT 1</option>
+                <option value="SHIFT 2">SHIFT 2</option>
+            </select>
+        </div>
+        <div class="roti-container">
+            <table class="roti-table-main">
+                <tr><td colspan="2" style="text-align:center; color:#888; background:#1a1a1a;">SISA ROTI</td></tr>
+                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="simpanDraft()"></td></tr>
+                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="simpanDraft()"></td></tr>
+                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="simpanDraft()"></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <table class="main-table">
+        <thead>
+            <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
+        </thead>
+        <tbody id="inventory-body"></tbody>
+    </table>
+
+    <div class="omset-grid">
+        <div id="omset-inputs"></div>
+        <div class="omset-total-box" id="display-total">0</div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="simpanDraft()"></div>
+        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note" oninput="simpanDraft()"></div>
+    </div>
+</div>
+
+<div id="report-overlay">
+    <div style="display:flex; gap:5px; margin-bottom:10px; width: 360px; margin: 0 auto;">
+        <button onclick="tutupOverlayLaporan()" style="padding:10px; flex:1;">KEMBALI</button>
+        <button onclick="downloadLaporanGambar()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
+    </div>
+    <div class="white-report-container" id="printable-area">
+        <div id="render-content"></div>
+    </div>
+</div>
+
+<div id="riwayat-modal">
+    <div class="modal-content">
+        <h3 style="color:#d4af37; text-align:center; margin-top:0;">LIHAT RIWAYAT</h3>
+        <select id="hist-cabang">
+            <option value="Tandur">Tandur</option>
+            <option value="Kebon Jeruk">Kebon Jeruk</option>
+            <option value="Pondok Indah">Pondok Indah</option>
+            <option value="Otista">Otista</option>
+            <option value="Cemput">Cemput</option>
+            <option value="Menteng">Menteng</option>
+        </select>
+        <select id="hist-shift">
+            <option value="SHIFT 1">SHIFT 1</option>
+            <option value="SHIFT 2">SHIFT 2</option>
+        </select>
+        <input type="date" id="hist-date">
+        <button class="btn-main" style="width:100%; background:#007bff; margin-bottom:10px;" onclick="ambilDataRiwayat()">CARI DATA</button>
+        <button class="btn-main" style="width:100%; background:#444;" onclick="tutupRiwayat()">TUTUP</button>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
+        authDomain: "laporan-harian-f096f.firebaseapp.com",
+        databaseURL: "https://laporan-harian-f096f-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "laporan-harian-f096f",
+        storageBucket: "laporan-harian-f096f.firebasestorage.app",
+        messagingSenderId: "1063740425135",
+        appId: "1:1063740425135:web:2d7a4befce6521d72d255a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    const daftarHitungFisik = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+
+    function inisialisasi() {
+        const now = new Date();
+        const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
+        document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
+
+        const sc = localStorage.getItem('kunci_cabang');
+        const ss = localStorage.getItem('kunci_shift');
+        if(sc) document.getElementById('main-cabang').value = sc;
+        if(ss) document.getElementById('main-shift').value = ss;
+
+        const tbody = document.getElementById('inventory-body');
+        tbody.innerHTML = "";
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            tbody.innerHTML += `<tr><td class="col-nama">${item}</td>
+                <td><input type="text" id="stok_${id}" oninput="simpanDraft()"></td>
+                <td><input type="text" id="msk_${id}" oninput="simpanDraft()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="simpanDraft()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="simpanDraft()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="simpanDraft()"></td></tr>`;
+        });
+
+        const oDiv = document.getElementById('omset-inputs');
+        oDiv.innerHTML = "";
+        daftarOmset.forEach(m => { 
+            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanDraft()"></div>`; 
+        });
+
+        muatDraft();
+        if (!localStorage.getItem('draft_input')) {
+            tarikDataOtomatis();
+        }
+    }
+
+    function simpanDraft() {
+        const data = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        localStorage.setItem('draft_input', JSON.stringify(data));
+        hitungTotal();
+    }
+
+    function muatDraft() {
+        const saved = localStorage.getItem('draft_input');
+        if(saved) {
+            const d = JSON.parse(saved);
+            Object.keys(d).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = d[id]; });
+        }
+        hitungTotal();
+    }
+
+    function gantiCabangAtauShift() {
+        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
+        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
+        localStorage.removeItem('draft_input');
+        location.reload(); 
+    }
+
+    function tarikDataOtomatis() {
+        const tglHariIni = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        
+        let jalurData = "";
+        if (shf === "SHIFT 2") {
+            jalurData = 'Laporan/' + tglHariIni + '/' + cab + '/SHIFT 1';
+        } else {
+            const d = new Date(tglHariIni);
+            d.setDate(d.getDate() - 1);
+            const tglKemarin = d.toISOString().split('T')[0];
+            jalurData = 'Laporan/' + tglKemarin + '/' + cab + '/SHIFT 1';
+        }
+
+        db.ref(jalurData).once('value', s => {
+            const dataSumber = s.val();
+            if(dataSumber) {
+                daftarBarang.forEach(item => {
+                    const id = item.replace(/[^A-Z0-9]/ig, "_");
+                    const valSisaSumber = dataSumber[`sisa_${id}`] || "";
+                    document.getElementById(`stok_${id}`).value = valSisaSumber;
+                    if(!daftarHitungFisik.includes(item)) {
+                        document.getElementById(`sisa_${id}`).value = valSisaSumber;
+                    }
+                });
+                simpanDraft();
+            }
+        });
+    }
+
+    function hitungTotal() {
+        let t = 0;
+        document.querySelectorAll('.omset-val').forEach(el => { t += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
+        document.getElementById('display-total').innerText = t.toLocaleString('id-ID');
+    }
+
+    function simpanDanTampilkanLaporan() {
+        const tgl = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        const data = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        data.total = document.getElementById('display-total').innerText;
+        
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
+            localStorage.removeItem('draft_input');
+            alert("Berhasil Simpan!");
+            renderLaporanPutih(data, tgl, cab, shf);
+            document.getElementById('report-overlay').style.display = 'block';
+        });
+    }
+
+    // Fungsi Riwayat
+    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
+    
+    function ambilDataRiwayat() {
+        const tgl = document.getElementById('hist-date').value;
+        const cab = document.getElementById('hist-cabang').value;
+        const shf = document.getElementById('hist-shift').value;
+        
+        if(!tgl) return alert("Pilih tanggal!");
+        
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', s => {
+            if(s.val()) {
+                renderLaporanPutih(s.val(), tgl, cab, shf);
+                tutupRiwayat();
+                document.getElementById('report-overlay').style.display = 'block';
+            } else {
+                alert("Data tidak ditemukan.");
+            }
+        });
+    }
+
+    function renderLaporanPutih(d, tgl, cab, shf) {
+        const hari = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[new Date(tgl).getDay()];
+        let html = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-end;"><div style="font-size:10px; line-height:1.3; font-weight:bold;">${hari}<br>TANGGAL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}</div><div style="width:32%;"><table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed;"><tr><th colspan="2" style="border:1px solid #000; background:#f0f0f0;">SISA ROTI</th></tr><tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center;">${d['roti-coklat']||''}</td></tr><tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center;">${d['roti-vanilla']||''}</td></tr><tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center;">${d['roti-blueberry']||''}</td></tr></table></div></div><table style="width:100%; border-collapse:collapse; font-size:9px;"><thead><tr style="background:#f0f0f0;"><th style="border:1px solid #000; text-align:left;">BARANG</th><th style="border:1px solid #000;">STOK</th><th style="border:1px solid #000;">MSK</th><th style="border:1px solid #000;">RSK</th><th style="border:1px solid #000;">TRJL</th><th style="border:1px solid #000;">SISA</th></tr></thead><tbody>`;
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            html += `<tr><td style="border:1px solid #000; text-align:left; font-weight:bold; padding:2px;">${item}</td><td style="border:1px solid #000; text-align:center;">${d['stok_'+id]||''}</td><td style="border:1px solid #000; text-align:center;">${d['msk_'+id]||''}</td><td style="border:1px solid #000; text-align:center;">${d['rsk_'+id]||''}</td><td style="border:1px solid #000; text-align:center;">${d['trjl_'+id]||''}</td><td style="border:1px solid #000; text-align:center; font-weight:bold;">${d['sisa_'+id]||''}</td></tr>`;
+        });
+        html += `</tbody></table><div style="display:flex; border:1px solid #000; margin-top:5px;"><div style="flex:1.2; border-right:1px solid #000; font-size:8px; padding:3px;">`;
+        daftarOmset.forEach(m => { html += `<div style="display:flex; justify-content:space-between; border-bottom:0.5px solid #eee;"><span>${m}</span><span>${d['o_'+m.replace(/[^A-Z0-9]/ig,'_')]||'0'}</span></div>`; });
+        html += `</div><div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; background:#f9f9f9;">${d.total}</div></div><div style="display:flex; gap:3px; margin-top:3px;"><div style="flex:1; border:1px solid #000; padding:4px; font-size:8px;"><b>CASH:</b> ${d['cash-gabungan']||''}</div><div style="flex:1; border:1px solid #000; padding:4px; font-size:8px;"><b>NOTE:</b> ${d.note||''}</div></div>`;
+        document.getElementById('render-content').innerHTML = html;
+    }
+
+    function resetDraftHalaman() {
+        if(confirm("Hapus draf input?")) { localStorage.removeItem('draft_input'); location.reload(); }
+    }
+
+    function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
+    function downloadLaporanGambar() {
+        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+        });
+    }
+
+    window.onload = inisialisasi;
+</script>
+</body>
+</html>
