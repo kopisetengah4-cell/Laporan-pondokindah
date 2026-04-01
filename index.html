@@ -159,11 +159,13 @@
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
+        // Kunci Identitas
         const savedCab = localStorage.getItem('kunci_cabang');
         const savedShf = localStorage.getItem('kunci_shift');
         if(savedCab) document.getElementById('main-cabang').value = savedCab;
         if(savedShf) document.getElementById('main-shift').value = savedShf;
 
+        // Render Tabel Barang
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -176,6 +178,7 @@
                 <td><input type="text" id="sisa_${id}" oninput="simpanKeLocalStorage()"></td></tr>`;
         });
 
+        // Render Omset
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -190,16 +193,19 @@
         const tglHariIni = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
+        
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
+        console.log(`Mencoba tarik data kemarin (${tglKemarin}) untuk ${cab} - ${shf}`);
+
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dk = s.val();
             
-            // Logika: Jika data kemarin TIDAK ADA, kosongkan semua input barang & roti
+            // Jika data kemarin BENAR-BENAR KOSONG di Firebase
             if (!dk) {
-                console.log("Data kemarin kosong, membersihkan semua kolom...");
+                console.warn("Data tidak ditemukan di database. Mengosongkan halaman.");
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     document.getElementById(`stok_${id}`).value = "";
@@ -211,11 +217,13 @@
                 document.getElementById('roti-coklat').value = "";
                 document.getElementById('roti-vanilla').value = "";
                 document.getElementById('roti-blueberry').value = "";
+                document.getElementById('display-total').innerText = "0";
                 simpanKeLocalStorage();
                 return;
             }
 
-            // Jika data ada, isi stok dari sisa kemarin
+            // Jika data ditemukan
+            console.log("Data ditemukan. Mengisi Stok...");
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 const valSisaKemarin = dk[`sisa_${id}`] || "";
@@ -274,10 +282,10 @@
         
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
             localStorage.removeItem('draft_laporan');
-            alert("Berhasil Simpan!");
+            alert("Laporan Berhasil Disimpan!");
             renderLaporanPutih(data, tgl, cab, shf);
             document.getElementById('report-overlay').style.display = 'block';
-        }).catch(err => alert("Error: " + err));
+        }).catch(err => alert("Gagal Simpan: " + err));
     }
 
     function renderLaporanPutih(d, tgl, cab, shf) {
@@ -307,10 +315,4 @@
         const shf = document.getElementById('hist-shift').value;
         if(!tgl) return alert("Pilih Tanggal!");
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
-            if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
-            else alert("Data tidak ditemukan.");
-        });
-    }
-
-    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
-    function tutupRiwayat() { document.getElementById('riwayat-modal')
+            if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.g
