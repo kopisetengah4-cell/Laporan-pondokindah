@@ -19,12 +19,20 @@
 
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
+        /* Layout Utama */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
-        .col-data { width: 13%; }
+        .col-data { width: 13%; } /* Lebar kolom data 13% x 5 kolom = 65%. Nama 35%. Total 100% */
+        
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
+
+        /* Tabel Sisa Roti Menyesuaikan Kolom Terjual + Sisa (26%) */
+        .roti-box { width: 26%; } 
+        table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
+        table.roti-table td { width: 50%; border: 1px solid #333; height: 20px; vertical-align: middle; }
+        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 11px; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
         .omset-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
@@ -52,7 +60,7 @@
 <div class="container">
     <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0; color: #d4af37;">KOPI SETENGAH-4</div>
     
-    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
+    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px; align-items: flex-end;">
         <div style="flex: 1;">
             <span id="label-hari" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
             TGL: <span id="label-tgl">-</span><br>
@@ -69,12 +77,12 @@
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
         </div>
-        <div style="width: 38%;">
-            <table style="width:100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333;">
-                <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center;">SISA ROTI</td></tr>
-                <tr><td>COKLAT</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
-                <tr><td>VANILLA</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
-                <tr><td>BLUEBERRY</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
+        <div class="roti-box">
+            <table class="roti-table">
+                <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px;">SISA ROTI</td></tr>
+                <tr><td style="padding-left:3px;">COKLAT</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
+                <tr><td style="padding-left:3px;">VANILLA</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
+                <tr><td style="padding-left:3px;">BLUEBERRY</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
             </table>
         </div>
     </div>
@@ -223,30 +231,32 @@
 
     function showResult(d, t, c, s) {
         let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
                 <div style="font-size:11px; color:#000; line-height:1.4;"><b>TANGGAL:</b> ${t}<br><b>CABANG:</b> ${c}<br><b>SHIFT:</b> ${s}</div>
-                <div style="width:45%; border:1.5px solid #000;">
-                    <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
+                <div style="width:26%; border:1.5px solid #000;">
+                    <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
                         <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_cok']||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000; width:50%;"><b>${d['r_cok']||0}</b></td></tr>
                         <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_van']||0}</b></td></tr>
                         <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_blu']||0}</b></td></tr>
                     </table>
                 </div>
             </div>
-            <table style="width:100%; border-collapse:collapse; font-size:10px; color:#000; border:1.5px solid #000; margin-bottom:10px;">
+            <table style="width:100%; border-collapse:collapse; font-size:10px; color:#000; border:1.5px solid #000; margin-bottom:10px; table-layout:fixed;">
                 <tr style="background:#eee;">
-                    <th style="border:1px solid #000; padding:4px;">BARANG</th>
-                    <th style="border:1px solid #000;">STOK</th>
-                    <th style="border:1px solid #000;">MSK</th>
-                    <th style="border:1px solid #000;">TRJL</th>
-                    <th style="border:1px solid #000;">SISA</th>
+                    <th style="border:1px solid #000; padding:4px; width:35%;">BARANG</th>
+                    <th style="border:1px solid #000; width:13%;">STOK</th>
+                    <th style="border:1px solid #000; width:13%;">MSK</th>
+                    <th style="border:1px solid #000; width:13%;">RSK</th>
+                    <th style="border:1px solid #000; width:13%;">TRJL</th>
+                    <th style="border:1px solid #000; width:13%;">SISA</th>
                 </tr>`;
         barang.forEach(i => {
             const id = i.replace(/[^A-Z0-9]/ig, "_");
             res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${i}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['stok_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['msk_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #000;">${d['rsk_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['trjl_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000; font-weight:bold; background:#f9f9f9;">${d['sisa_'+id]||0}</td></tr>`;
         });
@@ -281,7 +291,7 @@
 
     function downloadPNG() {
         html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); link.download = 'Laporan_PI_Putih.png'; link.href = canv.toDataURL(); link.click();
+            const link = document.createElement('a'); link.download = 'Laporan_PI_Presisi.png'; link.href = canv.toDataURL(); link.click();
         });
     }
     function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
@@ -297,7 +307,4 @@
             else alert("Data tidak ditemukan.");
         });
     }
-    function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); location.reload(); } }
-</script>
-</body>
-</html>
+    function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); locat
