@@ -93,7 +93,7 @@
 
     <div class="bottom-section">
         <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" oninput="saveDraft()"></div>
-        <div class="footer-box"><label>NOTE</label><input type="text" id="f_note" oninput="saveDraft()"></div>
+        <div class="footer-box"><label>NOTE / BERITA ACARA</label><input type="text" id="f_note" oninput="saveDraft()"></div>
     </div>
 </div>
 
@@ -237,7 +237,8 @@
     function showResult(d, t, c, s) {
         let res = `<div style="text-align:center; color:#d4af37; font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">KOPI SETENGAH-4</div>
             <div style="font-size:10px; margin-bottom:10px; color:#fff;">TANGGAL: ${t}<br>CABANG: ${c}<br>SHIFT: ${s}</div>
-            <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333;">
+            
+            <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333; margin-bottom:10px;">
                 <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
         barang.forEach(i => {
             const id = i.replace(/[^A-Z0-9]/ig, "_");
@@ -247,10 +248,35 @@
                 <td style="text-align:center; border:1px solid #333;">${d['trjl_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #333; font-weight:bold;">${d['sisa_'+id]||0}</td></tr>`;
         });
-        res += `</table><div style="margin-top:10px; text-align:center; background:#111; padding:10px; border:1px solid #333;">
-            <div style="font-size:8px; color:#888;">TOTAL OMSET</div>
-            <div style="font-size:22px; font-weight:bold; color:#fff;">Rp ${d.total}</div>
-        </div>`;
+        res += `</table>`;
+
+        // BAGIAN OMSET & CASH & NOTE (PENAMBAHAN DISINI)
+        res += `<div style="display:flex; gap:5px; margin-bottom:10px;">
+                    <div style="flex:1.5; border:1px solid #333;">
+                        <table style="width:100%; border-collapse:collapse; font-size:8px; color:#fff;">
+                            <tr style="background:#1a1a1a; color:#888;"><th colspan="2" style="padding:2px;">RINCIAN OMSET</th></tr>`;
+        omset_list.forEach(m => {
+            const idO = "o_" + m.replace(/[^A-Z0-9]/ig,'_');
+            res += `<tr><td style="border:1px solid #222; padding:2px;">${m}</td><td style="border:1px solid #222; text-align:right; padding-right:3px;">${d[idO]||0}</td></tr>`;
+        });
+        res += `</table></div>
+                    <div style="flex:1; border:1px solid #333; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#050505;">
+                        <span style="font-size:7px; color:#888;">TOTAL OMSET</span>
+                        <span style="font-size:18px; font-weight:bold; color:#fff;">${d.total}</span>
+                    </div>
+                </div>`;
+
+        res += `<div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <div style="flex:1; border:1px solid #333; padding:5px; text-align:center; background:#050505;">
+                        <div style="font-size:7px; color:#888; border-bottom:1px solid #222; margin-bottom:3px;">CASH AWAL/AKHIR</div>
+                        <div style="color:#fff; font-size:10px; font-weight:bold;">${d.f_cash || '-'}</div>
+                    </div>
+                    <div style="flex:1; border:1px solid #333; padding:5px; text-align:center; background:#050505;">
+                        <div style="font-size:7px; color:#888; border-bottom:1px solid #222; margin-bottom:3px;">BERITA ACARA</div>
+                        <div style="color:#fff; font-size:9px;">${d.f_note || '-'}</div>
+                    </div>
+                </div>`;
+
         document.getElementById('isi-laporan').innerHTML = res;
         document.getElementById('report-overlay').style.display = 'block';
     }
