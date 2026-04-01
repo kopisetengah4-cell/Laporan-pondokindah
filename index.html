@@ -5,102 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PI Dashboard | Kopi Setengah-4</title>
     
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
+        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; }
         .top-nav { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin-bottom: 5px; gap: 3px; }
-        .btn-main { padding: 8px 6px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; color: white; text-transform: uppercase; }
+        .btn-main { padding: 10px 6px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; color: white; text-transform: uppercase; }
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-new { background-color: #007bff; }
 
-        .container { width: 100%; max-width: 600px; }
-        .header-title { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; margin-bottom: 8px; }
+        .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
+        .header-title { text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0; }
 
-        table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
-        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 4px 0; color: #888; font-size: 9px; }
+        /* Table Styles */
+        table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
+        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 4px 0; color: #888; font-size: 8px; }
         table.main-table td { border: 1px solid #333; height: 22px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 11px; }
-        .col-nama { width: 40%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
+        .col-nama { width: 38%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
 
+        /* Omset Grid */
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
-        .omset-list-container { border-right: 1px solid #333; }
         .omset-row { display: flex; justify-content: space-between; padding: 2px 8px; border-bottom: 1px solid #111; font-size: 10px; height: 18px; align-items: center; }
         .omset-row input { background: transparent; border: none; color: white; width: 70px; text-align: right; outline: none; font-size: 10px; }
-        .omset-total-box { font-size: 26px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; }
+        .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
 
-        .white-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; background: #000; color: #d4af37; }
-        .white-table th, .white-table td { border: 1px solid #333; padding: 2px; text-align: center; }
-        .white-table input { width: 100%; background: transparent; border: none; color: white; text-align: center; font-size: 10px; outline: none; }
+        .white-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; }
+        .white-table td { border: 1px solid #333; padding: 2px; }
+        .white-table input { width: 100%; background: transparent; border: none; color: white; text-align: center; outline: none; }
 
-        .footer-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 5px; width: 100%; }
-        .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; }
-        .footer-box label { font-size: 8px; color: #888; display: block; margin-bottom: 2px; }
+        .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; margin-top: 5px; }
+        .footer-box label { font-size: 8px; color: #888; display: block; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
+
+        /* Overlay Riwayat */
+        #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:100; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        #capture-area { background: #000; padding: 10px; width: 360px; margin: 0 auto; border: 2px solid #d4af37; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <button class="btn-main btn-wa" onclick="simpanManual()">SIMPAN DATA</button>
-    <button class="btn-main btn-menu" onclick="alert('Buka Riwayat...')">RIWAYAT</button>
+    <button class="btn-main btn-wa" onclick="generateLaporan()">SIMPAN DATA</button>
+    <button class="btn-main btn-menu" onclick="bukaRiwayat()">RIWAYAT</button>
     <button class="btn-main btn-new" onclick="jalankanNewSistem()">NEW RESET</button>
 </div>
 
-<div class="container">
-    <div class="header-title">KOPI SETENGAH-4</div>
-    
-    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px; align-items: flex-end;">
-        <div style="flex: 1;">
-            TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cabang" onchange="gantiIdentitas()" style="background:#000; color:#fff; border:1px solid #333; font-size: 10px;">
-                <option value="Pondok Indah">Pondok Indah</option>
-                <option value="Cemput">Cemput</option>
-                <option value="Otista">Otista</option>
-                <option value="Jl.Panjang">Jl.Panjang</option>
-                <option value="Tandur">Tandur</option>
-                <option value="Menteng">Menteng</option>
-            </select><br>
-            SHIFT: <select id="main-shift" onchange="gantiIdentitas()" style="background:#000; color:#fff; border:1px solid #333; font-size: 10px;">
-                <option value="SHIFT 1">SHIFT 1</option>
-                <option value="SHIFT 2">SHIFT 2</option>
-            </select>
-        </div>
+<div class="container" id="laporan-full">
+    <div id="capture-area">
+        <div class="header-title">KOPI SETENGAH-4</div>
         
-        <div style="width: 35%;">
-            <table class="white-table">
-                <tr><th colspan="2" style="background:#111; color:#888; font-size:7px;">SISA ROTI</th></tr>
-                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="simpanFirebase()"></td></tr>
-                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="simpanFirebase()"></td></tr>
-                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="simpanFirebase()"></td></tr>
-            </table>
+        <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
+            <div>
+                TGL: <span id="label-tgl">2026-04-01</span><br>
+                CAB: <select id="main-cabang" onchange="gantiIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+                    <option value="Pondok Indah">Pondok Indah</option>
+                    <option value="Cemput">Cemput</option>
+                    <option value="Otista">Otista</option>
+                </select><br>
+                SHIFT: <select id="main-shift" onchange="gantiIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+                    <option value="SHIFT 1">SHIFT 1</option>
+                    <option value="SHIFT 2">SHIFT 2</option>
+                </select>
+            </div>
+            <div style="width: 35%;">
+                <table class="white-table">
+                    <tr><td colspan="2" style="text-align:center; font-size:7px; color:#888;">SISA ROTI</td></tr>
+                    <tr><td>COK</td><td><input type="text" id="roti-coklat"></td></tr>
+                    <tr><td>VAN</td><td><input type="text" id="roti-vanilla"></td></tr>
+                    <tr><td>BLU</td><td><input type="text" id="roti-blueberry"></td></tr>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <table class="main-table">
-        <thead><tr><th class="col-nama">BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
-        <tbody id="inventory-body"></tbody>
-    </table>
+        <table class="main-table">
+            <thead><tr><th class="col-nama">BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead>
+            <tbody id="inventory-body"></tbody>
+        </table>
 
-    <div class="omset-grid">
-        <div class="omset-list-container" id="omset-inputs"></div>
-        <div class="omset-total-box" id="display-total">0</div>
-    </div>
+        <div class="omset-grid">
+            <div id="omset-inputs"></div>
+            <div class="omset-total-box" id="display-total">0</div>
+        </div>
 
-    <div class="footer-split">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="simpanFirebase()"></div>
-        <div class="footer-box"><label>BERITA ACARA</label><input type="text" id="note" oninput="simpanFirebase()"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan"></div>
+        <div class="footer-box"><label>NOTE</label><input type="text" id="note"></div>
     </div>
 </div>
 
+<div id="riwayat-modal">
+    <h3 style="color:#d4af37; text-align:center;">LIHAT LAPORAN</h3>
+    <input type="date" id="hist-date" style="width:100%; padding:10px; margin-bottom:10px;">
+    <button class="btn-main btn-new" style="width:100%;" onclick="muatRiwayat()">LIHAT</button>
+    <button class="btn-main" style="width:100%; margin-top:10px; background:#444;" onclick="tutupRiwayat()">TUTUP</button>
+</div>
+
 <script>
-    // Konfigurasi Firebase Anda
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
         authDomain: "laporan-harian-f096f.firebaseapp.com",
@@ -114,61 +117,32 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DATA KEMARIN YANG ANDA BERIKAN (DITANAM DI DALAM KODE)
-    const DATA_MASTER_KEMARIN = {
-        "Cemput": {
-            "SHIFT 1": {
-                "sisa_BASE_KOPI": "2200", "sisa_BASE_SUSU": "950", "sisa_BOTOL_1_LITER": "66", "sisa_BOTOL_500_ML": "51",
-                "sisa_CUP_BESAR": "138", "sisa_CUP_HOT": "171", "sisa_CUP_KECIL": "754", "sisa_CUP_SEALER": "1",
-                "sisa_FN": "4/295", "sisa_GULA_AREN": "3½", "sisa_GULA_PUTIH": "1½", "sisa_HERSHEY_S": "2/625",
-                "sisa_KOPI": "12", "sisa_KRIMER": "15/649", "sisa_PLASTIK_BSR": "4", "sisa_PLASTIK_ISI_1": "12",
-                "sisa_PLASTIK_ISI_2": "12", "sisa_REMON": "15", "sisa_ROTI": "11", "sisa_SEA_SALT": "2",
-                "sisa_SEDOTAN_BSR": "1", "sisa_SEDOTAN_KEC": "3", "sisa_SKM": "7/296", "sisa_SUSU_UHT": "88/981",
-                "roti-coklat": "0", "roti-vanilla": "6", "roti-blueberry": "5"
-            }
-        },
-        "Pondok Indah": {
-            "SHIFT 1": {
-                "sisa_BASE_KOPI": "600", "sisa_BASE_SUSU": "1800", "sisa_BOTOL_1_LITER": "22", "sisa_BOTOL_500_ML": "49",
-                "sisa_CUP_BESAR": "121", "sisa_CUP_HOT": "120", "sisa_CUP_KECIL": "1.103", "sisa_CUP_SEALER": "1",
-                "sisa_FN": "4/223", "sisa_GULA_AREN": "4½", "sisa_GULA_PUTIH": "1½", "sisa_HERSHEY_S": "1/550",
-                "sisa_KOPI": "14½", "sisa_KRIMER": "9/453", "sisa_PLASTIK_BSR": "7", "sisa_PLASTIK_ISI_1": "7",
-                "sisa_PLASTIK_ISI_2": "5", "sisa_REMON": "25", "sisa_ROTI": "40", "sisa_SEA_SALT": "1/617",
-                "sisa_SEDOTAN_BSR": "2½", "sisa_SEDOTAN_KEC": "5½", "sisa_SKM": "4/215", "sisa_SUSU_UHT": "76/122",
-                "roti-coklat": "11", "roti-vanilla": "15", "roti-blueberry": "14"
-            }
-        }
-    };
-
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
 
+    // DATA AWAL (DI AMBIL DARI PESAN ANDA)
+    const DATA_MASTER = {
+        "Cemput": { "SHIFT 1": { "sisa_CUP_KECIL": "754", "sisa_CUP_BESAR": "138", "sisa_CUP_HOT": "171", "sisa_ROTI": "11", "roti-coklat": "0", "roti-vanilla": "6", "roti-blueberry": "5" }},
+        "Pondok Indah": { "SHIFT 1": { "sisa_CUP_KECIL": "1103", "sisa_CUP_BESAR": "121", "sisa_CUP_HOT": "120", "sisa_ROTI": "40", "roti-coklat": "11", "roti-vanilla": "15", "roti-blueberry": "14" }}
+    };
+
     function inisialisasi() {
         const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = "";
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            tbody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="msk_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="rsk_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="trjl_${id}" oninput="simpanFirebase()"></td><td><input type="text" id="sisa_${id}" oninput="simpanFirebase()"></td></tr>`;
+            tbody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}"></td><td><input type="text" id="msk_${id}"></td><td><input type="text" id="rsk_${id}"></td><td><input type="text" id="trjl_${id}"></td><td><input type="text" id="sisa_${id}"></td></tr>`;
         });
         const oDiv = document.getElementById('omset-inputs');
-        oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
-            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
+            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="hitungTotal()"></div>`; 
         });
-
-        // Load pilihan terakhir user
-        const savedCab = localStorage.getItem('locked_cabang');
-        const savedShf = localStorage.getItem('locked_shift');
-        if(savedCab) document.getElementById('main-cabang').value = savedCab;
-        if(savedShf) document.getElementById('main-shift').value = savedShf;
-
         muatData();
     }
 
-    function gantiIdentitas() {
-        localStorage.setItem('locked_cabang', document.getElementById('main-cabang').value);
-        localStorage.setItem('locked_shift', document.getElementById('main-shift').value);
-        muatData();
+    function hitungTotal() {
+        let total = 0;
+        document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
+        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
     }
 
     function muatData() {
@@ -177,73 +151,71 @@
         const shf = document.getElementById('main-shift').value;
         document.getElementById('label-tgl').innerText = tgl;
 
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
-            const dataHariIni = snapshot.val();
-            if (dataHariIni) {
-                // Tampilkan data yang sudah ada di Firebase
-                isiFormulir(dataHariIni);
-            } else {
-                // JIKA FIREBASE KOSONG -> CEK DATA MASTER KEMARIN
-                if (DATA_MASTER_KEMARIN[cab] && DATA_MASTER_KEMARIN[cab][shf]) {
-                    console.log("Memuat data master...");
-                    migrasiData(DATA_MASTER_KEMARIN[cab][shf]);
-                } else {
-                    bersihkanForm();
-                }
-            }
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
+            if (s.val()) { isiForm(s.val()); } 
+            else if (DATA_MASTER[cab] && DATA_MASTER[cab][shf]) { migrasi(DATA_MASTER[cab][shf]); }
+            else { bersihkan(); }
         });
     }
 
-    function migrasiData(dataLama) {
-        bersihkanForm();
-        daftarBarang.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            // Ambil SISA kemarin masukkan ke STOK hari ini
-            document.getElementById(`stok_${id}`).value = dataLama[`sisa_${id}`] || "";
-        });
-        // Sisa Roti Spesifik
-        document.getElementById('roti-coklat').value = dataLama['roti-coklat'] || "";
-        document.getElementById('roti-vanilla').value = dataLama['roti-vanilla'] || "";
-        document.getElementById('roti-blueberry').value = dataLama['roti-blueberry'] || "";
-        
-        simpanFirebase(); // Langsung rekatkan ke database hari ini
-    }
-
-    function simpanFirebase() {
+    function generateLaporan() {
+        // Simpan data ke Firebase dulu
         const tgl = new Date().toISOString().split('T')[0];
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
-        
-        let total = 0;
-        document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
-        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
-        
         const data = {};
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        data.total = total.toLocaleString('id-ID');
-        
+        data.total = document.getElementById('display-total').innerText;
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
+
+        // Ambil Gambar
+        const area = document.getElementById('capture-area');
+        html2canvas(area, { backgroundColor: "#000", scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Laporan_${cab}_${tgl}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            alert("Data Berhasil Disimpan & Gambar Laporan Diunduh!");
+        });
     }
 
-    function isiFormulir(data) {
-        document.querySelectorAll('input').forEach(el => { el.value = (data && data[el.id]) ? data[el.id] : ""; });
-        if(data && data.total) document.getElementById('display-total').innerText = data.total;
+    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
+
+    function muatRiwayat() {
+        const tgl = document.getElementById('hist-date').value;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        if(!tgl) return alert("Pilih Tanggal!");
+
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
+            if(s.val()) { isiForm(s.val()); document.getElementById('label-tgl').innerText = tgl; tutupRiwayat(); }
+            else { alert("Data tidak ditemukan untuk tanggal tersebut."); }
+        });
     }
 
-    function bersihkanForm() {
+    function isiForm(d) {
+        document.querySelectorAll('input').forEach(el => { el.value = d[el.id] || ""; });
+        document.getElementById('display-total').innerText = d.total || "0";
+    }
+
+    function bersihkan() {
         document.querySelectorAll('input').forEach(el => el.value = "");
         document.getElementById('display-total').innerText = "0";
     }
 
-    function simpanManual() { simpanFirebase(); alert("Data Berhasil Disimpan!"); }
-
-    function jalankanNewSistem() {
-        if(confirm("Lakukan Reset? Sisa sekarang akan dipindah ke Stok baru.")) {
-            const currentData = {};
-            document.querySelectorAll('input').forEach(el => { if(el.id) currentData[el.id] = el.value; });
-            migrasiData(currentData);
-        }
+    function migrasi(d) {
+        bersihkan();
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            document.getElementById(`stok_${id}`).value = d[`sisa_${id}`] || "";
+        });
+        document.getElementById('roti-coklat').value = d['roti-coklat'] || "";
+        document.getElementById('roti-vanilla').value = d['roti-vanilla'] || "";
+        document.getElementById('roti-blueberry').value = d['roti-blueberry'] || "";
     }
+
+    function gantiIdentitas() { muatData(); }
 
     window.onload = inisialisasi;
 </script>
