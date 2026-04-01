@@ -192,30 +192,34 @@
     }
 
     function tarikDataOtomatis() {
-        const tglHariIni = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        const d = new Date(tglHariIni);
-        d.setDate(d.getDate() - 1);
-        const tglKemarin = d.toISOString().split('T')[0];
+    const tglHari Ini = document.getElementById('label-tgl').innerText;
+    const cab = document.getElementById('main-cabang').value; // Mengambil Cabang yg dipilih
+    const shf = document.getElementById('main-shift').value;  // Mengambil Shift yg dipilih
+    
+    const d = new Date(tglHariIni);
+    d.setDate(d.getDate() - 1);
+    const tglKemarin = d.toISOString().split('T')[0];
 
-        db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
-            const dk = s.val();
-            if (dk && dk.total && dk.total !== "0") {
-                daftarBarang.forEach(item => {
-                    const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    const valSisaKemarin = dk[`sisa_${id}`] || "";
-                    const elStok = document.getElementById(`stok_${id}`);
-                    const elSisa = document.getElementById(`sisa_${id}`);
+    // Mengambil data spesifik: Kemarin -> Cabang Ini -> Shift Ini
+    db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
+        const dk = s.val();
+        if (dk) {
+            daftarBarang.forEach(item => {
+                const id = item.replace(/[^A-Z0-9]/ig, "_");
+                const valSisaKemarin = dk[`sisa_${id}`] || "";
+                
+                // Isi STOK hari ini dari SISA kemarin
+                document.getElementById(`stok_${id}`).value = valSisaKemarin;
 
-                    if (elStok && elStok.value === "") elStok.value = valSisaKemarin;
-                    if (elSisa && elSisa.value === "") {
-                        elSisa.value = daftarManual.includes(item) ? "" : valSisaKemarin;
-                    }
-                });
-                simpanKeLocalStorage();
-            }
-        });
+                // Isi SISA hari ini otomatis (Kecuali barang Manual)
+                if (!daftarManual.includes(item)) {
+                    document.getElementById(`sisa_${id}`).value = valSisaKemarin;
+                } else {
+                    document.getElementById(`sisa_${id}`).value = ""; // Wajib isi manual
+                }
+            });
+        }
+    });
     }
 
     function simpanKeLocalStorage() {
