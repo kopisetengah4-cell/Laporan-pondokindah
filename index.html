@@ -18,7 +18,6 @@
         .btn-reset { background-color: #e74c3c; }
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
-        /* Tabel Utama */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
@@ -26,7 +25,6 @@
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
-        /* Tabel Roti - Lebar Kolom Nama Sesuai Request (65%) */
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
         .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
@@ -44,7 +42,9 @@
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
 
         #report-overlay, #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
-        .modal-inner { background: #000; width: 360px; margin: 20px auto; padding: 15px; border: 1px solid #333; color: #fff; }
+        .modal-inner { background: #000; width: 320px; margin: 50px auto; padding: 20px; border: 1px solid #333; color: #fff; border-radius: 8px; }
+        .modal-inner h3 { margin-top: 0; color: #d4af37; text-align: center; }
+        .modal-inner select, .modal-inner input { width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; }
     </style>
 </head>
 <body onload="initApp()">
@@ -115,10 +115,25 @@
 
 <div id="riwayat-modal">
     <div class="modal-inner">
-        <h3 style="text-align:center; color:#d4af37; margin-top:0;">RIWAYAT</h3>
-        <input type="date" id="h_tgl" style="width:100%; padding:10px; margin-bottom:10px;">
-        <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="cariLaporan()">CARI</button>
-        <button class="btn-main" style="width:100%; background:#333;" onclick="tutupRiwayat()">BATAL</button>
+        <h3>CARI RIWAYAT</h3>
+        <label style="font-size: 10px; color: #888;">CABANG:</label>
+        <select id="h_cab">
+            <option value="Tandur">Tandur</option>
+            <option value="Kebon Jeruk">Kebon Jeruk</option>
+            <option value="Pondok Indah">Pondok Indah</option>
+            <option value="Otista">Otista</option>
+            <option value="Cemput">Cemput</option>
+            <option value="Menteng">Menteng</option>
+        </select>
+        <label style="font-size: 10px; color: #888;">SHIFT:</label>
+        <select id="h_shf">
+            <option value="SHIFT 1">SHIFT 1</option>
+            <option value="SHIFT 2">SHIFT 2</option>
+        </select>
+        <label style="font-size: 10px; color: #888;">TANGGAL:</label>
+        <input type="date" id="h_tgl">
+        <button class="btn-main btn-menu" style="width:100%; margin-top:10px;" onclick="cariLaporan()">TAMPILKAN</button>
+        <button class="btn-main btn-reset" style="width:100%; margin-top:5px;" onclick="tutupRiwayat()">BATAL</button>
     </div>
 </div>
 
@@ -146,9 +161,14 @@
         
         document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
+        document.getElementById('h_tgl').value = tglStr;
         
-        document.getElementById('main-cab').value = localStorage.getItem('p_cab') || "Tandur";
-        document.getElementById('main-shf').value = localStorage.getItem('p_shf') || "SHIFT 1";
+        const c = localStorage.getItem('p_cab') || "Tandur";
+        const s = localStorage.getItem('p_shf') || "SHIFT 1";
+        document.getElementById('main-cab').value = c;
+        document.getElementById('main-shf').value = s;
+        document.getElementById('h_cab').value = c;
+        document.getElementById('h_shf').value = s;
 
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
         barang_list.forEach(item => {
@@ -166,8 +186,7 @@
             oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="hitung()"></div>`;
         });
         
-        // Load Draft
-        const local = localStorage.getItem(`draft_${document.getElementById('main-cab').value}_${document.getElementById('main-shf').value}`);
+        const local = localStorage.getItem(`draft_${c}_${s}`);
         if(local) {
             const data = JSON.parse(local);
             Object.keys(data).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = data[k]; });
@@ -180,14 +199,12 @@
         document.querySelectorAll('.inp-o').forEach(i => { tot += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
         document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
         
-        // Save Draft otomatis
         const data = {};
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
         localStorage.setItem(`draft_${document.getElementById('main-cab').value}_${document.getElementById('main-shf').value}`, JSON.stringify(data));
     }
 
     function prosesLaporan() {
-        // Ambil data detik ini juga dari layar
         const finalData = {
             hari: document.getElementById('label-hari').innerText,
             tgl: document.getElementById('label-tgl').innerText,
@@ -304,13 +321,20 @@
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
     function tutupOverlay() { document.getElementById('report-overlay').style.display = 'none'; }
     function resetApp() { if(confirm("Hapus draft?")) { localStorage.clear(); location.reload(); } }
+
     function cariLaporan() {
         const t = document.getElementById('h_tgl').value;
-        const c = document.getElementById('main-cab').value;
-        const s = document.getElementById('main-shf').value;
+        const c = document.getElementById('h_cab').value;
+        const s = document.getElementById('h_shf').value;
+        if(!t) return alert("Pilih tanggal!");
+
         db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
-            if(snp.val()) { tampilkanLaporan(snp.val()); tutupRiwayat(); }
-            else alert("Kosong!");
+            if(snp.val()) { 
+                tampilkanLaporan(snp.val()); 
+                tutupRiwayat(); 
+            } else { 
+                alert("Data Tidak Ditemukan!"); 
+            }
         });
     }
 </script>
