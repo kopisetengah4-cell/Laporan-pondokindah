@@ -41,11 +41,9 @@
         .footer-box label { font-size: 8px; color: #888; display: block; margin-bottom: 2px; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
 
-        /* Overlay Laporan Putih */
         #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:2000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
         .white-report-container { background: #fff; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #000; }
         
-        /* Modal Riwayat */
         #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; padding: 20px; box-sizing: border-box; }
         .modal-content { max-width: 400px; margin: 0 auto; background: #111; padding: 15px; border: 1px solid #d4af37; border-radius: 8px; }
         .modal-content select, .modal-content input { width: 100%; padding: 10px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid #333; }
@@ -159,16 +157,19 @@
     const DRAFT_KEY = 'laporan_draft_kopi_setengah4';
 
     function inisialisasi() {
+        // Tampilkan Hari & Tanggal
         const now = new Date();
         const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
+        // Load Cache Cabang
         const savedCab = localStorage.getItem('kunci_cabang');
         const savedShf = localStorage.getItem('kunci_shift');
         if(savedCab) document.getElementById('main-cabang').value = savedCab;
         if(savedShf) document.getElementById('main-shift').value = savedShf;
 
+        // Render Tabel Barang
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -181,6 +182,7 @@
                 <td><input type="text" id="sisa_${id}" oninput="simpanKeLocalStorage()"></td></tr>`;
         });
         
+        // Render Input Omset
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -192,34 +194,31 @@
     }
 
     function tarikDataOtomatis() {
-    const tglHari Ini = document.getElementById('label-tgl').innerText;
-    const cab = document.getElementById('main-cabang').value; // Mengambil Cabang yg dipilih
-    const shf = document.getElementById('main-shift').value;  // Mengambil Shift yg dipilih
-    
-    const d = new Date(tglHariIni);
-    d.setDate(d.getDate() - 1);
-    const tglKemarin = d.toISOString().split('T')[0];
+        const tglHariIni = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        
+        const d = new Date(tglHariIni);
+        d.setDate(d.getDate() - 1);
+        const tglKemarin = d.toISOString().split('T')[0];
 
-    // Mengambil data spesifik: Kemarin -> Cabang Ini -> Shift Ini
-    db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
-        const dk = s.val();
-        if (dk) {
-            daftarBarang.forEach(item => {
-                const id = item.replace(/[^A-Z0-9]/ig, "_");
-                const valSisaKemarin = dk[`sisa_${id}`] || "";
-                
-                // Isi STOK hari ini dari SISA kemarin
-                document.getElementById(`stok_${id}`).value = valSisaKemarin;
+        db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
+            const dk = s.val();
+            if (dk && dk.total && dk.total !== "0") {
+                daftarBarang.forEach(item => {
+                    const id = item.replace(/[^A-Z0-9]/ig, "_");
+                    const valSisaKemarin = dk[`sisa_${id}`] || "";
+                    const elStok = document.getElementById(`stok_${id}`);
+                    const elSisa = document.getElementById(`sisa_${id}`);
 
-                // Isi SISA hari ini otomatis (Kecuali barang Manual)
-                if (!daftarManual.includes(item)) {
-                    document.getElementById(`sisa_${id}`).value = valSisaKemarin;
-                } else {
-                    document.getElementById(`sisa_${id}`).value = ""; // Wajib isi manual
-                }
-            });
-        }
-    });
+                    if (elStok && elStok.value === "") elStok.value = valSisaKemarin;
+                    if (elSisa && elSisa.value === "") {
+                        elSisa.value = daftarManual.includes(item) ? "" : valSisaKemarin;
+                    }
+                });
+                simpanKeLocalStorage();
+            }
+        });
     }
 
     function simpanKeLocalStorage() {
@@ -291,16 +290,15 @@
         const shf = document.getElementById('hist-shift').value;
         if(!tgl) return alert("Pilih Tanggal!");
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
-            const data = s.val();
-            if(data) { renderLaporanPutih(data, tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
+            if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
             else { alert("Data tidak ditemukan."); }
         });
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Konfirmasi (Reset Seluruh Database):");
+        const pin = prompt("PIN Konfirmasi Reset:");
         if (pin === "9812") {
-            db.ref('Laporan').remove().then(() => { alert("Database Bersih."); location.reload(); });
+            db.ref('Laporan').remove().then(() => { alert("Database Reset."); location.reload(); });
         } else if (pin !== null) alert("PIN Salah!");
     }
 
