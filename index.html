@@ -26,9 +26,9 @@
         table.main-table td { border: 1px solid #333; height: 25px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 12px; }
 
-        .roti-container { width: 26%; }
-        .roti-table-main { width: 100%; border-collapse: collapse; font-size: 8px; border: 1px solid #333; table-layout: fixed; }
-        .roti-table-main td { border: 1px solid #333; height: 20px; width: 50%; }
+        .roti-container { width: 30%; }
+        .roti-table-main { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
+        .roti-table-main td { border: 1px solid #333; height: 22px; width: 50%; padding: 0 4px; }
         .roti-table-main input { width: 100%; background: transparent; border: none; color: #fff; text-align: center; outline: none; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
@@ -79,7 +79,7 @@
         </div>
         <div class="roti-container">
             <table class="roti-table-main">
-                <tr><td colspan="2" style="text-align:center; color:#888;">SISA ROTI</td></tr>
+                <tr><td colspan="2" style="text-align:center; color:#888; background:#1a1a1a;">SISA ROTI</td></tr>
                 <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="simpanKeLocalStorage()"></td></tr>
                 <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="simpanKeLocalStorage()"></td></tr>
                 <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="simpanKeLocalStorage()"></td></tr>
@@ -193,31 +193,23 @@
         const tglHariIni = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
-        
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dk = s.val();
-            
-            // RESET SEMUA KOLOM TERLEBIH DAHULU (Agar jika data kemarin kosong, kolom hari ini juga kosong)
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 document.getElementById(`stok_${id}`).value = "";
                 document.getElementById(`sisa_${id}`).value = "";
             });
-
-            // JIKA DATA KEMARIN ADA, BARU DIISI
             if (dk && dk.total && dk.total !== "0") {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const valSisaKemarin = dk[`sisa_${id}`] || "";
-                    
                     document.getElementById(`stok_${id}`).value = valSisaKemarin;
-                    if (!daftarManual.includes(item)) {
-                        document.getElementById(`sisa_${id}`).value = valSisaKemarin;
-                    }
+                    if (!daftarManual.includes(item)) document.getElementById(`sisa_${id}`).value = valSisaKemarin;
                 });
                 simpanKeLocalStorage();
             }
@@ -255,7 +247,7 @@
     function simpanKunciCabang() {
         localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
         localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
-        tarikDataOtomatis(); // Setiap ganti Cabang/Shift, data akan ditarik ulang secara spesifik
+        tarikDataOtomatis();
     }
 
     function simpanDanTampilkanLaporan() {
@@ -276,14 +268,58 @@
 
     function renderLaporanPutih(d, tgl, cab, shf) {
         const hari = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[new Date(tgl).getDay()];
-        let html = `<div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-end;"><div style="font-size: 10px; line-height: 1.3; font-weight: bold;">${hari}<br>TANGGAL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}</div><div style="width: 26%;"><table style="width: 100%; border-collapse: collapse; font-size: 8px;"><tr><th colspan="2" style="border:1px solid #000;">SISA ROTI</th></tr><tr><td style="border:1px solid #000;">COK</td><td style="border:1px solid #000; text-align:center;">${d['roti-coklat']||''}</td></tr><tr><td style="border:1px solid #000;">VAN</td><td style="border:1px solid #000; text-align:center;">${d['roti-vanilla']||''}</td></tr><tr><td style="border:1px solid #000;">BLU</td><td style="border:1px solid #000; text-align:center;">${d['roti-blueberry']||''}</td></tr></table></div></div><table style="width: 100%; border-collapse: collapse; font-size: 9px;"><thead><tr><th style="border:1px solid #000; text-align:left;">BARANG</th><th style="border:1px solid #000;">STOK</th><th style="border:1px solid #000;">MSK</th><th style="border:1px solid #000;">RSK</th><th style="border:1px solid #000;">TRJL</th><th style="border:1px solid #000;">SISA</th></tr></thead><tbody>`;
+        let html = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-end;">
+            <div style="font-size: 10px; line-height: 1.3; font-weight: bold;">
+                ${hari}<br>TANGGAL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}
+            </div>
+            <div style="width: 32%;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed;">
+                    <tr><th colspan="2" style="border:1px solid #000; background:#f0f0f0; padding:2px;">SISA ROTI</th></tr>
+                    <tr><td style="border:1px solid #000; width:50%; padding:2px;">COKLAT</td><td style="border:1px solid #000; width:50%; text-align:center; font-weight:bold;">${d['roti-coklat']||''}</td></tr>
+                    <tr><td style="border:1px solid #000; width:50%; padding:2px;">VANILLA</td><td style="border:1px solid #000; width:50%; text-align:center; font-weight:bold;">${d['roti-vanilla']||''}</td></tr>
+                    <tr><td style="border:1px solid #000; width:50%; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; width:50%; text-align:center; font-weight:bold;">${d['roti-blueberry']||''}</td></tr>
+                </table>
+            </div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+            <thead>
+                <tr style="background:#f0f0f0;">
+                    <th style="border:1px solid #000; text-align:left; padding:2px;">BARANG</th>
+                    <th style="border:1px solid #000; padding:2px;">STOK</th>
+                    <th style="border:1px solid #000; padding:2px;">MSK</th>
+                    <th style="border:1px solid #000; padding:2px;">RSK</th>
+                    <th style="border:1px solid #000; padding:2px;">TRJL</th>
+                    <th style="border:1px solid #000; padding:2px;">SISA</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            html += `<tr><td style="border:1px solid #000; text-align:left; font-weight:bold;">${item}</td><td style="border:1px solid #000;">${d['stok_'+id]||''}</td><td style="border:1px solid #000;">${d['msk_'+id]||''}</td><td style="border:1px solid #000;">${d['rsk_'+id]||''}</td><td style="border:1px solid #000;">${d['trjl_'+id]||''}</td><td style="border:1px solid #000;">${d['sisa_'+id]||''}</td></tr>`;
+            html += `<tr>
+                <td style="border:1px solid #000; text-align:left; font-weight:bold; padding:2px;">${item}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['stok_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['msk_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['rsk_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['trjl_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center; font-weight:bold;">${d['sisa_'+id]||''}</td>
+            </tr>`;
         });
-        html += `</tbody></table><div style="display:flex; border:1px solid #000; margin-top:5px;"><div style="flex:1.2; border-right:1px solid #000; font-size:8px; padding:3px;">`;
-        daftarOmset.forEach(m => { html += `<div style="display:flex; justify-content:space-between;"><span>${m}</span><span>${d['o_'+m.replace(/[^A-Z0-9]/ig,'_')]||'0'}</span></div>`; });
-        html += `</div><div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold;">${d.total}</div></div><div style="display:flex; gap:3px; margin-top:3px;"><div style="flex:1; border:1px solid #000; padding:3px; font-size:8px; font-weight:bold;">CASH: ${d['cash-gabungan']||''}</div><div style="flex:1; border:1px solid #000; padding:3px; font-size:8px; font-weight:bold;">NOTE: ${d.note||''}</div></div>`;
+        
+        html += `</tbody></table>
+        <div style="display:flex; border:1px solid #000; margin-top:5px;">
+            <div style="flex:1.2; border-right:1px solid #000; font-size:8px; padding:3px;">`;
+        daftarOmset.forEach(m => { 
+            html += `<div style="display:flex; justify-content:space-between; border-bottom:0.5px solid #eee;"><span>${m}</span><span>${d['o_'+m.replace(/[^A-Z0-9]/ig,'_')]||'0'}</span></div>`; 
+        });
+        html += `</div>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; background:#f9f9f9;">${d.total}</div>
+        </div>
+        <div style="display:flex; gap:3px; margin-top:3px;">
+            <div style="flex:1; border:1px solid #000; padding:4px; font-size:8px;"><b>CASH:</b> ${d['cash-gabungan']||''}</div>
+            <div style="flex:1; border:1px solid #000; padding:4px; font-size:8px;"><b>NOTE:</b> ${d.note||''}</div>
+        </div>`;
         document.getElementById('render-content').innerHTML = html;
     }
 
@@ -294,15 +330,8 @@
         if(!tgl) return alert("Pilih Tanggal!");
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
             if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
-            else { alert("Data tidak ditemukan."); }
+            else alert("Data tidak ditemukan.");
         });
-    }
-
-    function resetSemuaRiwayat() {
-        const pin = prompt("PIN Konfirmasi Reset:");
-        if (pin === "9812") {
-            db.ref('Laporan').remove().then(() => { alert("Database Reset."); location.reload(); });
-        } else if (pin !== null) alert("PIN Salah!");
     }
 
     function downloadLaporanGambar() {
@@ -313,11 +342,5 @@
         });
     }
 
-    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
-    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
-    function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
-
-    window.onload = inisialisasi;
-</script>
-</body>
-</html>
+    function resetSemuaRiwayat() {
+        const pin = prompt(
