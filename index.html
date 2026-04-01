@@ -69,12 +69,12 @@
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
         </div>
-        <div style="width: 32%;">
+        <div style="width: 38%;">
             <table style="width:100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333;">
                 <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center;">SISA ROTI</td></tr>
-                <tr><td>COK</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
-                <tr><td>VAN</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
-                <tr><td>BLU</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
+                <tr><td>COKLAT</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
+                <tr><td>VANILLA</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
+                <tr><td>BLUEBERRY</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
             </table>
         </div>
     </div>
@@ -102,7 +102,7 @@
         <button onclick="tutupOverlay()" style="padding:10px; flex:1; background:#444; color:#fff; border:none;">KEMBALI</button>
         <button onclick="downloadPNG()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
     </div>
-    <div id="printable-area" style="width: 360px; margin: 0 auto; background:#000; padding:10px; border:1px solid #333;">
+    <div id="printable-area" style="width: 360px; margin: 0 auto; background:#fff; padding:15px; border:1px solid #ccc;">
         <div id="isi-laporan"></div>
     </div>
 </div>
@@ -222,51 +222,57 @@
     }
 
     function showResult(d, t, c, s) {
-        let res = `<div style="text-align:center; color:#d4af37; font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">KOPI SETENGAH-4</div>
+        let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <div style="font-size:10px; color:#fff;">TANGGAL: ${t}<br>CABANG: ${c}<br>SHIFT: ${s}</div>
-                <div style="width:35%; border:1px solid #333;">
-                    <table style="width:100%; border-collapse:collapse; font-size:8px; color:#fff;">
-                        <tr style="background:#1a1a1a; color:#888;"><th colspan="2">SISA ROTI</th></tr>
-                        <tr><td style="padding:1px;">COK</td><td style="text-align:center;">${d['r_cok']||0}</td></tr>
-                        <tr><td style="padding:1px;">VAN</td><td style="text-align:center;">${d['r_van']||0}</td></tr>
-                        <tr><td style="padding:1px;">BLU</td><td style="text-align:center;">${d['r_blu']||0}</td></tr>
+                <div style="font-size:11px; color:#000; line-height:1.4;"><b>TANGGAL:</b> ${t}<br><b>CABANG:</b> ${c}<br><b>SHIFT:</b> ${s}</div>
+                <div style="width:45%; border:1.5px solid #000;">
+                    <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
+                        <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_cok']||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_van']||0}</b></td></tr>
+                        <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_blu']||0}</b></td></tr>
                     </table>
                 </div>
             </div>
-            <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333; margin-bottom:10px;">
-                <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
+            <table style="width:100%; border-collapse:collapse; font-size:10px; color:#000; border:1.5px solid #000; margin-bottom:10px;">
+                <tr style="background:#eee;">
+                    <th style="border:1px solid #000; padding:4px;">BARANG</th>
+                    <th style="border:1px solid #000;">STOK</th>
+                    <th style="border:1px solid #000;">MSK</th>
+                    <th style="border:1px solid #000;">TRJL</th>
+                    <th style="border:1px solid #000;">SISA</th>
+                </tr>`;
         barang.forEach(i => {
             const id = i.replace(/[^A-Z0-9]/ig, "_");
-            res += `<tr><td style="color:#d4af37; border:1px solid #333; font-weight:bold; padding:2px;">${i}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['stok_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['msk_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['trjl_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333; font-weight:bold;">${d['sisa_'+id]||0}</td></tr>`;
+            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${i}</td>
+                <td style="text-align:center; border:1px solid #000;">${d['stok_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #000;">${d['msk_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #000;">${d['trjl_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #000; font-weight:bold; background:#f9f9f9;">${d['sisa_'+id]||0}</td></tr>`;
         });
         res += `</table>`;
         res += `<div style="display:flex; gap:5px; margin-bottom:10px;">
-                    <div style="flex:1.5; border:1px solid #333;">
-                        <table style="width:100%; border-collapse:collapse; font-size:8px; color:#fff;">
-                            <tr style="background:#1a1a1a; color:#888;"><th colspan="2" style="padding:2px;">RINCIAN OMSET</th></tr>`;
+                    <div style="flex:1.5; border:1.5px solid #000;">
+                        <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
+                            <tr style="background:#eee;"><th colspan="2" style="padding:4px; border-bottom:1px solid #000;">RINCIAN OMSET</th></tr>`;
         omset_list.forEach(m => {
             const idO = "o_" + m.replace(/[^A-Z0-9]/ig,'_');
-            res += `<tr><td style="border:1px solid #222; padding:2px;">${m}</td><td style="border:1px solid #222; text-align:right; padding-right:3px;">${d[idO]||0}</td></tr>`;
+            res += `<tr><td style="border-bottom:1px solid #ddd; padding:3px;">${m}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${d[idO]||0}</td></tr>`;
         });
         res += `</table></div>
-                    <div style="flex:1; border:1px solid #333; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#050505;">
-                        <span style="font-size:7px; color:#888;">TOTAL OMSET</span>
-                        <span style="font-size:18px; font-weight:bold; color:#fff;">${d.total}</span>
+                    <div style="flex:1; border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#eee;">
+                        <span style="font-size:9px; color:#333; font-weight:bold;">TOTAL OMSET</span>
+                        <span style="font-size:20px; font-weight:bold; color:#000;">Rp ${d.total}</span>
                     </div>
                 </div>`;
-        res += `<div style="display:flex; gap:5px; margin-bottom:5px;">
-                    <div style="flex:1; border:1px solid #333; padding:5px; text-align:center; background:#050505;">
-                        <div style="font-size:7px; color:#888; border-bottom:1px solid #222; margin-bottom:3px;">CASH AWAL/AKHIR</div>
-                        <div style="color:#fff; font-size:10px; font-weight:bold;">${d.f_cash || '-'}</div>
+        res += `<div style="display:flex; gap:5px;">
+                    <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
+                        <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">CASH AWAL/AKHIR</div>
+                        <div style="color:#000; font-size:11px; font-weight:bold;">${d.f_cash || '-'}</div>
                     </div>
-                    <div style="flex:1; border:1px solid #333; padding:5px; text-align:center; background:#050505;">
-                        <div style="font-size:7px; color:#888; border-bottom:1px solid #222; margin-bottom:3px;">BERITA ACARA</div>
-                        <div style="color:#fff; font-size:9px;">${d.f_note || '-'}</div>
+                    <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
+                        <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">BERITA ACARA</div>
+                        <div style="color:#000; font-size:10px;">${d.f_note || '-'}</div>
                     </div>
                 </div>`;
         document.getElementById('isi-laporan').innerHTML = res;
@@ -274,8 +280,8 @@
     }
 
     function downloadPNG() {
-        html2canvas(document.getElementById('printable-area'), { backgroundColor: "#000", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); link.download = 'Laporan_PI.png'; link.href = canv.toDataURL(); link.click();
+        html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
+            const link = document.createElement('a'); link.download = 'Laporan_PI_Putih.png'; link.href = canv.toDataURL(); link.click();
         });
     }
     function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
@@ -294,4 +300,4 @@
     function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
-    </html>
+</html>
