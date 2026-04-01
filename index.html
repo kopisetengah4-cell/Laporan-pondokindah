@@ -211,36 +211,41 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
 
-        // Shift 2 mendengarkan Shift 1 (Mirroring instan)
+        // FITUR UTAMA: Shift 2 MIRRORING Shift 1 saat itu juga
         if (shf === "SHIFT 2") {
             db.ref('LiveSync/' + tgl + '/' + cab + '/SHIFT 1').on('value', s => {
                 const dataS1 = s.val();
                 if(dataS1) {
                     Object.keys(dataS1).forEach(id => {
                         const el = document.getElementById(id);
-                        if(el) {
-                            // Salin semua data dari S1 ke S2 tanpa filter
-                            el.value = dataS1[id];
-                        }
+                        if(el) el.value = dataS1[id];
                     });
                     hitungTotal();
                     simpanDraft();
                 }
             });
         } 
-        // Shift 1 tetap mengambil sisa Shift 2 Kemarin sebagai stok awal
+        // FITUR BARU: Shift 1 ambil data SISA dari Shift 2 KEMARIN
         else if (!localStorage.getItem('draft_input')) {
             const d = new Date(tgl);
             d.setDate(d.getDate() - 1);
             const tglKemarin = d.toISOString().split('T')[0];
+            
+            // Cek di tabel Laporan (Data yang sudah disimpan final)
             db.ref('Laporan/' + tglKemarin + '/' + cab + '/SHIFT 2').once('value', s => {
                 const dataKmrn = s.val();
                 if(dataKmrn) {
                     daftarBarang.forEach(item => {
                         const id = item.replace(/[^A-Z0-9]/ig, "_");
+                        // Stok Shift 1 hari ini = Sisa Shift 2 kemarin
                         const valSisaKmrn = dataKmrn[`sisa_${id}`] || "";
                         document.getElementById(`stok_${id}`).value = valSisaKmrn;
                     });
+                    // Ambil juga sisa roti kemarin
+                    document.getElementById('roti-coklat').value = dataKmrn['roti-coklat'] || "";
+                    document.getElementById('roti-vanilla').value = dataKmrn['roti-vanilla'] || "";
+                    document.getElementById('roti-blueberry').value = dataKmrn['roti-blueberry'] || "";
+                    
                     simpanDraft();
                 }
             });
@@ -304,14 +309,4 @@
     function resetDraftHalaman() { if(confirm("Hapus draf input?")) { localStorage.removeItem('draft_input'); location.reload(); } }
     function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
     function downloadLaporanGambar() {
-        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
-            link.href = canvas.toDataURL("image/png"); link.click();
-        });
-    }
-
-    window.onload = inisialisasi;
-</script>
-</body>
-</html>
+        html2canvas(document.getElementById('printable-area'
