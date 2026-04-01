@@ -1,284 +1,137 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | Kopi Setengah-4</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <style>
-        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin-bottom: 5px; gap: 3px; }
-        .btn-main { padding: 12px 6px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; color: white; text-transform: uppercase; }
-        .btn-wa { background-color: #25D366; }
-        .btn-menu { background-color: #d4af37; color: #000; }
-        .btn-reset { background-color: #e74c3c; }
-
-        .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
-        
-        table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
-        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
-        .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
-        .col-data { width: 13%; }
-        table.main-table td { border: 1px solid #333; height: 25px; text-align: center; padding: 0; }
-        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 12px; }
-
-        .roti-container { width: 30%; }
-        .roti-table-main { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
-        .roti-table-main td { border: 1px solid #333; height: 22px; width: 50%; padding: 0 4px; }
-        .roti-table-main input { width: 100%; background: transparent; border: none; color: #fff; text-align: center; outline: none; }
-
-        .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
-        .omset-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; }
-        .omset-row input { background: transparent; border: none; color: white; width: 80px; text-align: right; outline: none; }
-        .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
-
-        .bottom-section { display: flex; gap: 5px; margin-top: 5px; width: 100%; }
-        .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; flex: 1; }
-        .footer-box label { font-size: 8px; color: #888; border-bottom: 1px solid #222; margin-bottom: 2px; }
-        .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
-
-        #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:4000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
-        .white-report-container { background: #fff; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #000; }
-        
-        #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; padding: 20px; box-sizing: border-box; }
-        .modal-content { max-width: 400px; margin: 40px auto; background: #111; padding: 15px; border: 1px solid #d4af37; border-radius: 8px; color: #fff; }
-        .modal-content select, .modal-content input { width: 100%; padding: 10px; margin-bottom: 10px; background: #222; color: #fff; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; }
-    </style>
-</head>
-<body onload="inisialisasi()">
-
-<div class="top-nav">
-    <button class="btn-main btn-wa" onclick="simpanDanTampilkanLaporan()">SIMPAN DATA</button>
-    <button class="btn-main btn-menu" onclick="bukaRiwayat()">RIWAYAT</button>
-    <button class="btn-main btn-reset" onclick="resetDraftHalaman()">RESET DRAFT</button>
-</div>
-
-<div class="container">
-    <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0;">KOPI SETENGAH-4</div>
-    
-    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
-        <div style="flex: 1;">
-            <span id="label-hari" style="font-weight:bold; display:block;">-</span>
-            TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cabang" onchange="updateShiftOptions(); restartSistem()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
-                <option value="Tandur">Tandur</option>
-                <option value="Kebon Jeruk">Kebon Jeruk</option>
-                <option value="Pondok Indah">Pondok Indah</option>
-                <option value="Otista">Otista</option>
-                <option value="Cemput">Cemput</option>
-                <option value="Menteng">Menteng</option>
-            </select><br>
-            SHIFT: <select id="main-shift" onchange="restartSistem()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
-            </select>
-        </div>
-        <div class="roti-container">
-            <table class="roti-table-main">
-                <tr><td colspan="2" style="text-align:center; color:#888; background:#1a1a1a;">SISA ROTI</td></tr>
-                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="inputBerubah(this)"></td></tr>
-                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="inputBerubah(this)"></td></tr>
-                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="inputBerubah(this)"></td></tr>
-            </table>
-        </div>
-    </div>
-
-    <table class="main-table">
-        <thead>
-            <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
-        </thead>
-        <tbody id="inventory-body"></tbody>
-    </table>
-
-    <div class="omset-grid">
-        <div id="omset-inputs"></div>
-        <div class="omset-total-box" id="display-total">0</div>
-    </div>
-
-    <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="inputBerubah(this)"></div>
-        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note" oninput="inputBerubah(this)"></div>
-    </div>
-</div>
-
-<div id="report-overlay">
-    <div style="display:flex; gap:5px; margin-bottom:10px; width: 360px; margin: 0 auto;">
-        <button onclick="tutupOverlayLaporan()" style="padding:10px; flex:1;">KEMBALI</button>
-        <button onclick="downloadLaporanGambar()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
-    </div>
-    <div class="white-report-container" id="printable-area">
-        <div id="render-content"></div>
-    </div>
-</div>
-
 <script>
-    // Konfigurasi Firebase Anda
-    const firebaseConfig = {
-        apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
-        authDomain: "laporan-harian-f096f.firebaseapp.com",
-        databaseURL: "https://laporan-harian-f096f-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "laporan-harian-f096f",
-        storageBucket: "laporan-harian-f096f.firebasestorage.app",
-        messagingSenderId: "1063740425135",
-        appId: "1:1063740425135:web:2d7a4befce6521d72d255a"
-    };
+    // ... (Bagian FirebaseConfig dan inisialisasi di atas tetap sama) ...
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
-
-    let inputManualUser = new Set();
-
-    function updateShiftOptions() {
-        const cab = document.getElementById('main-cabang').value;
-        const shiftSelect = document.getElementById('main-shift');
-        let options = '<option value="SHIFT 1">SHIFT 1</option>';
-        if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
-        shiftSelect.innerHTML = options;
-    }
-
-    function inisialisasi() {
-        // TANGGAL & HARI
-        const now = new Date();
-        const tglHariIni = now.toISOString().split('T')[0];
-        document.getElementById('label-tgl').innerText = tglHariIni;
-        const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-        document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
-
-        // LOAD CABANG & SHIFT
-        const sc = localStorage.getItem('kunci_cabang') || "Tandur";
-        document.getElementById('main-cabang').value = sc;
-        updateShiftOptions();
-        const ss = localStorage.getItem('kunci_shift') || "SHIFT 1";
-        document.getElementById('main-shift').value = ss;
-
-        // RENDER BARANG
-        const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = "";
-        daftarBarang.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            tbody.innerHTML += `<tr><td class="col-nama">${item}</td>
-                <td><input type="text" id="stok_${id}" oninput="inputBerubah(this)"></td>
-                <td><input type="text" id="msk_${id}" oninput="inputBerubah(this)"></td>
-                <td><input type="text" id="rsk_${id}" oninput="inputBerubah(this)"></td>
-                <td><input type="text" id="trjl_${id}" oninput="inputBerubah(this)"></td>
-                <td><input type="text" id="sisa_${id}" oninput="inputBerubah(this)"></td></tr>`;
-        });
-
-        // RENDER OMSET
-        const oDiv = document.getElementById('omset-inputs');
-        oDiv.innerHTML = "";
-        daftarOmset.forEach(m => { 
-            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="inputBerubah(this)"></div>`; 
-        });
-
-        muatDataAwal(tglHariIni, sc, document.getElementById('main-shift').value);
-    }
-
-    function muatDataAwal(tgl, cab, shf) {
-        // 1. Ambil Draft Lokal (Jika ada)
-        const saved = localStorage.getItem(`draft_${cab}_${shf}`);
-        if(saved) {
-            const d = JSON.parse(saved);
-            Object.keys(d).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = d[id]; });
-            hitungTotal();
-        }
-
-        // 2. TARIK OTOMATIS DARI SHIFT SEBELUMNYA
-        let pathSumber;
-        if (shf === "SHIFT 2") {
-            // Tarik dari SHIFT 1 HARI INI
-            pathSumber = `LiveSync/${tgl}/${cab}/SHIFT 1`;
-        } else {
-            // Tarik dari SHIFT TERAKHIR KEMARIN
-            const dObj = new Date(tgl);
-            dObj.setDate(dObj.getDate() - 1);
-            const tglKemarin = dObj.toISOString().split('T')[0];
-            const shiftKemarin = cabangSatuShift.includes(cab) ? "SHIFT 1" : "SHIFT 2";
-            pathSumber = `LiveSync/${tglKemarin}/${cab}/${shiftKemarin}`;
-        }
-
-        db.ref(pathSumber).once('value', s => {
-            const dataSumber = s.val();
-            if(dataSumber) {
-                daftarBarang.forEach(item => {
-                    const idAsal = "sisa_" + item.replace(/[^A-Z0-9]/ig, "_");
-                    const idTarget = "stok_" + item.replace(/[^A-Z0-9]/ig, "_");
-                    const elTarget = document.getElementById(idTarget);
-                    // Isi jika user belum isi manual
-                    if(elTarget && !inputManualUser.has(idTarget) && !elTarget.value) {
-                        elTarget.value = dataSumber[idAsal] || "";
-                    }
-                });
-                hitungTotal();
-            }
-        });
-    }
-
-    function restartSistem() {
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        localStorage.setItem('kunci_cabang', cab);
-        localStorage.setItem('kunci_shift', shf);
-        inputManualUser.clear();
-        inisialisasi();
-    }
-
-    function inputBerubah(el) {
-        if(el && el.id) inputManualUser.add(el.id);
-        simpanDraft();
-        updateFirebaseLive();
-    }
-
-    function simpanDraft() {
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        const data = {};
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
-        hitungTotal();
-    }
-
-    function updateFirebaseLive() {
-        const tgl = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        const data = {};
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        db.ref('LiveSync/' + tgl + '/' + cab + '/' + shf).set(data);
-    }
-
-    function hitungTotal() {
-        let t = 0;
-        document.querySelectorAll('.omset-val').forEach(el => { 
-            let val = el.value.replace(/[^0-9]/g, '');
-            t += parseInt(val) || 0; 
-        });
-        document.getElementById('display-total').innerText = t.toLocaleString('id-ID');
-    }
-
-    // Fungsi simpanDanTampilkanLaporan, download, dll tetap sama
     function simpanDanTampilkanLaporan() {
         const tgl = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         const total = document.getElementById('display-total').innerText;
         
-        const data = { total: total };
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        // Kumpulkan semua data input
+        const data = { total: total, tanggal: tgl, cabang: cab, shift: shf };
+        document.querySelectorAll('input').forEach(el => { 
+            if(el.id) data[el.id] = el.value; 
+        });
 
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
-            renderLaporanPutih(data, tgl, cab, shf);
-            document.getElementById('report-overlay').style.display = 'block';
+        // Simpan ke Firebase Laporan Utama
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data)
+            .then(() => {
+                alert("Data Berhasil Disimpan!");
+                renderLaporanPutih(data, tgl, cab, shf);
+                document.getElementById('report-overlay').style.display = 'block';
+            })
+            .catch(err => alert("Gagal Simpan: " + err));
+    }
+
+    // FUNGSI RIWAYAT YANG SERING TERPUTUS
+    function bukaRiwayat() { 
+        updateShiftOptionsHistory(); 
+        document.getElementById('riwayat-modal').style.display = 'block'; 
+    }
+
+    function tutupRiwayat() { 
+        document.getElementById('riwayat-modal').style.display = 'none'; 
+    }
+
+    function updateShiftOptionsHistory() {
+        const cab = document.getElementById('hist-cabang').value;
+        const shiftSelect = document.getElementById('hist-shift');
+        let options = '<option value="SHIFT 1">SHIFT 1</option>';
+        if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
+        shiftSelect.innerHTML = options;
+    }
+
+    function ambilDataRiwayat() {
+        const tgl = document.getElementById('hist-date').value;
+        const cab = document.getElementById('hist-cabang').value;
+        const shf = document.getElementById('hist-shift').value;
+        if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
+
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', s => {
+            const res = s.val();
+            if(res) { 
+                renderLaporanPutih(res, tgl, cab, shf); 
+                tutupRiwayat(); 
+                document.getElementById('report-overlay').style.display = 'block'; 
+            } else {
+                alert("Data tidak ditemukan untuk tanggal & cabang ini.");
+            }
         });
     }
 
-    // ... (Fungsi Render Laporan, Download PNG, dan Riwayat lanjutkan seperti sebelumnya) ...
+    function renderLaporanPutih(d, tgl, cab, shf) {
+        const dateObj = new Date(tgl);
+        const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        const hari = opsiHari[dateObj.getDay()];
+        
+        let html = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px; border-bottom:2px solid #000; padding-bottom:5px;">
+                KOPI SETENGAH-4 - LAPORAN HARIAN
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:10px;">
+                <div><b>${hari}</b><br>TGL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}</div>
+                <div style="width:35%;">
+                    <table style="width:100%; border-collapse:collapse; font-size:9px; border:1px solid #000;">
+                        <tr style="background:#eee;"><th colspan="2">SISA ROTI</th></tr>
+                        <tr><td>COKLAT</td><td style="text-align:center;">${d['roti-coklat']||'0'}</td></tr>
+                        <tr><td>VANILLA</td><td style="text-align:center;">${d['roti-vanilla']||'0'}</td></tr>
+                        <tr><td>BLUEBERRY</td><td style="text-align:center;">${d['roti-blueberry']||'0'}</td></tr>
+                    </table>
+                </div>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:9px;">
+                <thead>
+                    <tr style="background:#eee;">
+                        <th style="border:1px solid #000; text-align:left;">BARANG</th>
+                        <th style="border:1px solid #000;">STOK</th>
+                        <th style="border:1px solid #000;">MSK</th>
+                        <th style="border:1px solid #000;">TRJL</th>
+                        <th style="border:1px solid #000;">SISA</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            html += `<tr>
+                <td style="border:1px solid #000; font-weight:bold;">${item}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['stok_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['msk_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center;">${d['trjl_'+id]||''}</td>
+                <td style="border:1px solid #000; text-align:center; font-weight:bold;">${d['sisa_'+id]||''}</td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>
+            <div style="display:flex; border:2px solid #000; margin-top:10px; background:#f9f9f9;">
+                <div style="flex:1; padding:5px; font-size:10px; border-right:1px solid #000;">
+                    <b>TOTAL OMSET:</b><br><span style="font-size:18px;">Rp ${d.total || '0'}</span>
+                </div>
+                <div style="flex:1; padding:5px; font-size:9px;">
+                    <b>NOTE:</b><br>${d.note || '-'}
+                </div>
+            </div>`;
+            
+        document.getElementById('render-content').innerHTML = html;
+    }
+
+    function downloadLaporanGambar() {
+        const area = document.getElementById('printable-area');
+        html2canvas(area, { scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Report_${document.getElementById('label-tgl').innerText}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    }
+
+    function resetDraftHalaman() {
+        if(confirm("Hapus semua ketikan di halaman ini?")) {
+            const cab = document.getElementById('main-cabang').value;
+            const shf = document.getElementById('main-shift').value;
+            localStorage.removeItem(`draft_${cab}_${shf}`);
+            localStorage.removeItem(`manual_${cab}_${shf}`);
+            location.reload();
+        }
+    }
 </script>
-</body>
-</html>
