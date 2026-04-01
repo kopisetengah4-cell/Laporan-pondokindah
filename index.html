@@ -25,7 +25,6 @@
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
-        /* Tabel Roti Lebih Lebar */
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
         .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
@@ -202,34 +201,35 @@
 
     function simpanLaporan() {
         const dataToSave = {};
+        // AMBIL SEMUA INPUT YANG ADA DI LAYAR SAAT INI
         document.querySelectorAll('input').forEach(i => { if(i.id) dataToSave[i.id] = i.value; });
         
-        // Perbaikan: Ambil teks langsung dari layar untuk menghindari "undefined"
-        dataToSave.total_display = document.getElementById('val-total').innerText;
-        dataToSave.hari_display = document.getElementById('label-hari').innerText;
-        dataToSave.tgl_display = document.getElementById('label-tgl').innerText;
-        dataToSave.cab_display = document.getElementById('main-cab').value;
-        dataToSave.shf_display = document.getElementById('main-shf').value;
+        // AMBIL HEADER LANGSUNG DARI TAMPILAN
+        dataToSave.hari = document.getElementById('label-hari').innerText;
+        dataToSave.tgl = document.getElementById('label-tgl').innerText;
+        dataToSave.cab = document.getElementById('main-cab').value;
+        dataToSave.shf = document.getElementById('main-shf').value;
+        dataToSave.total = document.getElementById('val-total').innerText;
 
-        db.ref('Laporan/' + dataToSave.tgl_display + '/' + dataToSave.cab_display + '/' + dataToSave.shf_display).set(dataToSave).then(() => { 
+        db.ref('Laporan/' + dataToSave.tgl + '/' + dataToSave.cab + '/' + dataToSave.shf).set(dataToSave).then(() => { 
             showResult(dataToSave); 
         });
     }
 
     function showResult(d) {
-        // Pemetaan ulang agar jika data dari database/form dipanggil, tidak pecah
-        const hari = d.hari_display || d.hari || "-";
-        const tgl = d.tgl_display || d.tgl || "-";
-        const cab = d.cab_display || d.cab || "-";
-        const shf = d.shf_display || d.shf || "-";
-        const total = d.total_display || d.total || "0";
+        // Jaminan tidak undefined: Jika kosong, berikan tanda strip (-)
+        const r_hari = d.hari || "-";
+        const r_tgl = d.tgl || "-";
+        const r_cab = d.cab || "-";
+        const r_shf = d.shf || "-";
+        const r_total = d.total || "0";
 
         let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
                 <div style="font-size:11px; color:#000; line-height:1.4;">
-                    <b>HARI:</b> ${hari}<br>
-                    <b>TGL:</b> ${tgl}<br>
-                    <b>CAB:</b> ${cab} | <b>SHF:</b> ${shf}
+                    <b>HARI:</b> ${r_hari}<br>
+                    <b>TANGGAL:</b> ${r_tgl}<br>
+                    <b>CABANG:</b> ${r_cab} | <b>SHIFT:</b> ${r_shf}
                 </div>
                 <div style="width:32%; border:1.5px solid #000;">
                     <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
@@ -270,7 +270,7 @@
         res += `</table></div>
                     <div style="flex:1; border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#eee;">
                         <span style="font-size:9px; color:#333; font-weight:bold;">TOTAL OMSET</span>
-                        <span style="font-size:20px; font-weight:bold; color:#000;">Rp ${total}</span>
+                        <span style="font-size:18px; font-weight:bold; color:#000;">Rp ${r_total}</span>
                     </div>
                 </div>`;
         res += `<div style="display:flex; gap:5px;">
@@ -308,4 +308,6 @@
         const t = document.getElementById('h_tgl').value;
         const c = document.getElementById('h_cab').value;
         const s = document.getElementById('h_shf').value;
-        if(!t) return alert("Pilih tang
+        if(!t) return alert("Pilih tanggal!");
+        db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
+            if(snp.val()) { showResult(snp.val()); tutupRiwayat(); }
