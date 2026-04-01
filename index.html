@@ -228,7 +228,7 @@
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const iStok = document.getElementById(`stok_${id}`);
                     const iSisa = document.getElementById(`sisa_${id}`);
-                    if (iStok && iStok.value === "") {
+                    if (iStok) {
                         iStok.value = dk[`sisa_${id}`] || "";
                         if (!daftarManual.includes(item) && iSisa) iSisa.value = dk[`sisa_${id}`] || "";
                     }
