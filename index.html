@@ -80,9 +80,9 @@
         <div class="roti-container">
             <table class="roti-table-main">
                 <tr><td colspan="2" style="text-align:center; color:#888;">SISA ROTI</td></tr>
-                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat"></td></tr>
-                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla"></td></tr>
-                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry"></td></tr>
+                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="autoSave()"></td></tr>
+                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="autoSave()"></td></tr>
+                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="autoSave()"></td></tr>
             </table>
         </div>
     </div>
@@ -100,8 +100,8 @@
     </div>
 
     <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan"></div>
-        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="autoSave()"></div>
+        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note" oninput="autoSave()"></div>
     </div>
 </div>
 
@@ -154,6 +154,26 @@
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const daftarManual = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "FN", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
+    // LOGIKA AUTO-SAVE
+    function autoSave() {
+        const draft = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) draft[el.id] = el.value; });
+        localStorage.setItem('laporan_draft', JSON.stringify(draft));
+        hitungTotal();
+    }
+
+    function loadDraft() {
+        const saved = localStorage.getItem('laporan_draft');
+        if(saved) {
+            const data = JSON.parse(saved);
+            Object.keys(data).forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = data[id];
+            });
+            hitungTotal();
+        }
+    }
+
     function simpanKunciCabang() {
         localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
         localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
@@ -161,7 +181,6 @@
     }
 
     function inisialisasi() {
-        // Load Kunci Cabang
         const savedCab = localStorage.getItem('kunci_cabang');
         const savedShf = localStorage.getItem('kunci_shift');
         if(savedCab) document.getElementById('main-cabang').value = savedCab;
@@ -170,16 +189,23 @@
         const tbody = document.getElementById('inventory-body');
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            tbody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}"></td><td><input type="text" id="msk_${id}"></td><td><input type="text" id="rsk_${id}"></td><td><input type="text" id="trjl_${id}"></td><td><input type="text" id="sisa_${id}"></td></tr>`;
+            tbody.innerHTML += `<tr><td class="col-nama">${item}</td>
+                <td><input type="text" id="stok_${id}" oninput="autoSave()"></td>
+                <td><input type="text" id="msk_${id}" oninput="autoSave()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="autoSave()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="autoSave()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="autoSave()"></td></tr>`;
         });
         const oDiv = document.getElementById('omset-inputs');
         daftarOmset.forEach(m => { 
-            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="hitungTotal()"></div>`; 
+            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="autoSave()"></div>`; 
         });
         const now = new Date();
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
         document.getElementById('label-hari').innerText = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[now.getDay()];
-        tarikDataOtomatis();
+        
+        loadDraft(); // Muat draft dulu
+        tarikDataOtomatis(); // Kemudian lengkapi stok dari kemarin jika ada kolom kosong
     }
 
     function tarikDataOtomatis() {
@@ -196,8 +222,8 @@
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 const iStok = document.getElementById(`stok_${id}`);
                 const iSisa = document.getElementById(`sisa_${id}`);
-                iStok.value = ""; iSisa.value = "";
-                if (dk && dk[`sisa_${id}`]) {
+                // Hanya isi jika kolom masih kosong (mencegah timpa draft)
+                if (iStok.value === "" && dk && dk[`sisa_${id}`]) {
                     iStok.value = dk[`sisa_${id}`];
                     if (!daftarManual.includes(item)) iSisa.value = dk[`sisa_${id}`];
                 }
@@ -212,7 +238,10 @@
         const data = {};
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
         data.total = document.getElementById('display-total').innerText;
+
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
+            localStorage.removeItem('laporan_draft'); // Hapus draft karena sudah aman di cloud
+            alert("Laporan Tersimpan!");
             renderLaporanPutih(data, tgl, cab, shf);
             document.getElementById('report-overlay').style.display = 'block';
         });
@@ -268,21 +297,18 @@
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Reset (9812) - Menghapus data > 2 hari lalu:");
+        const pin = prompt("Masukkan PIN Reset (9812):");
         if (pin === "9812") {
             const tglHariIni = document.getElementById('label-tgl').innerText;
             const d = new Date(tglHariIni); d.setDate(d.getDate() - 1);
             const tglKemarin = d.toISOString().split('T')[0];
-            
             db.ref('Laporan').once('value', (snapshot) => {
                 const allData = snapshot.val();
                 if (!allData) return;
                 Object.keys(allData).forEach(tanggal => {
-                    if (tanggal !== tglHariIni && tanggal !== tglKemarin) {
-                        db.ref('Laporan/' + tanggal).remove();
-                    }
+                    if (tanggal !== tglHariIni && tanggal !== tglKemarin) db.ref('Laporan/' + tanggal).remove();
                 });
-                alert("Database Lama Bersih. Data Kemarin & Hari ini AMAN.");
+                alert("Database Lama Bersih.");
             });
         }
     }
