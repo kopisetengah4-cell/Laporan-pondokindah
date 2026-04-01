@@ -18,6 +18,7 @@
         .btn-reset { background-color: #e74c3c; }
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
+        /* Tabel Utama */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
@@ -25,6 +26,7 @@
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
+        /* Tabel Roti - Lebar Kolom Nama Sesuai Request (65%) */
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
         .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
@@ -41,26 +43,26 @@
         .footer-box label { font-size: 8px; color: #888; border-bottom: 1px solid #222; margin-bottom: 2px; display: block; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
 
-        #report-overlay, #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:4000; padding: 10px; overflow-y: auto; }
+        #report-overlay, #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
         .modal-inner { background: #000; width: 360px; margin: 20px auto; padding: 15px; border: 1px solid #333; color: #fff; }
     </style>
 </head>
 <body onload="initApp()">
 
 <div class="top-nav">
-    <button class="btn-main btn-wa" onclick="generateReport()">SIMPAN DATA</button>
+    <button class="btn-main btn-wa" onclick="prosesLaporan()">SIMPAN DATA</button>
     <button class="btn-main btn-menu" onclick="bukaRiwayat()">RIWAYAT</button>
     <button class="btn-main btn-reset" onclick="resetApp()">RESET</button>
 </div>
 
-<div class="container" id="main-form">
+<div class="container">
     <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0; color: #d4af37;">KOPI SETENGAH-4</div>
     
     <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px; align-items: flex-end;">
         <div style="flex: 1;">
             <span id="label-hari" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
             TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cab" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold; font-size:10px;">
+            CAB: <select id="main-cab" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -68,7 +70,7 @@
                 <option value="Cemput">Cemput</option>
                 <option value="Menteng">Menteng</option>
             </select><br>
-            SHIFT: <select id="main-shf" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold; font-size:10px;">
+            SHIFT: <select id="main-shf" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="SHIFT 1">SHIFT 1</option>
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
@@ -76,9 +78,9 @@
         <div class="roti-box">
             <table class="roti-table">
                 <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px; border: 1px solid #333;">SISA ROTI</td></tr>
-                <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="number" id="r_cok" class="save-me"></td></tr>
-                <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="number" id="r_van" class="save-me"></td></tr>
-                <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="number" id="r_blu" class="save-me"></td></tr>
+                <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="text" id="r_cok" oninput="hitung()"></td></tr>
+                <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="text" id="r_van" oninput="hitung()"></td></tr>
+                <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="text" id="r_blu" oninput="hitung()"></td></tr>
             </table>
         </div>
     </div>
@@ -96,8 +98,8 @@
     </div>
 
     <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" class="save-me"></div>
-        <div class="footer-box"><label>NOTE / BERITA ACARA</label><input type="text" id="f_note" class="save-me"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" oninput="hitung()"></div>
+        <div class="footer-box"><label>NOTE / BERITA ACARA</label><input type="text" id="f_note" oninput="hitung()"></div>
     </div>
 </div>
 
@@ -113,11 +115,9 @@
 
 <div id="riwayat-modal">
     <div class="modal-inner">
-        <h3 style="text-align:center; color:#d4af37; margin-top:0;">CARI RIWAYAT</h3>
-        <select id="h_cab" style="width:100%; padding:10px; margin-bottom:5px;"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
-        <select id="h_shf" style="width:100%; padding:10px; margin-bottom:5px;"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
+        <h3 style="text-align:center; color:#d4af37; margin-top:0;">RIWAYAT</h3>
         <input type="date" id="h_tgl" style="width:100%; padding:10px; margin-bottom:10px;">
-        <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="cariLaporan()">TAMPILKAN</button>
+        <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="cariLaporan()">CARI</button>
         <button class="btn-main" style="width:100%; background:#333;" onclick="tutupRiwayat()">BATAL</button>
     </div>
 </div>
@@ -147,65 +147,48 @@
         document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
         
-        const c = localStorage.getItem('p_cab') || "Tandur";
-        const s = localStorage.getItem('p_shf') || "SHIFT 1";
-        document.getElementById('main-cab').value = c;
-        document.getElementById('main-shf').value = s;
+        document.getElementById('main-cab').value = localStorage.getItem('p_cab') || "Tandur";
+        document.getElementById('main-shf').value = localStorage.getItem('p_shf') || "SHIFT 1";
 
-        renderFields();
-        muatData(tglStr, c, s);
-    }
-
-    function renderFields() {
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
-        barang_list.forEach((item, idx) => {
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
             bBody.innerHTML += `<tr><td class="col-nama">${item}</td>
-                <td><input type="number" id="b_stok_${idx}" class="save-me"></td>
-                <td><input type="number" id="b_msk_${idx}" class="save-me"></td>
-                <td><input type="number" id="b_rsk_${idx}" class="save-me"></td>
-                <td><input type="number" id="b_trjl_${idx}" class="save-me"></td>
-                <td><input type="number" id="b_sisa_${idx}" class="save-me"></td></tr>`;
+                <td><input type="text" id="stok_${id}" oninput="hitung()"></td>
+                <td><input type="text" id="msk_${id}" oninput="hitung()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="hitung()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="hitung()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="hitung()"></td></tr>`;
         });
+
         const oBody = document.getElementById('list-omset'); oBody.innerHTML = "";
-        omset_list.forEach((m, idx) => {
-            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="number" id="o_val_${idx}" class="save-me omset-input"></div>`;
+        omset_list.forEach(m => {
+            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="hitung()"></div>`;
         });
-
-        // Tambahkan event listener untuk auto-save dan hitung omset
-        document.querySelectorAll('.save-me').forEach(input => {
-            input.addEventListener('input', () => {
-                hitungTotal();
-                saveLocal();
-            });
-        });
-    }
-
-    function hitungTotal() {
-        let tot = 0;
-        document.querySelectorAll('.omset-input').forEach(i => { tot += parseInt(i.value) || 0; });
-        document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
-    }
-
-    function saveLocal() {
-        const c = document.getElementById('main-cab').value;
-        const s = document.getElementById('main-shf').value;
-        const data = {};
-        document.querySelectorAll('.save-me').forEach(i => { data[i.id] = i.value; });
-        localStorage.setItem(`draft_${c}_${s}`, JSON.stringify(data));
-    }
-
-    function muatData(tgl, cab, shf) {
-        const local = localStorage.getItem(`draft_${cab}_${shf}`);
+        
+        // Load Draft
+        const local = localStorage.getItem(`draft_${document.getElementById('main-cab').value}_${document.getElementById('main-shf').value}`);
         if(local) {
             const data = JSON.parse(local);
             Object.keys(data).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = data[k]; });
         }
-        hitungTotal();
+        hitung();
     }
 
-    function generateReport() {
-        // Ambil Data Header
-        const reportData = {
+    function hitung() {
+        let tot = 0;
+        document.querySelectorAll('.inp-o').forEach(i => { tot += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
+        document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
+        
+        // Save Draft otomatis
+        const data = {};
+        document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
+        localStorage.setItem(`draft_${document.getElementById('main-cab').value}_${document.getElementById('main-shf').value}`, JSON.stringify(data));
+    }
+
+    function prosesLaporan() {
+        // Ambil data detik ini juga dari layar
+        const finalData = {
             hari: document.getElementById('label-hari').innerText,
             tgl: document.getElementById('label-tgl').innerText,
             cab: document.getElementById('main-cab').value,
@@ -216,51 +199,44 @@
                 van: document.getElementById('r_van').value || 0,
                 blu: document.getElementById('r_blu').value || 0
             },
-            barang: [],
-            omset: [],
+            omset: {},
+            barang: {},
             f_cash: document.getElementById('f_cash').value || "-",
             f_note: document.getElementById('f_note').value || "-"
         };
 
-        // Ambil Data Tabel Barang
-        barang_list.forEach((item, idx) => {
-            reportData.barang.push({
-                nama: item,
-                stok: document.getElementById(`b_stok_${idx}`).value || 0,
-                msk: document.getElementById(`b_msk_${idx}`).value || 0,
-                rsk: document.getElementById(`b_rsk_${idx}`).value || 0,
-                trjl: document.getElementById(`b_trjl_${idx}`).value || 0,
-                sisa: document.getElementById(`b_sisa_${idx}`).value || 0
-            });
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            finalData.barang[id] = {
+                stok: document.getElementById('stok_'+id).value || 0,
+                msk: document.getElementById('msk_'+id).value || 0,
+                rsk: document.getElementById('rsk_'+id).value || 0,
+                trjl: document.getElementById('trjl_'+id).value || 0,
+                sisa: document.getElementById('sisa_'+id).value || 0
+            };
         });
 
-        // Ambil Data Omset
-        omset_list.forEach((m, idx) => {
-            reportData.omset.push({
-                nama: m,
-                val: document.getElementById(`o_val_${idx}`).value || 0
-            });
+        omset_list.forEach(m => {
+            const id = "o_" + m.replace(/[^A-Z0-9]/ig,'_');
+            finalData.omset[m] = document.getElementById(id).value || 0;
         });
 
-        // Simpan ke Firebase
-        db.ref('Laporan/' + reportData.tgl + '/' + reportData.cab + '/' + reportData.shf).set(reportData);
-        
-        // Tampilkan Hasil
-        renderResult(reportData);
+        db.ref('Laporan/' + finalData.tgl + '/' + finalData.cab + '/' + finalData.shf).set(finalData);
+        tampilkanLaporan(finalData);
     }
 
-    function renderResult(d) {
-        let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
-                <div style="font-size:11px; color:#000; line-height:1.4;">
+    function tampilkanLaporan(d) {
+        let html = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end; color:#000;">
+                <div style="font-size:11px; line-height:1.4;">
                     <b>HARI:</b> ${d.hari}<br>
-                    <b>TANGGAL:</b> ${d.tgl}<br>
-                    <b>CABANG:</b> ${d.cab} | <b>SHIFT:</b> ${d.shf}
+                    <b>TGL:</b> ${d.tgl}<br>
+                    <b>CAB:</b> ${d.cab} | <b>SHF:</b> ${d.shf}
                 </div>
-                <div style="width:32%; border:1.5px solid #000;">
-                    <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
+                <div style="width:35%; border:1.5px solid #000;">
+                    <table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed;">
                         <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:65%; text-align:left; padding-left:3px;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.roti.cok}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:60%; text-align:left; padding-left:3px;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.roti.cok}</b></td></tr>
                         <tr><td style="border-bottom:1px solid #ddd; padding:2px; text-align:left; padding-left:3px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.roti.van}</b></td></tr>
                         <tr><td style="padding:2px; text-align:left; padding-left:3px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.roti.blu}</b></td></tr>
                     </table>
@@ -274,41 +250,41 @@
                     <th style="border:1px solid #000; width:13%;">SISA</th>
                 </tr>`;
         
-        d.barang.forEach(b => {
-            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold; text-align:left;">${b.nama}</td>
-                <td style="text-align:center; border:1px solid #000;">${b.stok}</td>
-                <td style="text-align:center; border:1px solid #000;">${b.msk}</td>
-                <td style="text-align:center; border:1px solid #000;">${b.rsk}</td>
-                <td style="text-align:center; border:1px solid #000;">${b.trjl}</td>
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const b = d.barang[id];
+            html += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold; text-align:left;">${item}</td>
+                <td style="text-align:center; border:1px solid #000;">${b.stok}</td><td style="text-align:center; border:1px solid #000;">${b.msk}</td>
+                <td style="text-align:center; border:1px solid #000;">${b.rsk}</td><td style="text-align:center; border:1px solid #000;">${b.trjl}</td>
                 <td style="text-align:center; border:1px solid #000; font-weight:bold; background:#f9f9f9;">${b.sisa}</td></tr>`;
         });
         
-        res += `</table>`;
-        res += `<div style="display:flex; gap:5px; margin-bottom:10px;">
+        html += `</table>`;
+        html += `<div style="display:flex; gap:5px; margin-bottom:10px; color:#000;">
                     <div style="flex:1.5; border:1.5px solid #000;">
-                        <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
+                        <table style="width:100%; border-collapse:collapse; font-size:9px;">
                             <tr style="background:#eee;"><th colspan="2" style="padding:4px; border-bottom:1px solid #000;">RINCIAN OMSET</th></tr>`;
-        d.omset.forEach(o => {
-            res += `<tr><td style="border-bottom:1px solid #ddd; padding:3px; text-align:left;">${o.nama}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${parseInt(o.val).toLocaleString('id-ID')}</td></tr>`;
+        omset_list.forEach(m => {
+            html += `<tr><td style="border-bottom:1px solid #ddd; padding:3px; text-align:left;">${m}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${d.omset[m]}</td></tr>`;
         });
-        res += `</table></div>
+        html += `</table></div>
                     <div style="flex:1; border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#eee;">
-                        <span style="font-size:9px; color:#333; font-weight:bold;">TOTAL OMSET</span>
-                        <span style="font-size:18px; font-weight:bold; color:#000;">Rp ${d.total}</span>
+                        <span style="font-size:9px; font-weight:bold;">TOTAL OMSET</span>
+                        <span style="font-size:18px; font-weight:bold;">Rp ${d.total}</span>
                     </div>
                 </div>`;
-        res += `<div style="display:flex; gap:5px;">
+        html += `<div style="display:flex; gap:5px; color:#000;">
                     <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
-                        <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">CASH AWAL/AKHIR</div>
-                        <div style="color:#000; font-size:11px; font-weight:bold;">${d.f_cash}</div>
+                        <div style="font-size:9px; font-weight:bold; border-bottom:1px solid #000; margin-bottom:4px;">CASH AWAL/AKHIR</div>
+                        <div style="font-size:11px; font-weight:bold;">${d.f_cash}</div>
                     </div>
                     <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
-                        <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">BERITA ACARA</div>
-                        <div style="color:#000; font-size:10px;">${d.f_note}</div>
+                        <div style="font-size:9px; font-weight:bold; border-bottom:1px solid #000; margin-bottom:4px;">BERITA ACARA</div>
+                        <div style="font-size:10px;">${d.f_note}</div>
                     </div>
                 </div>`;
         
-        document.getElementById('isi-laporan').innerHTML = res;
+        document.getElementById('isi-laporan').innerHTML = html;
         document.getElementById('report-overlay').style.display = 'block';
     }
 
@@ -317,16 +293,26 @@
         localStorage.setItem('p_shf', document.getElementById('main-shf').value);
         location.reload();
     }
-
     function downloadPNG() {
-        const c = document.getElementById('main-cab').value;
-        const t = document.getElementById('label-tgl').innerText;
-        html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); 
-            link.download = `LAPORAN_${c}_${t}.png`; 
-            link.href = canv.toDataURL(); 
-            link.click();
+        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canv => {
+            const link = document.createElement('a');
+            link.download = `LAPORAN_${document.getElementById('main-cab').value}_${document.getElementById('label-tgl').innerText}.png`;
+            link.href = canv.toDataURL(); link.click();
         });
     }
-
-    
+    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
+    function tutupOverlay() { document.getElementById('report-overlay').style.display = 'none'; }
+    function resetApp() { if(confirm("Hapus draft?")) { localStorage.clear(); location.reload(); } }
+    function cariLaporan() {
+        const t = document.getElementById('h_tgl').value;
+        const c = document.getElementById('main-cab').value;
+        const s = document.getElementById('main-shf').value;
+        db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
+            if(snp.val()) { tampilkanLaporan(snp.val()); tutupRiwayat(); }
+            else alert("Kosong!");
+        });
+    }
+</script>
+</body>
+</html>
