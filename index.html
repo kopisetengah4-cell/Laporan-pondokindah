@@ -115,27 +115,6 @@
     </div>
 </div>
 
-<div id="riwayat-modal">
-    <div class="modal-content">
-        <h3 style="color:#d4af37; text-align:center; margin-top:0;">LIHAT RIWAYAT</h3>
-        <select id="hist-cabang">
-            <option value="Tandur">Tandur</option>
-            <option value="Kebon Jeruk">Kebon Jeruk</option>
-            <option value="Pondok Indah">Pondok Indah</option>
-            <option value="Otista">Otista</option>
-            <option value="Cemput">Cemput</option>
-            <option value="Menteng">Menteng</option>
-        </select>
-        <select id="hist-shift">
-            <option value="SHIFT 1">SHIFT 1</option>
-            <option value="SHIFT 2">SHIFT 2</option>
-        </select>
-        <input type="date" id="hist-date">
-        <button class="btn-main" style="width:100%; background:#007bff;" onclick="ambilDataRiwayat()">LIHAT</button>
-        <button class="btn-main" style="width:100%; margin-top:10px; background:#444;" onclick="tutupRiwayat()">BATAL</button>
-    </div>
-</div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
@@ -153,6 +132,9 @@
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     
+    // Barang yang WAJIB diisi manual (SISA tidak diisi otomatis)
+    const daftarManual = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "FN", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
+
     const DRAFT_KEY = 'laporan_draft_kopi_setengah4';
 
     function inisialisasi() {
@@ -216,34 +198,48 @@
         const tglHariIni = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
-        
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
-        // Membersihkan input stok sebelum mencoba menarik data baru agar tidak campur
+        // Reset semua field STOK & SISA sebelum menarik data baru
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            const iStok = document.getElementById(`stok_${id}`);
-            if (iStok) iStok.value = "";
+            document.getElementById(`stok_${id}`).value = "";
+            document.getElementById(`sisa_${id}`).value = "";
         });
 
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dk = s.val();
-            // Hanya tarik jika data kemarin ADA dan Total Omset-nya tidak kosong/0
-            if (dk && dk.total && dk.total !== "0" && dk.total !== "") {
+            if (dk && dk.total && dk.total !== "0") {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    const iStok = document.getElementById(`stok_${id}`);
-                    if (iStok) {
-                        iStok.value = dk[`sisa_${id}`] || "";
+                    const valSisaKemarin = dk[`sisa_${id}`] || "";
+                    
+                    const elStok = document.getElementById(`stok_${id}`);
+                    const elSisa = document.getElementById(`sisa_${id}`);
+
+                    if (elStok) elStok.value = valSisaKemarin;
+
+                    // LOGIKA BARU: Isi SISA hari ini sama dengan STOK, 
+                    // kecuali barang yang masuk daftar manual.
+                    if (elSisa) {
+                        if (daftarManual.includes(item)) {
+                            elSisa.value = ""; // Dikosongkan sesuai pengecualian
+                        } else {
+                            elSisa.value = valSisaKemarin; // Samakan dengan stok
+                        }
                     }
                 });
-                console.log(`Berhasil menarik sisa stok dari ${cab} - ${shf} tanggal ${tglKemarin}`);
-            } else {
-                console.log("Data kemarin tidak ditemukan atau belum diisi untuk cabang & shift ini.");
+                simpanKeLocalStorage(); // Simpan draft setelah ditarik
             }
         });
+    }
+
+    function hitungTotal() {
+        let total = 0;
+        document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
+        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
     }
 
     function simpanDanTampilkanLaporan() {
@@ -257,70 +253,9 @@
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
             localStorage.removeItem(DRAFT_KEY);
             alert("Data Tersimpan!");
-            renderLaporanPutih(data, tgl, cab, shf);
-            document.getElementById('report-overlay').style.display = 'block';
+            // Tambahkan fungsi render di sini jika diperlukan
         });
     }
-
-    function hitungTotal() {
-        let total = 0;
-        document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
-        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
-    }
-
-    function renderLaporanPutih(d, tgl, cab, shf) {
-        const hari = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[new Date(tgl).getDay()];
-        let html = `<div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-end;"><div style="font-size: 10px; line-height: 1.3; font-weight: bold;">${hari}<br>TANGGAL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}</div><div style="width: 26%;"><table style="width: 100%; border-collapse: collapse; font-size: 8px;"><tr><th colspan="2" style="border:1px solid #000;">SISA ROTI</th></tr><tr><td style="border:1px solid #000;">COK</td><td style="border:1px solid #000; text-align:center;">${d['roti-coklat']||''}</td></tr><tr><td style="border:1px solid #000;">VAN</td><td style="border:1px solid #000; text-align:center;">${d['roti-vanilla']||''}</td></tr><tr><td style="border:1px solid #000;">BLU</td><td style="border:1px solid #000; text-align:center;">${d['roti-blueberry']||''}</td></tr></table></div></div><table style="width: 100%; border-collapse: collapse; font-size: 9px;"><thead><tr><th style="border:1px solid #000; text-align:left;">BARANG</th><th style="border:1px solid #000;">STOK</th><th style="border:1px solid #000;">MSK</th><th style="border:1px solid #000;">RSK</th><th style="border:1px solid #000;">TRJL</th><th style="border:1px solid #000;">SISA</th></tr></thead><tbody>`;
-        daftarBarang.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            html += `<tr><td style="border:1px solid #000; text-align:left; font-weight:bold;">${item}</td><td style="border:1px solid #000;">${d['stok_'+id]||''}</td><td style="border:1px solid #000;">${d['msk_'+id]||''}</td><td style="border:1px solid #000;">${d['rsk_'+id]||''}</td><td style="border:1px solid #000;">${d['trjl_'+id]||''}</td><td style="border:1px solid #000;">${d['sisa_'+id]||''}</td></tr>`;
-        });
-        html += `</tbody></table><div style="display:flex; border:1px solid #000; margin-top:5px;"><div style="flex:1.2; border-right:1px solid #000; font-size:8px; padding:3px;">`;
-        daftarOmset.forEach(m => { html += `<div style="display:flex; justify-content:space-between;"><span>${m}</span><span>${d['o_'+m.replace(/[^A-Z0-9]/ig,'_')]||'0'}</span></div>`; });
-        html += `</div><div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold;">${d.total}</div></div><div style="display:flex; gap:3px; margin-top:3px;"><div style="flex:1; border:1px solid #000; padding:3px; font-size:8px; font-weight:bold;">CASH: ${d['cash-gabungan']||''}</div><div style="flex:1; border:1px solid #000; padding:3px; font-size:8px; font-weight:bold;">NOTE: ${d.note||''}</div></div>`;
-        document.getElementById('render-content').innerHTML = html;
-    }
-
-    function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Konfirmasi:");
-        if (pin === "9812") {
-            const tglHariIni = document.getElementById('label-tgl').innerText;
-            db.ref('Laporan').once('value', (snapshot) => {
-                const allData = snapshot.val();
-                if (!allData) return;
-                Object.keys(allData).forEach(tanggal => {
-                    db.ref('Laporan/' + tanggal).remove();
-                });
-                alert("Seluruh Database Bersih.");
-                location.reload();
-            });
-        } else if (pin !== null) {
-            alert("PIN Salah!");
-        }
-    }
-
-    function downloadLaporanGambar() {
-        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Report_${document.getElementById('main-cabang').value}_${document.getElementById('label-tgl').innerText}.png`;
-            link.href = canvas.toDataURL("image/png"); link.click();
-        });
-    }
-
-    function ambilDataRiwayat() {
-        const tgl = document.getElementById('hist-date').value;
-        const cab = document.getElementById('hist-cabang').value;
-        const shf = document.getElementById('hist-shift').value;
-        if(!tgl) return alert("Pilih Tanggal!");
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (s) => {
-            if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
-            else { alert("Data tidak ditemukan."); }
-        });
-    }
-
-    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
-    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
-    function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
 
     window.onload = inisialisasi;
 </script>
