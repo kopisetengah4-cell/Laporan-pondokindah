@@ -62,8 +62,8 @@
     
     <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
         <div style="flex: 1;">
-            <span id="label-hari" style="font-weight:bold; display:block;">-</span>
-            TGL: <span id="label-tgl">-</span><br>
+            <span id="label-hari" style="font-weight:bold; display:block;">SENIN</span>
+            TGL: <span id="label-tgl">2026-01-01</span><br>
             CAB: <select id="main-cabang" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
@@ -91,11 +91,13 @@
         <thead>
             <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
         </thead>
-        <tbody id="inventory-body"></tbody>
+        <tbody id="inventory-body">
+            </tbody>
     </table>
 
     <div class="omset-grid">
-        <div id="omset-inputs"></div>
+        <div id="omset-inputs">
+            </div>
         <div class="omset-total-box" id="display-total">0</div>
     </div>
 
@@ -143,18 +145,23 @@
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
 
+    // Fungsi pertama yang jalan
     function inisialisasi() {
+        // Tentukan Waktu Real-Time
         const now = new Date();
         const tglHariIni = now.toISOString().split('T')[0];
-        document.getElementById('label-tgl').innerText = tglHariIni;
         const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        
+        document.getElementById('label-tgl').innerText = tglHariIni;
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
+        // Muat Pilihan Cabang/Shift
         const sc = localStorage.getItem('kunci_cabang') || "Tandur";
         const ss = localStorage.getItem('kunci_shift') || "SHIFT 1";
         document.getElementById('main-cabang').value = sc;
         document.getElementById('main-shift').value = ss;
 
+        // RENDER TABEL BARANG (WAJIB ADA)
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -167,22 +174,20 @@
                 <td><input type="text" id="sisa_${id}" oninput="inputBerubah()"></td></tr>`;
         });
 
+        // RENDER OMSET (WAJIB ADA)
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="inputBerubah()"></div>`; 
         });
 
-        muatDraftAtauSync();
+        // Baru isi datanya
+        muatDataOtomatis(tglHariIni, sc, ss);
     }
 
-    function muatDraftAtauSync() {
-        const tgl = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
+    function muatDataOtomatis(tgl, cab, shf) {
         const saved = localStorage.getItem('draft_input');
 
-        // Jika ada draft di browser ini, pakai itu dulu
         if(saved) {
             const d = JSON.parse(saved);
             Object.keys(d).forEach(id => { 
@@ -191,31 +196,30 @@
             });
             hitungTotal();
         } 
-        // Jika Shift 2 dan draft kosong, ambil data Shift 1 dari Firebase (Sync Awal)
         else if (shf === "SHIFT 2") {
+            // Ambil data Shift 1 HARI INI
             db.ref('LiveSync/' + tgl + '/' + cab + '/SHIFT 1').once('value', s => {
-                const dataS1 = s.val();
-                if(dataS1) {
-                    Object.keys(dataS1).forEach(id => {
+                if(s.val()) {
+                    Object.keys(s.val()).forEach(id => {
                         const el = document.getElementById(id);
-                        if(el) el.value = dataS1[id];
+                        if(el) el.value = s.val()[id];
                     });
                     hitungTotal();
-                    simpanDraft(); // Simpan ke local agar tidak berubah balik saat refresh
+                    simpanDraft();
                 }
             });
-        }
-        // Jika Shift 1 dan draft kosong, ambil sisa Shift 2 kemarin
+        } 
         else if (shf === "SHIFT 1") {
+            // Ambil data Sisa Shift 2 KEMARIN
             const d = new Date(tgl);
             d.setDate(d.getDate() - 1);
             const tglKemarin = d.toISOString().split('T')[0];
             db.ref('Laporan/' + tglKemarin + '/' + cab + '/SHIFT 2').once('value', s => {
-                const dataKmrn = s.val();
-                if(dataKmrn) {
+                if(s.val()) {
                     daftarBarang.forEach(item => {
                         const id = item.replace(/[^A-Z0-9]/ig, "_");
-                        document.getElementById(`stok_${id}`).value = dataKmrn[`sisa_${id}`] || "";
+                        const valKemarin = s.val()[`sisa_${id}`];
+                        if(valKemarin) document.getElementById(`stok_${id}`).value = valKemarin;
                     });
                     hitungTotal();
                     simpanDraft();
@@ -242,14 +246,13 @@
         const shf = document.getElementById('main-shift').value;
         const data = {};
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        // Update ke jalur masing-masing (Shift 2 tidak menimpa Shift 1)
         db.ref('LiveSync/' + tgl + '/' + cab + '/' + shf).set(data);
     }
 
     function gantiCabangAtauShift() {
         localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
         localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
-        localStorage.removeItem('draft_input'); // Hapus draft lama agar bisa sync ulang
+        localStorage.removeItem('draft_input'); 
         location.reload(); 
     }
 
@@ -274,9 +277,8 @@
         });
     }
 
-    // --- Fungsi Render Laporan (Tombol Riwayat Support) ---
     function renderLaporanPutih(d, tgl, cab, shf) {
-        const hari = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[new Date(tgl).getDay()];
+        const hari = document.getElementById('label-hari').innerText;
         let html = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-end;"><div style="font-size:10px; line-height:1.3; font-weight:bold;">${hari}<br>TANGGAL: ${tgl}<br>CABANG: ${cab.toUpperCase()}<br>SHIFT: ${shf}</div><div style="width:32%;"><table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed;"><tr><th colspan="2" style="border:1px solid #000; background:#f0f0f0;">SISA ROTI</th></tr><tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center;">${d['roti-coklat']||''}</td></tr><tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center;">${d['roti-vanilla']||''}</td></tr><tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center;">${d['roti-blueberry']||''}</td></tr></table></div></div><table style="width:100%; border-collapse:collapse; font-size:9px;"><thead><tr style="background:#f0f0f0;"><th style="border:1px solid #000; text-align:left;">BARANG</th><th style="border:1px solid #000;">STOK</th><th style="border:1px solid #000;">MSK</th><th style="border:1px solid #000;">RSK</th><th style="border:1px solid #000;">TRJL</th><th style="border:1px solid #000;">SISA</th></tr></thead><tbody>`;
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
@@ -307,4 +309,11 @@
         html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
             link.download = `Report_${document.getElementById('main-cabang').value}.png`;
-            link.href = canvas.toDataURL("image/
+            link.href = canvas.toDataURL("image/png"); link.click();
+        });
+    }
+
+    window.onload = inisialisasi;
+</script>
+</body>
+</html>
