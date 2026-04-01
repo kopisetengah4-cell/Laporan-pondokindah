@@ -162,7 +162,6 @@
         if(savedCab) document.getElementById('main-cabang').value = savedCab;
         if(savedShf) document.getElementById('main-shift').value = savedShf;
 
-        // RENDER BARANG
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -175,7 +174,6 @@
                 <td><input type="text" id="sisa_${id}" oninput="simpanKeLocalStorage()"></td></tr>`;
         });
         
-        // RENDER OMSET
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -186,7 +184,6 @@
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
         document.getElementById('label-hari').innerText = (["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"])[now.getDay()];
         
-        // MUAT DRAFT & TARIK STOK KEMARIN
         muatDariLocalStorage();
         tarikDataOtomatis();
     }
@@ -231,9 +228,9 @@
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const iStok = document.getElementById(`stok_${id}`);
                     const iSisa = document.getElementById(`sisa_${id}`);
-                    if (iStok.value === "") {
+                    if (iStok && iStok.value === "") {
                         iStok.value = dk[`sisa_${id}`] || "";
-                        if (!daftarManual.includes(item)) iSisa.value = dk[`sisa_${id}`] || "";
+                        if (!daftarManual.includes(item) && iSisa) iSisa.value = dk[`sisa_${id}`] || "";
                     }
                 });
             }
@@ -276,7 +273,7 @@
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("PIN Reset (9812):");
+        const pin = prompt("Masukkan PIN Reset:");
         if (pin === "9812") {
             const tglHariIni = document.getElementById('label-tgl').innerText;
             const d = new Date(tglHariIni); d.setDate(d.getDate() - 1);
@@ -287,8 +284,10 @@
                 Object.keys(allData).forEach(tanggal => {
                     if (tanggal !== tglHariIni && tanggal !== tglKemarin) db.ref('Laporan/' + tanggal).remove();
                 });
-                alert("Database Bersih.");
+                alert("Database Lama Bersih.");
             });
+        } else if (pin !== null) {
+            alert("PIN Salah!");
         }
     }
 
