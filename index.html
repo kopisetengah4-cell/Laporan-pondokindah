@@ -44,7 +44,6 @@
         #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:2000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
         .white-report-container { background: #fff; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #000; }
         
-        /* Modal Riwayat Style */
         #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; padding: 20px; box-sizing: border-box; }
         .modal-content { max-width: 400px; margin: 40px auto; background: #111; padding: 15px; border: 1px solid #d4af37; border-radius: 8px; }
         .modal-content select, .modal-content input { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid #333; border-radius: 4px; box-sizing: border-box; }
@@ -81,9 +80,9 @@
         <div class="roti-container">
             <table class="roti-table-main">
                 <tr><td colspan="2" style="text-align:center; color:#888; background:#1a1a1a;">SISA ROTI</td></tr>
-                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="simpanDraft()"></td></tr>
-                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="simpanDraft()"></td></tr>
-                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="simpanDraft()"></td></tr>
+                <tr><td>COKLAT</td><td><input type="text" id="roti-coklat" oninput="inputBerubah()"></td></tr>
+                <tr><td>VANILLA</td><td><input type="text" id="roti-vanilla" oninput="inputBerubah()"></td></tr>
+                <tr><td>BLUEBERRY</td><td><input type="text" id="roti-blueberry" oninput="inputBerubah()"></td></tr>
             </table>
         </div>
     </div>
@@ -101,8 +100,8 @@
     </div>
 
     <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="simpanDraft()"></div>
-        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note" oninput="simpanDraft()"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash-gabungan" oninput="inputBerubah()"></div>
+        <div class="footer-box"><label>BERITA ACARA / NOTE</label><input type="text" id="note" oninput="inputBerubah()"></div>
     </div>
 </div>
 
@@ -119,18 +118,8 @@
 <div id="riwayat-modal">
     <div class="modal-content">
         <h3 style="color:#d4af37; text-align:center; margin-top:0;">LIHAT RIWAYAT</h3>
-        <select id="hist-cabang">
-            <option value="Tandur">Tandur</option>
-            <option value="Kebon Jeruk">Kebon Jeruk</option>
-            <option value="Pondok Indah">Pondok Indah</option>
-            <option value="Otista">Otista</option>
-            <option value="Cemput">Cemput</option>
-            <option value="Menteng">Menteng</option>
-        </select>
-        <select id="hist-shift">
-            <option value="SHIFT 1">SHIFT 1</option>
-            <option value="SHIFT 2">SHIFT 2</option>
-        </select>
+        <select id="hist-cabang"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
+        <select id="hist-shift"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
         <input type="date" id="hist-date">
         <button class="btn-main" style="width:100%; background:#007bff; margin-bottom:10px;" onclick="ambilDataRiwayat()">CARI DATA</button>
         <button class="btn-main" style="width:100%; background:#444;" onclick="tutupRiwayat()">TUTUP</button>
@@ -153,12 +142,11 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    const daftarHitungFisik = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
     function inisialisasi() {
         const now = new Date();
-        const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
+        const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
         const sc = localStorage.getItem('kunci_cabang');
@@ -171,23 +159,26 @@
         daftarBarang.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
             tbody.innerHTML += `<tr><td class="col-nama">${item}</td>
-                <td><input type="text" id="stok_${id}" oninput="simpanDraft()"></td>
-                <td><input type="text" id="msk_${id}" oninput="simpanDraft()"></td>
-                <td><input type="text" id="rsk_${id}" oninput="simpanDraft()"></td>
-                <td><input type="text" id="trjl_${id}" oninput="simpanDraft()"></td>
-                <td><input type="text" id="sisa_${id}" oninput="simpanDraft()"></td></tr>`;
+                <td><input type="text" id="stok_${id}" oninput="inputBerubah()"></td>
+                <td><input type="text" id="msk_${id}" oninput="inputBerubah()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="inputBerubah()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="inputBerubah()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="inputBerubah()"></td></tr>`;
         });
 
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
-            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanDraft()"></div>`; 
+            oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="inputBerubah()"></div>`; 
         });
 
         muatDraft();
-        if (!localStorage.getItem('draft_input')) {
-            tarikDataOtomatis();
-        }
+        sinkronisasiRealTime();
+    }
+
+    function inputBerubah() {
+        simpanDraft();
+        updateFirebaseLive();
     }
 
     function simpanDraft() {
@@ -206,42 +197,61 @@
         hitungTotal();
     }
 
+    function updateFirebaseLive() {
+        const tgl = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        const data = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        db.ref('LiveSync/' + tgl + '/' + cab + '/' + shf).set(data);
+    }
+
+    function sinkronisasiRealTime() {
+        const tgl = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+
+        // Shift 2 mendengarkan Shift 1 (Mirroring instan)
+        if (shf === "SHIFT 2") {
+            db.ref('LiveSync/' + tgl + '/' + cab + '/SHIFT 1').on('value', s => {
+                const dataS1 = s.val();
+                if(dataS1) {
+                    Object.keys(dataS1).forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) {
+                            // Salin semua data dari S1 ke S2 tanpa filter
+                            el.value = dataS1[id];
+                        }
+                    });
+                    hitungTotal();
+                    simpanDraft();
+                }
+            });
+        } 
+        // Shift 1 tetap mengambil sisa Shift 2 Kemarin sebagai stok awal
+        else if (!localStorage.getItem('draft_input')) {
+            const d = new Date(tgl);
+            d.setDate(d.getDate() - 1);
+            const tglKemarin = d.toISOString().split('T')[0];
+            db.ref('Laporan/' + tglKemarin + '/' + cab + '/SHIFT 2').once('value', s => {
+                const dataKmrn = s.val();
+                if(dataKmrn) {
+                    daftarBarang.forEach(item => {
+                        const id = item.replace(/[^A-Z0-9]/ig, "_");
+                        const valSisaKmrn = dataKmrn[`sisa_${id}`] || "";
+                        document.getElementById(`stok_${id}`).value = valSisaKmrn;
+                    });
+                    simpanDraft();
+                }
+            });
+        }
+    }
+
     function gantiCabangAtauShift() {
         localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
         localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
         localStorage.removeItem('draft_input');
         location.reload(); 
-    }
-
-    function tarikDataOtomatis() {
-        const tglHariIni = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        
-        let jalurData = "";
-        if (shf === "SHIFT 2") {
-            jalurData = 'Laporan/' + tglHariIni + '/' + cab + '/SHIFT 1';
-        } else {
-            const d = new Date(tglHariIni);
-            d.setDate(d.getDate() - 1);
-            const tglKemarin = d.toISOString().split('T')[0];
-            jalurData = 'Laporan/' + tglKemarin + '/' + cab + '/SHIFT 1';
-        }
-
-        db.ref(jalurData).once('value', s => {
-            const dataSumber = s.val();
-            if(dataSumber) {
-                daftarBarang.forEach(item => {
-                    const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    const valSisaSumber = dataSumber[`sisa_${id}`] || "";
-                    document.getElementById(`stok_${id}`).value = valSisaSumber;
-                    if(!daftarHitungFisik.includes(item)) {
-                        document.getElementById(`sisa_${id}`).value = valSisaSumber;
-                    }
-                });
-                simpanDraft();
-            }
-        });
     }
 
     function hitungTotal() {
@@ -260,31 +270,8 @@
         
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
             localStorage.removeItem('draft_input');
-            alert("Berhasil Simpan!");
             renderLaporanPutih(data, tgl, cab, shf);
             document.getElementById('report-overlay').style.display = 'block';
-        });
-    }
-
-    // Fungsi Riwayat
-    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
-    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
-    
-    function ambilDataRiwayat() {
-        const tgl = document.getElementById('hist-date').value;
-        const cab = document.getElementById('hist-cabang').value;
-        const shf = document.getElementById('hist-shift').value;
-        
-        if(!tgl) return alert("Pilih tanggal!");
-        
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', s => {
-            if(s.val()) {
-                renderLaporanPutih(s.val(), tgl, cab, shf);
-                tutupRiwayat();
-                document.getElementById('report-overlay').style.display = 'block';
-            } else {
-                alert("Data tidak ditemukan.");
-            }
         });
     }
 
@@ -301,10 +288,20 @@
         document.getElementById('render-content').innerHTML = html;
     }
 
-    function resetDraftHalaman() {
-        if(confirm("Hapus draf input?")) { localStorage.removeItem('draft_input'); location.reload(); }
+    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
+    function ambilDataRiwayat() {
+        const tgl = document.getElementById('hist-date').value;
+        const cab = document.getElementById('hist-cabang').value;
+        const shf = document.getElementById('hist-shift').value;
+        if(!tgl) return alert("Pilih tanggal!");
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', s => {
+            if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
+            else alert("Data tidak ditemukan.");
+        });
     }
 
+    function resetDraftHalaman() { if(confirm("Hapus draf input?")) { localStorage.removeItem('draft_input'); location.reload(); } }
     function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
     function downloadLaporanGambar() {
         html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
