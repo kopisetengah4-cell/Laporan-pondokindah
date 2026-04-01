@@ -179,9 +179,6 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        localStorage.setItem('last_cabang', cab);
-        localStorage.setItem('last_shift', shf);
-
         let total = 0;
         document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
         document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
@@ -192,6 +189,8 @@
         
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
         localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
+        localStorage.setItem('last_cabang', cab);
+        localStorage.setItem('last_shift', shf);
     }
 
     function muatData() {
@@ -199,20 +198,19 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        localStorage.setItem('last_cabang', cab);
-        localStorage.setItem('last_shift', shf);
         document.getElementById('label-tgl').innerText = tgl;
 
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
             const saved = snapshot.val();
             if (saved) {
-                // Jika sudah ada data resmi hari ini, tampilkan
                 isiFormulir(saved);
             } else {
-                // JIKA HARI INI KOSONG, TARIK DATA KEMARIN DARI LOCALSTORAGE
+                // AUTO-FILL: Jika Firebase hari ini masih kosong, ambil data dari memori lokal (kemarin)
                 const draft = localStorage.getItem(`draft_${cab}_${shf}`);
                 if (draft) {
                     isiFormulir(JSON.parse(draft));
+                    // Opsional: Langsung simpan ke Firebase agar sinkron sebagai data hari ini
+                    simpanFirebase();
                 } else {
                     document.querySelectorAll('input').forEach(el => el.value = "");
                     document.getElementById('display-total').innerText = "0";
@@ -254,6 +252,13 @@
         document.getElementById('display-total').innerText = (data && data.total) ? data.total : "0";
     }
 
+    function getHari(tgl) { const d = new Date(tgl); return ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][d.getDay()]; }
+    function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; document.getElementById('f-tgl').value = new Date().toISOString().split('T')[0]; }
+    function lihatRiwayat() { const t = document.getElementById('f-tgl').value, c = document.getElementById('f-cab').value, s = document.getElementById('f-shf').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
+    function bukaLaporanSekarang() { const t = new Date().toISOString().split('T')[0], c = document.getElementById('main-cabang').value, s = document.getElementById('main-shift').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
+    function tutupSemua() { document.getElementById('report-page').style.display='none'; document.getElementById('overlay-filter').style.display='none'; }
+    function downloadPng() { html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => { const a = document.createElement('a'); a.download = `Lap_${new Date().getTime()}.png`; a.href = canvas.toDataURL(); a.click(); }); }
+    
     function renderLaporan(data, t, c, s) {
         if(!data) { alert("Data tidak ditemukan."); return; }
         tutupSemua();
@@ -272,13 +277,6 @@
         document.getElementById('report-page').style.display = 'flex';
     }
 
-    function getHari(tgl) { const d = new Date(tgl); return ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][d.getDay()]; }
-    function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; document.getElementById('f-tgl').value = new Date().toISOString().split('T')[0]; }
-    function lihatRiwayat() { const t = document.getElementById('f-tgl').value, c = document.getElementById('f-cab').value, s = document.getElementById('f-shf').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
-    function bukaLaporanSekarang() { const t = new Date().toISOString().split('T')[0], c = document.getElementById('main-cabang').value, s = document.getElementById('main-shift').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
-    function tutupSemua() { document.getElementById('report-page').style.display='none'; document.getElementById('overlay-filter').style.display='none'; }
-    function downloadPng() { html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => { const a = document.createElement('a'); a.download = `Lap_${new Date().getTime()}.png`; a.href = canvas.toDataURL(); a.click(); }); }
-    
     window.onload = inisialisasi;
 </script>
 </body>
