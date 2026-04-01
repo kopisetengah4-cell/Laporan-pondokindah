@@ -151,6 +151,9 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    
+    // Daftar barang yang WAJIB dihitung fisik (Sisa dikosongkan)
+    const daftarHitungFisik = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
     function inisialisasi() {
         const now = new Date();
@@ -200,9 +203,24 @@
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const inputStok = document.getElementById(`stok_${id}`);
-                    // Hanya isi jika kolom stok masih kosong
+                    const inputSisa = document.getElementById(`sisa_${id}`);
+                    
+                    const sisaKemarin = dataKemarin[`sisa_${id}`] || "";
+
+                    // Isi Stok hari ini dari Sisa kemarin
                     if(inputStok && inputStok.value === "") {
-                        inputStok.value = dataKemarin[`sisa_${id}`] || "";
+                        inputStok.value = sisaKemarin;
+                    }
+
+                    // Logika Isi Sisa Otomatis
+                    if(inputSisa && inputSisa.value === "") {
+                        if(daftarHitungFisik.includes(item)) {
+                            // Kosongkan jika masuk daftar hitung fisik
+                            inputSisa.value = "";
+                        } else {
+                            // Samakan dengan stok jika barang umum
+                            inputSisa.value = sisaKemarin;
+                        }
                     }
                 });
                 simpanDraft();
@@ -294,4 +312,4 @@
     window.onload = inisialisasi;
 </script>
 </body>
-    </html>
+</html>
