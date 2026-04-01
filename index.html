@@ -63,7 +63,7 @@
         <div style="flex: 1;">
             <span id="label-hari" style="font-weight:bold; display:block;">-</span>
             TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cabang" onchange="kunciIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+            CAB: <select id="main-cabang" onchange="kunciIdentitasDanTarik()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -71,7 +71,7 @@
                 <option value="Cemput">Cemput</option>
                 <option value="Menteng">Menteng</option>
             </select><br>
-            SHIFT: <select id="main-shift" onchange="kunciIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+            SHIFT: <select id="main-shift" onchange="kunciIdentitasDanTarik()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="SHIFT 1">SHIFT 1</option>
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
@@ -151,8 +151,6 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    
-    // Daftar barang yang WAJIB dihitung fisik (Sisa dikosongkan)
     const daftarHitungFisik = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
     function inisialisasi() {
@@ -197,30 +195,24 @@
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
+        // Reset semua field stok & sisa sebelum narik agar tidak tercampur data cabang lain
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            document.getElementById(`stok_${id}`).value = "";
+            document.getElementById(`sisa_${id}`).value = "";
+        });
+
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', s => {
             const dataKemarin = s.val();
             if(dataKemarin) {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    const inputStok = document.getElementById(`stok_${id}`);
-                    const inputSisa = document.getElementById(`sisa_${id}`);
+                    const valSisaKemarin = dataKemarin[`sisa_${id}`] || "";
                     
-                    const sisaKemarin = dataKemarin[`sisa_${id}`] || "";
+                    document.getElementById(`stok_${id}`).value = valSisaKemarin;
 
-                    // Isi Stok hari ini dari Sisa kemarin
-                    if(inputStok && inputStok.value === "") {
-                        inputStok.value = sisaKemarin;
-                    }
-
-                    // Logika Isi Sisa Otomatis
-                    if(inputSisa && inputSisa.value === "") {
-                        if(daftarHitungFisik.includes(item)) {
-                            // Kosongkan jika masuk daftar hitung fisik
-                            inputSisa.value = "";
-                        } else {
-                            // Samakan dengan stok jika barang umum
-                            inputSisa.value = sisaKemarin;
-                        }
+                    if(!daftarHitungFisik.includes(item)) {
+                        document.getElementById(`sisa_${id}`).value = valSisaKemarin;
                     }
                 });
                 simpanDraft();
@@ -250,7 +242,7 @@
         document.getElementById('display-total').innerText = t.toLocaleString('id-ID');
     }
 
-    function kunciIdentitas() {
+    function kunciIdentitasDanTarik() {
         localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
         localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
         tarikDataOtomatis();
@@ -266,7 +258,7 @@
         
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
             localStorage.removeItem('draft_input');
-            alert("Berhasil Simpan!");
+            alert("Laporan Tersimpan!");
             renderLaporanPutih(data, tgl, cab, shf);
             document.getElementById('report-overlay').style.display = 'block';
         });
@@ -292,7 +284,7 @@
     function downloadLaporanGambar() {
         html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Report.png`;
+            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
             link.href = canvas.toDataURL("image/png"); link.click();
         });
     }
@@ -303,11 +295,11 @@
         const shf = document.getElementById('hist-shift').value;
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', s => {
             if(s.val()) { renderLaporanPutih(s.val(), tgl, cab, shf); tutupRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
-            else alert("Tidak ada data.");
+            else alert("Data tidak ditemukan.");
         });
     }
 
-    function resetSemuaRiwayat() { if(confirm("Hapus draft?")) { localStorage.removeItem('draft_input'); location.reload(); } }
+    function resetSemuaRiwayat() { if(confirm("Hapus draft input?")) { localStorage.removeItem('draft_input'); location.reload(); } }
 
     window.onload = inisialisasi;
 </script>
