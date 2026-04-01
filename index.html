@@ -36,26 +36,27 @@
         .footer-box label { font-size: 8px; color: #888; border-bottom: 1px solid #222; margin-bottom: 2px; display: block; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
 
-        #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
-        .report-container { background: #000; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #333; }
+        #report-overlay, #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
+        .modal-inner { background: #000; width: 360px; margin: 20px auto; padding: 15px; border: 1px solid #333; color: #fff; }
+        .modal-inner select, .modal-inner input { width: 100%; padding: 10px; margin-bottom: 10px; background: #111; color: #fff; border: 1px solid #333; box-sizing: border-box; }
     </style>
 </head>
 <body onload="initApp()">
 
 <div class="top-nav">
-    <button class="btn-main btn-wa" onclick="generateReport()">SIMPAN DATA</button>
-    <button class="btn-main btn-menu" onclick="document.getElementById('riwayat-modal').style.display='block'">RIWAYAT</button>
-    <button class="btn-main btn-reset" onclick="resetAll()">RESET</button>
+    <button class="btn-main btn-wa" onclick="simpanLaporan()">SIMPAN DATA</button>
+    <button class="btn-main btn-menu" onclick="bukaRiwayat()">RIWAYAT</button>
+    <button class="btn-main btn-reset" onclick="resetApp()">RESET</button>
 </div>
 
 <div class="container">
-    <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0;">KOPI SETENGAH-4</div>
+    <div style="text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0; color: #d4af37;">KOPI SETENGAH-4</div>
     
     <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
         <div style="flex: 1;">
-            <span id="txt-hari" style="font-weight:bold; display:block; font-size: 12px;">-</span>
-            TGL: <span id="txt-tgl">-</span><br>
-            CAB: <select id="sel-cab" onchange="switchLoc()" style="background:#000; color:#fff; border:none; font-weight:bold;">
+            <span id="label-hari" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
+            TGL: <span id="label-tgl">-</span><br>
+            CAB: <select id="main-cab" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -63,17 +64,17 @@
                 <option value="Cemput">Cemput</option>
                 <option value="Menteng">Menteng</option>
             </select><br>
-            SHIFT: <select id="sel-shf" onchange="switchLoc()" style="background:#000; color:#fff; border:none; font-weight:bold;">
+            SHIFT: <select id="main-shf" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="SHIFT 1">SHIFT 1</option>
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
         </div>
-        <div style="width: 30%;">
+        <div style="width: 32%;">
             <table style="width:100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333;">
                 <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center;">SISA ROTI</td></tr>
-                <tr><td>COK</td><td><input type="text" id="r_coklat" oninput="handleInput()"></td></tr>
-                <tr><td>VAN</td><td><input type="text" id="r_vanilla" oninput="handleInput()"></td></tr>
-                <tr><td>BLU</td><td><input type="text" id="r_blueberry" oninput="handleInput()"></td></tr>
+                <tr><td>COK</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
+                <tr><td>VAN</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
+                <tr><td>BLU</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
             </table>
         </div>
     </div>
@@ -82,27 +83,38 @@
         <thead>
             <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
         </thead>
-        <tbody id="body-items"></tbody>
+        <tbody id="list-barang"></tbody>
     </table>
 
     <div class="omset-grid">
-        <div id="body-omset"></div>
+        <div id="list-omset"></div>
         <div class="omset-total-box" id="val-total">0</div>
     </div>
 
     <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" oninput="handleInput()"></div>
-        <div class="footer-box"><label>NOTE</label><input type="text" id="f_note" oninput="handleInput()"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" oninput="saveDraft()"></div>
+        <div class="footer-box"><label>NOTE</label><input type="text" id="f_note" oninput="saveDraft()"></div>
     </div>
 </div>
 
 <div id="report-overlay">
     <div style="display:flex; gap:5px; margin-bottom:10px; width: 360px; margin: 0 auto;">
-        <button onclick="document.getElementById('report-overlay').style.display='none'" style="padding:10px; flex:1;">KEMBALI</button>
-        <button onclick="doDownload()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
+        <button onclick="tutupOverlay()" style="padding:10px; flex:1; background:#444; color:#fff; border:none;">KEMBALI</button>
+        <button onclick="downloadPNG()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
     </div>
-    <div class="report-container" id="report-area">
-        <div id="report-content"></div>
+    <div id="printable-area" style="width: 360px; margin: 0 auto; background:#000; padding:10px; border:1px solid #333;">
+        <div id="isi-laporan"></div>
+    </div>
+</div>
+
+<div id="riwayat-modal">
+    <div class="modal-inner">
+        <h3 style="text-align:center; color:#d4af37; margin-top:0;">CARI RIWAYAT</h3>
+        <select id="h_cab"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
+        <select id="h_shf"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
+        <input type="date" id="h_tgl">
+        <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="cariLaporan()">TAMPILKAN</button>
+        <button class="btn-main" style="width:100%; background:#333;" onclick="tutupRiwayat()">BATAL</button>
     </div>
 </div>
 
@@ -120,135 +132,150 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const items = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const omsets = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    const barang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
 
     function initApp() {
-        const now = new Date();
-        const tgl = now.toISOString().split('T')[0];
-        document.getElementById('txt-tgl').innerText = tgl;
-        const hariArr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-        document.getElementById('txt-hari').innerText = hariArr[now.getDay()];
+        const d = new Date();
+        const tglStr = d.toISOString().split('T')[0];
+        document.getElementById('label-tgl').innerText = tglStr;
+        const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        document.getElementById('label-hari').innerText = hr[d.getDay()];
 
-        const c = localStorage.getItem('c_pref') || "Tandur";
-        const s = localStorage.getItem('s_pref') || "SHIFT 1";
-        document.getElementById('sel-cab').value = c;
-        document.getElementById('sel-shf').value = s;
+        const c = localStorage.getItem('p_cab') || "Tandur";
+        const s = localStorage.getItem('p_shf') || "SHIFT 1";
+        document.getElementById('main-cab').value = c;
+        document.getElementById('main-shf').value = s;
 
-        renderUI();
-        muatData(tgl, c, s);
+        renderFields();
+        muatData(tglStr, c, s);
     }
 
-    function renderUI() {
-        const b = document.getElementById('body-items'); b.innerHTML = "";
-        items.forEach(i => {
-            const id = i.replace(/[^A-Z0-9]/ig, "_");
-            b.innerHTML += `<tr><td class="col-nama">${i}</td>
-                <td><input type="text" id="stok_${id}" oninput="handleInput()"></td>
-                <td><input type="text" id="msk_${id}" oninput="handleInput()"></td>
-                <td><input type="text" id="rsk_${id}" oninput="handleInput()"></td>
-                <td><input type="text" id="trjl_${id}" oninput="handleInput()"></td>
-                <td><input type="text" id="sisa_${id}" oninput="handleInput()"></td></tr>`;
+    function renderFields() {
+        const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
+        barang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            bBody.innerHTML += `<tr><td class="col-nama">${item}</td>
+                <td><input type="text" id="stok_${id}" oninput="saveDraft()"></td>
+                <td><input type="text" id="msk_${id}" oninput="saveDraft()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="saveDraft()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="saveDraft()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="saveDraft()"></td></tr>`;
         });
 
-        const o = document.getElementById('body-omset'); o.innerHTML = "";
-        omsets.forEach(m => {
-            o.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="i-omset" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="handleInput()"></div>`;
+        const oBody = document.getElementById('list-omset'); oBody.innerHTML = "";
+        omset_list.forEach(m => {
+            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="saveDraft()"></div>`;
         });
     }
 
     function muatData(tgl, cab, shf) {
-        // 1. Ambil dari Draft Lokal DULU (Supaya saat refresh data TIDAK HILANG)
-        const draft = localStorage.getItem(`draft_${cab}_${shf}`);
-        if(draft) {
-            const d = JSON.parse(draft);
-            Object.keys(d).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = d[k]; });
+        const local = localStorage.getItem(`draft_${cab}_${shf}`);
+        if(local) {
+            const data = JSON.parse(local);
+            Object.keys(data).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = data[k]; });
         }
-
-        // 2. Tarik sisa stok dari shift sebelumnya HANYA jika kolom stok masih kosong
-        let path;
+        
+        let pathPrev;
         if(shf === "SHIFT 2") {
-            path = `LiveSync/${tgl}/${cab}/SHIFT 1`;
+            pathPrev = `LiveSync/${tgl}/${cab}/SHIFT 1`;
         } else {
             const kmrn = new Date(); kmrn.setDate(kmrn.getDate()-1);
-            path = `LiveSync/${kmrn.toISOString().split('T')[0]}/${cab}/SHIFT 2`;
+            pathPrev = `LiveSync/${kmrn.toISOString().split('T')[0]}/${cab}/SHIFT 2`;
         }
 
-        db.ref(path).once('value', s => {
-            const data = s.val();
-            if(data) {
-                items.forEach(i => {
-                    const idStok = "stok_" + i.replace(/[^A-Z0-9]/ig, "_");
-                    const idSisa = "sisa_" + i.replace(/[^A-Z0-9]/ig, "_");
-                    const inputEl = document.getElementById(idStok);
-                    // Hanya isi otomatis jika input masih kosong
-                    if(inputEl && !inputEl.value) inputEl.value = data[idSisa] || "";
+        db.ref(pathPrev).once('value', snapshot => {
+            const prev = snapshot.val();
+            if(prev) {
+                barang.forEach(i => {
+                    const idS = "stok_" + i.replace(/[^A-Z0-9]/ig, "_");
+                    const idLast = "sisa_" + i.replace(/[^A-Z0-9]/ig, "_");
+                    const el = document.getElementById(idS);
+                    if(el && !el.value) el.value = prev[idLast] || "";
                 });
             }
-            calcTotal();
+            hitung();
         });
     }
 
-    function handleInput() {
-        const c = document.getElementById('sel-cab').value;
-        const s = document.getElementById('sel-shf').value;
-        const t = document.getElementById('txt-tgl').innerText;
+    function saveDraft() {
+        const c = document.getElementById('main-cab').value;
+        const s = document.getElementById('main-shf').value;
+        const t = document.getElementById('label-tgl').innerText;
         const data = {};
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
         
-        // Simpan ke Lokal & Firebase seketika
         localStorage.setItem(`draft_${c}_${s}`, JSON.stringify(data));
         db.ref('LiveSync/' + t + '/' + c + '/' + s).set(data);
-        calcTotal();
+        hitung();
     }
 
-    function calcTotal() {
-        let t = 0;
-        document.querySelectorAll('.i-omset').forEach(i => { t += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
-        document.getElementById('val-total').innerText = t.toLocaleString('id-ID');
+    function hitung() {
+        let tot = 0;
+        document.querySelectorAll('.inp-o').forEach(i => { tot += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
+        document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
     }
 
-    function switchLoc() {
-        localStorage.setItem('c_pref', document.getElementById('sel-cab').value);
-        localStorage.setItem('s_pref', document.getElementById('sel-shf').value);
+    function gantiLokasi() {
+        localStorage.setItem('p_cab', document.getElementById('main-cab').value);
+        localStorage.setItem('p_shf', document.getElementById('main-shf').value);
         location.reload();
     }
 
-    function generateReport() {
-        const t = document.getElementById('txt-tgl').innerText;
-        const c = document.getElementById('sel-cab').value;
-        const s = document.getElementById('sel-shf').value;
+    function simpanLaporan() {
+        const t = document.getElementById('label-tgl').innerText;
+        const c = document.getElementById('main-cab').value;
+        const s = document.getElementById('main-shf').value;
         const data = { total: document.getElementById('val-total').innerText };
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
 
         db.ref('Laporan/' + t + '/' + c + '/' + s).set(data).then(() => {
-            const h = `<div style="background:#000; padding:15px; border:1px solid #d4af37; color:#fff;">
-                <div style="text-align:center; color:#d4af37; font-weight:bold; margin-bottom:10px;">KOPI SETENGAH-4</div>
-                <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:10px;">
-                    <div>TGL: ${t}<br>CAB: ${c}<br>SHIFT: ${s}</div>
-                </div>
-                <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333;">
-                    <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
-            items.forEach(i => {
-                const id = i.replace(/[^A-Z0-9]/ig, "_");
-                h += `<tr><td style="color:#d4af37; border:1px solid #333; font-weight:bold;">${i}</td>
-                    <td style="text-align:center; border:1px solid #333;">${data['stok_'+id]||0}</td>
-                    <td style="text-align:center; border:1px solid #333;">${data['msk_'+id]||0}</td>
-                    <td style="text-align:center; border:1px solid #333;">${data['trjl_'+id]||0}</td>
-                    <td style="text-align:center; border:1px solid #333; font-weight:bold;">${data['sisa_'+id]||0}</td></tr>`;
-            });
-            document.getElementById('report-content').innerHTML = h + `</table><div style="text-align:center; padding:10px; font-size:20px; font-weight:bold;">Total: Rp ${data.total}</div></div>`;
-            document.getElementById('report-overlay').style.display = 'block';
+            showResult(data, t, c, s);
         });
     }
 
-    function doDownload() {
-        html2canvas(document.getElementById('report-area'), { backgroundColor: "#000", scale: 3 }).then(c => {
-            const a = document.createElement('a'); a.download = 'Laporan.png'; a.href = c.toDataURL(); a.click();
+    function showResult(d, t, c, s) {
+        let res = `<div style="text-align:center; color:#d4af37; font-weight:bold; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">KOPI SETENGAH-4</div>
+            <div style="font-size:10px; margin-bottom:10px; color:#fff;">TANGGAL: ${t}<br>CABANG: ${c}<br>SHIFT: ${s}</div>
+            <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333;">
+                <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
+        barang.forEach(i => {
+            const id = i.replace(/[^A-Z0-9]/ig, "_");
+            res += `<tr><td style="color:#d4af37; border:1px solid #333; font-weight:bold; padding:2px;">${i}</td>
+                <td style="text-align:center; border:1px solid #333;">${d['stok_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #333;">${d['msk_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #333;">${d['trjl_'+id]||0}</td>
+                <td style="text-align:center; border:1px solid #333; font-weight:bold;">${d['sisa_'+id]||0}</td></tr>`;
+        });
+        res += `</table><div style="margin-top:10px; text-align:center; background:#111; padding:10px; border:1px solid #333;">
+            <div style="font-size:8px; color:#888;">TOTAL OMSET</div>
+            <div style="font-size:22px; font-weight:bold; color:#fff;">Rp ${d.total}</div>
+        </div>`;
+        document.getElementById('isi-laporan').innerHTML = res;
+        document.getElementById('report-overlay').style.display = 'block';
+    }
+
+    function downloadPNG() {
+        html2canvas(document.getElementById('printable-area'), { backgroundColor: "#000", scale: 3 }).then(canv => {
+            const link = document.createElement('a'); link.download = 'Laporan_PI.png'; link.href = canv.toDataURL(); link.click();
         });
     }
 
-    function resetAll() { if(confirm("Hapus semua data di halaman ini?")) { localStorage.clear(); location.reload(); } }
+    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
+    function tutupOverlay() { document.getElementById('report-overlay').style.display = 'none'; }
+
+    function cariLaporan() {
+        const t = document.getElementById('h_tgl').value;
+        const c = document.getElementById('h_cab').value;
+        const s = document.getElementById('h_shf').value;
+        if(!t) return alert("Pilih tanggal!");
+        db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
+            if(snp.val()) { showResult(snp.val(), t, c, s); tutupRiwayat(); }
+            else alert("Data tidak ditemukan.");
+        });
+    }
+    function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
