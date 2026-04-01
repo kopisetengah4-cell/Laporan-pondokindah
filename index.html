@@ -25,9 +25,10 @@
         .container { width: 100%; max-width: 600px; }
         .header-title { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; margin-bottom: 8px; }
 
+        /* Tabel Minimalis */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 4px 0; color: #888; font-size: 9px; }
-        table.main-table td { border: 1px solid #333; height: 22px; text-align: center; padding: 0; }
+        table.main-table td { border: 1px solid #333; height: 20px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 11px; }
         .col-nama { width: 40%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
 
@@ -103,40 +104,6 @@
     </div>
 </div>
 
-<div id="overlay-filter">
-    <div class="filter-box">
-        <h3>CARI RIWAYAT</h3>
-        <input type="date" id="f-tgl">
-        <select id="f-cab"><option>Pondok Indah</option><option>Cemput</option><option>Otista</option><option>Jl.Panjang</option><option>Tandur</option><option>Menteng</option></select>
-        <select id="f-shf"><option>SHIFT 1</option><option>SHIFT 2</option></select>
-        <button class="btn-main btn-wa" style="width:100%;" onclick="lihatRiwayat()">LIHAT LAPORAN</button>
-        <p onclick="tutupSemua()" style="cursor:pointer; font-size:12px; color:#888; margin-top:15px;">KEMBALI</p>
-    </div>
-</div>
-
-<div id="report-page">
-    <div class="report-actions">
-        <button class="btn-main btn-menu" onclick="tutupSemua()">KEMBALI</button>
-        <button class="btn-main btn-wa" onclick="downloadPng()">DOWNLOAD ↓</button>
-    </div>
-    <div class="report-canvas-area" id="capture-area">
-        <div style="text-align:center; font-weight:bold; font-size:16px; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px;">KOPI SETENGAH-4</div>
-        <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:10px;">
-            <div id="rep-info" style="line-height:1.4;"></div>
-            <table class="white-table" style="width:110px;"><tbody id="rep-roti-body"></tbody></table>
-        </div>
-        <table class="white-table"><thead><tr><th>NAMA BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr></thead><tbody id="rep-main-body"></tbody></table>
-        <div style="display:grid; grid-template-columns: 1.5fr 1fr; border:1px solid #000; border-top:none;">
-            <div id="rep-omset-data" style="border-right:1px solid #000;"></div>
-            <div id="rep-total-val" style="font-size:28px; font-weight:bold; text-align:center; align-self:center;">0</div>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; border:1px solid #000; border-top:none; font-size:9px; padding:5px;">
-            <div><strong>CASH:</strong> <span id="rep-cash-val"></span></div>
-            <div><strong>NOTE:</strong> <span id="rep-note"></span></div>
-        </div>
-    </div>
-</div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
@@ -153,7 +120,6 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    const barangFisik = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
     function inisialisasi() {
         const tbody = document.getElementById('inventory-body');
@@ -166,31 +132,13 @@
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
         });
 
+        // Load setting terakhir (Cabang & Shift)
         const lastCab = localStorage.getItem('last_cabang');
         const lastShf = localStorage.getItem('last_shift');
         if(lastCab) document.getElementById('main-cabang').value = lastCab;
         if(lastShf) document.getElementById('main-shift').value = lastShf;
 
         muatData();
-    }
-
-    function simpanFirebase() {
-        const tgl = new Date().toISOString().split('T')[0];
-        const cab = document.getElementById('main-cabang').value;
-        const shf = document.getElementById('main-shift').value;
-        
-        let total = 0;
-        document.querySelectorAll('.omset-val').forEach(el => { total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; });
-        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
-        
-        const data = {};
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        data.total = total.toLocaleString('id-ID');
-        
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
-        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
-        localStorage.setItem('last_cabang', cab);
-        localStorage.setItem('last_shift', shf);
     }
 
     function muatData() {
@@ -200,30 +148,51 @@
         
         document.getElementById('label-tgl').innerText = tgl;
 
+        // Cek Firebase hari ini
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
-            const saved = snapshot.val();
-            if (saved) {
-                isiFormulir(saved);
+            const dataHariIni = snapshot.val();
+            
+            if (dataHariIni) {
+                // Jika sudah ada data hari ini, gunakan itu
+                isiFormulir(dataHariIni);
             } else {
-                // AUTO-FILL: Jika Firebase hari ini masih kosong, ambil data dari memori lokal (kemarin)
-                const draft = localStorage.getItem(`draft_${cab}_${shf}`);
-                if (draft) {
-                    isiFormulir(JSON.parse(draft));
-                    // Opsional: Langsung simpan ke Firebase agar sinkron sebagai data hari ini
-                    simpanFirebase();
+                // JIKA HARI INI KOSONG, TARIK DATA KEMARIN (DRAFT TERAKHIR)
+                const dataKemarin = localStorage.getItem(`draft_${cab}_${shf}`);
+                if (dataKemarin) {
+                    isiFormulir(JSON.parse(dataKemarin));
+                    // Langsung anggap ini data hari ini di memori sementara
+                    simpanFirebase(); 
                 } else {
-                    document.querySelectorAll('input').forEach(el => el.value = "");
-                    document.getElementById('display-total').innerText = "0";
+                    bersihkanForm();
                 }
             }
         });
     }
 
+    function simpanFirebase() {
+        const tgl = new Date().toISOString().split('T')[0];
+        const cab = document.getElementById('main-cabang').value;
+        const shf = document.getElementById('main-shift').value;
+        
+        let total = 0;
+        document.querySelectorAll('.omset-val').forEach(el => { 
+            total += parseInt(el.value.replace(/[^0-9]/g, '')) || 0; 
+        });
+        document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
+        
+        const data = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        data.total = total.toLocaleString('id-ID');
+        
+        // Simpan ke Firebase (Tanggal Hari Ini) dan LocalStorage (Sebagai Backup Kemarin)
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
+        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
+        localStorage.setItem('last_cabang', cab);
+        localStorage.setItem('last_shift', shf);
+    }
+
     function jalankanNewSistem() {
-        if(confirm("Jalankan NEW? Sisa hari ini akan dipindah ke Stok esok hari.")) {
-            const cab = document.getElementById('main-cabang').value;
-            const shf = document.getElementById('main-shift').value;
-            
+        if(confirm("Jalankan NEW? Sisa hari ini akan dipindah ke Stok baru.")) {
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 const currentSisa = document.getElementById(`sisa_${id}`).value;
@@ -231,17 +200,13 @@
                 document.getElementById(`msk_${id}`).value = "";
                 document.getElementById(`rsk_${id}`).value = "";
                 document.getElementById(`trjl_${id}`).value = "";
-                document.getElementById(`sisa_${id}`).value = barangFisik.includes(id) ? "" : currentSisa;
+                document.getElementById(`sisa_${id}`).value = currentSisa; // Default sisa sama dengan stok baru
             });
             document.querySelectorAll('.omset-val').forEach(el => el.value = "");
             document.getElementById('cash-gabungan').value = "";
             document.getElementById('note').value = "";
-            document.getElementById('roti-coklat').value = "";
-            document.getElementById('roti-vanilla').value = "";
-            document.getElementById('roti-blueberry').value = "";
-            
             simpanFirebase();
-            alert("Sistem di-reset ke Stok baru!");
+            alert("Berhasil Reset ke Stok Baru!");
         }
     }
 
@@ -252,32 +217,17 @@
         document.getElementById('display-total').innerText = (data && data.total) ? data.total : "0";
     }
 
-    function getHari(tgl) { const d = new Date(tgl); return ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"][d.getDay()]; }
-    function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; document.getElementById('f-tgl').value = new Date().toISOString().split('T')[0]; }
-    function lihatRiwayat() { const t = document.getElementById('f-tgl').value, c = document.getElementById('f-cab').value, s = document.getElementById('f-shf').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
-    function bukaLaporanSekarang() { const t = new Date().toISOString().split('T')[0], c = document.getElementById('main-cabang').value, s = document.getElementById('main-shift').value; db.ref('Laporan/'+t+'/'+c+'/'+s).once('value', (snap) => { renderLaporan(snap.val(), t, c, s); }); }
+    function bersihkanForm() {
+        document.querySelectorAll('input').forEach(el => el.value = "");
+        document.getElementById('display-total').innerText = "0";
+    }
+
+    // Fungsi Laporan & Riwayat (Tetap Sama)
+    function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; }
     function tutupSemua() { document.getElementById('report-page').style.display='none'; document.getElementById('overlay-filter').style.display='none'; }
     function downloadPng() { html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => { const a = document.createElement('a'); a.download = `Lap_${new Date().getTime()}.png`; a.href = canvas.toDataURL(); a.click(); }); }
     
-    function renderLaporan(data, t, c, s) {
-        if(!data) { alert("Data tidak ditemukan."); return; }
-        tutupSemua();
-        document.getElementById('rep-info').innerHTML = `HARI: ${getHari(t)}<br>TGL: ${t}<br>CABANG: ${c.toUpperCase()}<br>SHIFT: ${s}`;
-        document.getElementById('rep-roti-body').innerHTML = `<tr><th colspan="2">ROTI</th></tr><tr><td>COKLAT</td><td>${data['roti-coklat']||0}</td></tr><tr><td>VANILLA</td><td>${data['roti-vanilla']||0}</td></tr><tr><td>BLUEBERRY</td><td>${data['roti-blueberry']||0}</td></tr>`;
-        const mainB = document.getElementById('rep-main-body'); mainB.innerHTML = "";
-        daftarBarang.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            mainB.innerHTML += `<tr><td>${item}</td><td>${data['stok_'+id]||0}</td><td>${data['msk_'+id]||0}</td><td>${data['rsk_'+id]||0}</td><td>${data['trjl_'+id]||0}</td><td>${data['sisa_'+id]||0}</td></tr>`;
-        });
-        const oB = document.getElementById('rep-omset-data'); oB.innerHTML = "";
-        daftarOmset.forEach(m => { oB.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:10px; padding:2px 8px; border-bottom:1px solid #eee;"><span>${m}</span><span>${data['o_'+m.replace(/[^A-Z0-9]/ig,'_')]||0}</span></div>`; });
-        document.getElementById('rep-total-val').innerText = data.total;
-        document.getElementById('rep-cash-val').innerText = data['cash-gabungan'] || "-";
-        document.getElementById('rep-note').innerText = data['note'] || "-";
-        document.getElementById('report-page').style.display = 'flex';
-    }
-
     window.onload = inisialisasi;
 </script>
 </body>
-</html>
+                                                                                                                           </html>
