@@ -191,28 +191,32 @@
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
         
-        const d = new Date(tglHariIni);
-        d.setDate(d.getDate() - 1);
-        const tglKemarin = d.toISOString().split('T')[0];
+        let jalurData = "";
+        
+        if (shf === "SHIFT 2") {
+            // Shift 2 mengambil dari Shift 1 HARI INI
+            jalurData = 'Laporan/' + tglHariIni + '/' + cab + '/SHIFT 1';
+        } else {
+            // Shift 1 mengambil dari Shift 1 KEMARIN
+            const d = new Date(tglHariIni);
+            d.setDate(d.getDate() - 1);
+            const tglKemarin = d.toISOString().split('T')[0];
+            jalurData = 'Laporan/' + tglKemarin + '/' + cab + '/SHIFT 1';
+        }
 
-        // Reset semua field stok & sisa sebelum narik agar tidak tercampur data cabang lain
-        daftarBarang.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            document.getElementById(`stok_${id}`).value = "";
-            document.getElementById(`sisa_${id}`).value = "";
-        });
-
-        db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', s => {
-            const dataKemarin = s.val();
-            if(dataKemarin) {
+        db.ref(jalurData).once('value', s => {
+            const dataSumber = s.val();
+            if(dataSumber) {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    const valSisaKemarin = dataKemarin[`sisa_${id}`] || "";
+                    const valSisaSumber = dataSumber[`sisa_${id}`] || "";
                     
-                    document.getElementById(`stok_${id}`).value = valSisaKemarin;
+                    document.getElementById(`stok_${id}`).value = valSisaSumber;
 
                     if(!daftarHitungFisik.includes(item)) {
-                        document.getElementById(`sisa_${id}`).value = valSisaKemarin;
+                        document.getElementById(`sisa_${id}`).value = valSisaSumber;
+                    } else {
+                        document.getElementById(`sisa_${id}`).value = "";
                     }
                 });
                 simpanDraft();
