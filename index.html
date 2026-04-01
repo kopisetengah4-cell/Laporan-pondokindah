@@ -16,20 +16,18 @@
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-reset { background-color: #e74c3c; }
-
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
         .col-data { width: 13%; }
-        
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
         .roti-box { width: 26%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
-        table.roti-table td { width: 50%; border: 1px solid #333; height: 20px; vertical-align: middle; }
+        table.roti-table td { width: 50%; border: 1px solid #333; height: 20px; vertical-align: middle; color: #fff; }
         table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 11px; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
@@ -124,6 +122,7 @@
 </div>
 
 <script>
+    // Konfigurasi Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
         authDomain: "laporan-harian-f096f.firebaseapp.com",
@@ -137,14 +136,15 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const barang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
+    const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
 
     function initApp() {
         const d = new Date();
         const tglStr = d.toISOString().split('T')[0];
-        document.getElementById('label-tgl').innerText = tglStr;
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        
+        document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
         
         const c = localStorage.getItem('p_cab') || "Tandur";
@@ -158,7 +158,7 @@
 
     function renderFields() {
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
-        barang.forEach(item => {
+        barang_list.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
             bBody.innerHTML += `<tr><td class="col-nama">${item}</td>
                 <td><input type="text" id="stok_${id}" oninput="saveDraft()"></td>
@@ -179,21 +179,7 @@
             const data = JSON.parse(local);
             Object.keys(data).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = data[k]; });
         }
-        let pathPrev;
-        if(shf === "SHIFT 2") { pathPrev = `LiveSync/${tgl}/${cab}/SHIFT 1`; } 
-        else { const kmrn = new Date(); kmrn.setDate(kmrn.getDate()-1); pathPrev = `LiveSync/${kmrn.toISOString().split('T')[0]}/${cab}/SHIFT 2`; }
-        db.ref(pathPrev).once('value', snapshot => {
-            const prev = snapshot.val();
-            if(prev) {
-                barang.forEach(i => {
-                    const idS = "stok_" + i.replace(/[^A-Z0-9]/ig, "_");
-                    const idLast = "sisa_" + i.replace(/[^A-Z0-9]/ig, "_");
-                    const el = document.getElementById(idS);
-                    if(el && !el.value) el.value = prev[idLast] || "";
-                });
-            }
-            hitung();
-        });
+        hitung();
     }
 
     function saveDraft() {
@@ -213,30 +199,20 @@
         document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
     }
 
-    function gantiLokasi() {
-        localStorage.setItem('p_cab', document.getElementById('main-cab').value);
-        localStorage.setItem('p_shf', document.getElementById('main-shf').value);
-        location.reload();
-    }
-
     function simpanLaporan() {
-        const t = document.getElementById('label-tgl').innerText;
-        const c = document.getElementById('main-cab').value;
-        const s = document.getElementById('main-shf').value;
-        const h = document.getElementById('label-hari').innerText;
-        const totalVal = document.getElementById('val-total').innerText;
+        // Ambil data langsung dari yang sedang diketik di layar
+        const d = {};
+        document.querySelectorAll('input').forEach(i => { if(i.id) d[i.id] = i.value; });
         
-        const data = { 
-            total: totalVal,
-            tgl_label: t,
-            hari_label: h,
-            cab_label: c,
-            shf_label: s
-        };
-        document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
+        // Data Header (WAJIB ADA)
+        d.total = document.getElementById('val-total').innerText;
+        d.hari = document.getElementById('label-hari').innerText;
+        d.tgl = document.getElementById('label-tgl').innerText;
+        d.cab = document.getElementById('main-cab').value;
+        d.shf = document.getElementById('main-shf').value;
 
-        db.ref('Laporan/' + t + '/' + c + '/' + s).set(data).then(() => { 
-            showResult(data); 
+        db.ref('Laporan/' + d.tgl + '/' + d.cab + '/' + d.shf).set(d).then(() => { 
+            showResult(d); 
         });
     }
 
@@ -244,16 +220,16 @@
         let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
                 <div style="font-size:11px; color:#000; line-height:1.4;">
-                    <b>HARI:</b> ${d.hari_label}<br>
-                    <b>TGL:</b> ${d.tgl_label}<br>
-                    <b>CAB:</b> ${d.cab_label} | <b>SHF:</b> ${d.shf_label}
+                    <b>HARI:</b> ${d.hari}<br>
+                    <b>TGL:</b> ${d.tgl}<br>
+                    <b>CAB:</b> ${d.cab} | <b>SHF:</b> ${d.shf}
                 </div>
                 <div style="width:26%; border:1.5px solid #000;">
                     <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
                         <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_cok']||0}</b></td></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_van']||0}</b></td></tr>
-                        <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_blu']||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_cok||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_van||0}</b></td></tr>
+                        <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_blu||0}</b></td></tr>
                     </table>
                 </div>
             </div>
@@ -267,9 +243,9 @@
                     <th style="border:1px solid #000; width:13%;">SISA</th>
                 </tr>`;
         
-        barang.forEach(i => {
-            const id = i.replace(/[^A-Z0-9]/ig, "_");
-            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${i}</td>
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${item}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['stok_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['msk_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['rsk_'+id]||0}</td>
@@ -310,20 +286,35 @@
         document.getElementById('report-overlay').style.display = 'block';
     }
 
+    function gantiLokasi() {
+        localStorage.setItem('p_cab', document.getElementById('main-cab').value);
+        localStorage.setItem('p_shf', document.getElementById('main-shf').value);
+        location.reload();
+    }
     function downloadPNG() {
         html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); link.download = 'Laporan_Fix.png'; link.href = canv.toDataURL(); link.click();
+            const link = document.createElement('a'); 
+            const t = document.getElementById('label-tgl').innerText;
+            const c = document.getElementById('main-cab').value;
+            link.download = `LAPORAN_${c}_${t}.png`; 
+            link.href = canv.toDataURL(); 
+            link.click();
         });
     }
-
     function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
     function tutupOverlay() { document.getElementById('report-overlay').style.display = 'none'; }
-
     function cariLaporan() {
         const t = document.getElementById('h_tgl').value;
         const c = document.getElementById('h_cab').value;
         const s = document.getElementById('h_shf').value;
         if(!t) return alert("Pilih tanggal!");
         db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
-          
+            if(snp.val()) { showResult(snp.val()); tutupRiwayat(); }
+            else alert("Data tidak ditemukan.");
+        });
+    }
+    function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+            </html>
