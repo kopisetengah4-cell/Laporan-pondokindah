@@ -35,9 +35,6 @@
         .omset-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; }
         .omset-row input { background: transparent; border: none; color: white; width: 80px; text-align: right; outline: none; }
         .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
-
-        #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:2000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
-        .white-report-container { background: #fff; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #000; }
     </style>
 </head>
 <body>
@@ -55,7 +52,7 @@
         <div style="flex: 1;">
             <span id="label-hari" style="font-weight:bold; display:block;">-</span>
             TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cabang" onchange="simpanKunciCabang()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+            CAB: <select id="main-cabang" onchange="kunciIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -63,7 +60,7 @@
                 <option value="Cemput">Cemput</option>
                 <option value="Menteng">Menteng</option>
             </select><br>
-            SHIFT: <select id="main-shift" onchange="simpanKunciCabang()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+            SHIFT: <select id="main-shift" onchange="kunciIdentitas()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="SHIFT 1">SHIFT 1</option>
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
@@ -107,15 +104,22 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    
+    // Barang yang kolom SISA-nya harus dikosongkan (Wajib hitung manual tiap shift)
+    const daftarKecualikan = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "FN", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
 
     function inisialisasi() {
-        // Tampilkan Tanggal Hari Ini
         const now = new Date();
         const opsiHari = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-tgl').innerText = now.toISOString().split('T')[0];
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
-        // Render Barang
+        // Memuat Kunci Cabang & Shift yang tersimpan
+        const savedCab = localStorage.getItem('kunci_cabang');
+        const savedShf = localStorage.getItem('kunci_shift');
+        if(savedCab) document.getElementById('main-cabang').value = savedCab;
+        if(savedShf) document.getElementById('main-shift').value = savedShf;
+
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -128,7 +132,6 @@
                 <td><input type="text" id="sisa_${id}" oninput="simpanKeLocalStorage()"></td></tr>`;
         });
 
-        // Render Omset
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -139,30 +142,47 @@
         tarikDataOtomatis();
     }
 
+    function kunciIdentitas() {
+        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
+        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
+        tarikDataOtomatis(); // Tarik data ulang saat cabang/shift diganti
+    }
+
     function tarikDataOtomatis() {
         const tglHariIni = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
+        
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dk = s.val();
-            // Kosongkan dulu
+            
+            // Reset dulu semua kolom stok & sisa agar tidak tercampur data lama
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 document.getElementById(`stok_${id}`).value = "";
                 document.getElementById(`sisa_${id}`).value = "";
             });
-            // Isi jika ada data kemarin
+
             if (dk) {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const valSisaKemarin = dk[`sisa_${id}`] || "";
+                    
+                    // Isi Stok awal dari sisa kemarin
                     document.getElementById(`stok_${id}`).value = valSisaKemarin;
-                    document.getElementById(`sisa_${id}`).value = valSisaKemarin;
+                    
+                    // Logika Pengecualian: Jika barang masuk daftar kecualikan, sisa dikosongkan
+                    if (daftarKecualikan.includes(item)) {
+                        document.getElementById(`sisa_${id}`).value = "";
+                    } else {
+                        document.getElementById(`sisa_${id}`).value = valSisaKemarin;
+                    }
                 });
+                simpanKeLocalStorage(); // Simpan draft setelah tarik data
             }
         });
     }
@@ -190,12 +210,6 @@
             total += parseInt(val) || 0; 
         });
         document.getElementById('display-total').innerText = total.toLocaleString('id-ID');
-    }
-
-    function simpanKunciCabang() {
-        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
-        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
-        tarikDataOtomatis();
     }
 
     window.onload = inisialisasi;
