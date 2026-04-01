@@ -152,8 +152,7 @@
 
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    const daftarManual = ["CUP KECIL", "CUP BESAR", "CUP HOT", "SUSU UHT", "KRIMER", "FN", "SKM", "BASE SUSU", "BASE KOPI", "ROTI"];
-
+    
     const DRAFT_KEY = 'laporan_draft_kopi_setengah4';
 
     function inisialisasi() {
@@ -217,22 +216,32 @@
         const tglHariIni = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
+        
         const d = new Date(tglHariIni);
         d.setDate(d.getDate() - 1);
         const tglKemarin = d.toISOString().split('T')[0];
 
+        // Membersihkan input stok sebelum mencoba menarik data baru agar tidak campur
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const iStok = document.getElementById(`stok_${id}`);
+            if (iStok) iStok.value = "";
+        });
+
         db.ref('Laporan/' + tglKemarin + '/' + cab + '/' + shf).once('value', (s) => {
             const dk = s.val();
-            if (dk) {
+            // Hanya tarik jika data kemarin ADA dan Total Omset-nya tidak kosong/0
+            if (dk && dk.total && dk.total !== "0" && dk.total !== "") {
                 daftarBarang.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     const iStok = document.getElementById(`stok_${id}`);
-                    const iSisa = document.getElementById(`sisa_${id}`);
                     if (iStok) {
                         iStok.value = dk[`sisa_${id}`] || "";
-                        if (!daftarManual.includes(item) && iSisa) iSisa.value = dk[`sisa_${id}`] || "";
                     }
                 });
+                console.log(`Berhasil menarik sisa stok dari ${cab} - ${shf} tanggal ${tglKemarin}`);
+            } else {
+                console.log("Data kemarin tidak ditemukan atau belum diisi untuk cabang & shift ini.");
             }
         });
     }
@@ -273,45 +282,16 @@
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Konfirmasi (Hapus Semua Data Hari Ini & Data Kosong):");
+        const pin = prompt("Masukkan PIN Konfirmasi:");
         if (pin === "9812") {
             const tglHariIni = document.getElementById('label-tgl').innerText;
-            const d = new Date(tglHariIni);
-            d.setDate(d.getDate() - 1);
-            const tglKemarin = d.toISOString().split('T')[0];
-
             db.ref('Laporan').once('value', (snapshot) => {
                 const allData = snapshot.val();
                 if (!allData) return;
-
                 Object.keys(allData).forEach(tanggal => {
-                    // 1. Hapus SEMUA data hari ini
-                    if (tanggal === tglHariIni) {
-                        db.ref('Laporan/' + tanggal).remove();
-                        console.log("Menghapus seluruh data hari ini: " + tanggal);
-                    }
-                    
-                    // 2. Hapus data yang lebih tua dari kemarin (Arsip lama)
-                    else if (tanggal !== tglKemarin) {
-                        db.ref('Laporan/' + tanggal).remove();
-                    }
-                    
-                    // 3. Khusus data kemarin: Hapus hanya jika belum diisi (Total 0 atau kosong)
-                    else if (tanggal === tglKemarin) {
-                        const cabangKemarin = allData[tanggal];
-                        Object.keys(cabangKemarin).forEach(cab => {
-                            Object.keys(cabangKemarin[cab]).forEach(shf => {
-                                const dataDetail = cabangKemarin[cab][shf];
-                                if (!dataDetail.total || dataDetail.total === "0" || dataDetail.total === "") {
-                                    db.ref(`Laporan/${tanggal}/${cab}/${shf}`).remove();
-                                    console.log(`Menghapus data kosong kemarin: ${cab} - ${shf}`);
-                                }
-                            });
-                        });
-                    }
+                    db.ref('Laporan/' + tanggal).remove();
                 });
-                alert("Pembersihan Berhasil: Data hari ini dihapus & data kosong kemarin dibersihkan.");
-                // Refresh halaman agar tampilan input kembali bersih
+                alert("Seluruh Database Bersih.");
                 location.reload();
             });
         } else if (pin !== null) {
