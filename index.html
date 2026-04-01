@@ -23,12 +23,12 @@
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
         .col-data { width: 13%; }
-        table.main-table td { border: 1px solid #333; height: 25px; text-align: center; padding: 0; }
-        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 12px; }
+        table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
+        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
-        .omset-row { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
-        .omset-row input { background: transparent; border: none; color: white; width: 80px; text-align: right; outline: none; }
+        .omset-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
+        .omset-row input { background: transparent; border: none; color: white; width: 90px; text-align: right; outline: none; font-size: 12px; }
         .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
 
         .bottom-section { display: flex; gap: 5px; margin-top: 5px; width: 100%; }
@@ -38,18 +38,14 @@
 
         #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
         .report-container { background: #000; width: 360px; margin: 0 auto; padding: 10px; border: 1px solid #333; }
-        
-        #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; padding: 20px; }
-        .modal-content { max-width: 400px; margin: 40px auto; background: #111; padding: 15px; border: 1px solid #d4af37; border-radius: 8px; color: #fff; }
-        .modal-content select, .modal-content input { width: 100%; padding: 10px; margin-bottom: 10px; background: #222; color: #fff; border: 1px solid #333; }
     </style>
 </head>
-<body onload="startApp()">
+<body onload="initApp()">
 
 <div class="top-nav">
-    <button class="btn-main btn-wa" onclick="simpanKeFirebase()">SIMPAN DATA</button>
-    <button class="btn-main btn-menu" onclick="showRiwayat()">RIWAYAT</button>
-    <button class="btn-main btn-reset" onclick="hapusDraft()">RESET</button>
+    <button class="btn-main btn-wa" onclick="generateReport()">SIMPAN DATA</button>
+    <button class="btn-main btn-menu" onclick="document.getElementById('riwayat-modal').style.display='block'">RIWAYAT</button>
+    <button class="btn-main btn-reset" onclick="resetAll()">RESET</button>
 </div>
 
 <div class="container">
@@ -57,9 +53,9 @@
     
     <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px;">
         <div style="flex: 1;">
-            <span id="hari-ini" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
-            TGL: <span id="tgl-ini">-</span><br>
-            CAB: <select id="sel-cabang" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
+            <span id="txt-hari" style="font-weight:bold; display:block; font-size: 12px;">-</span>
+            TGL: <span id="txt-tgl">-</span><br>
+            CAB: <select id="sel-cab" onchange="switchLoc()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -67,7 +63,7 @@
                 <option value="Cemput">Cemput</option>
                 <option value="Menteng">Menteng</option>
             </select><br>
-            SHIFT: <select id="sel-shift" onchange="gantiLokasi()" style="background:#000; color:#fff; border:none; font-weight:bold;">
+            SHIFT: <select id="sel-shf" onchange="switchLoc()" style="background:#000; color:#fff; border:none; font-weight:bold;">
                 <option value="SHIFT 1">SHIFT 1</option>
                 <option value="SHIFT 2">SHIFT 2</option>
             </select>
@@ -75,9 +71,9 @@
         <div style="width: 30%;">
             <table style="width:100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333;">
                 <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center;">SISA ROTI</td></tr>
-                <tr><td>COK</td><td><input type="text" id="r_coklat" oninput="saveLive()" style="width:100%; background:transparent; border:none; color:#fff; text-align:center;"></td></tr>
-                <tr><td>VAN</td><td><input type="text" id="r_vanilla" oninput="saveLive()" style="width:100%; background:transparent; border:none; color:#fff; text-align:center;"></td></tr>
-                <tr><td>BLU</td><td><input type="text" id="r_blueberry" oninput="saveLive()" style="width:100%; background:transparent; border:none; color:#fff; text-align:center;"></td></tr>
+                <tr><td>COK</td><td><input type="text" id="r_coklat" oninput="handleInput()"></td></tr>
+                <tr><td>VAN</td><td><input type="text" id="r_vanilla" oninput="handleInput()"></td></tr>
+                <tr><td>BLU</td><td><input type="text" id="r_blueberry" oninput="handleInput()"></td></tr>
             </table>
         </div>
     </div>
@@ -86,38 +82,27 @@
         <thead>
             <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
         </thead>
-        <tbody id="list-barang"></tbody>
+        <tbody id="body-items"></tbody>
     </table>
 
     <div class="omset-grid">
-        <div id="list-omset"></div>
-        <div class="omset-total-box" id="total-omset">0</div>
+        <div id="body-omset"></div>
+        <div class="omset-total-box" id="val-total">0</div>
     </div>
 
     <div class="bottom-section">
-        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="cash" oninput="saveLive()"></div>
-        <div class="footer-box"><label>NOTE</label><input type="text" id="note" oninput="saveLive()"></div>
+        <div class="footer-box"><label>CASH AWAL/AKHIR</label><input type="text" id="f_cash" oninput="handleInput()"></div>
+        <div class="footer-box"><label>NOTE</label><input type="text" id="f_note" oninput="handleInput()"></div>
     </div>
 </div>
 
 <div id="report-overlay">
     <div style="display:flex; gap:5px; margin-bottom:10px; width: 360px; margin: 0 auto;">
-        <button onclick="closeReport()" style="padding:10px; flex:1;">KEMBALI</button>
-        <button onclick="eksporPNG()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
+        <button onclick="document.getElementById('report-overlay').style.display='none'" style="padding:10px; flex:1;">KEMBALI</button>
+        <button onclick="doDownload()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold;">DOWNLOAD PNG</button>
     </div>
-    <div class="report-container" id="capture-area">
-        <div id="isi-laporan"></div>
-    </div>
-</div>
-
-<div id="riwayat-modal">
-    <div class="modal-content">
-        <h3 style="color:#d4af37; text-align:center; margin-top:0;">RIWAYAT LAPORAN</h3>
-        <select id="h_cabang"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
-        <select id="h_shift"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
-        <input type="date" id="h_tgl">
-        <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="getRiwayat()">CARI</button>
-        <button class="btn-main" style="width:100%; background:#444;" onclick="closeRiwayat()">BATAL</button>
+    <div class="report-container" id="report-area">
+        <div id="report-content"></div>
     </div>
 </div>
 
@@ -138,141 +123,132 @@
     const items = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const omsets = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
 
-    function startApp() {
-        const d = new Date();
-        const tgl = d.toISOString().split('T')[0];
-        document.getElementById('tgl-ini').innerText = tgl;
-        const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        document.getElementById('hari-ini').innerText = hari[d.getDay()];
+    function initApp() {
+        const now = new Date();
+        const tgl = now.toISOString().split('T')[0];
+        document.getElementById('txt-tgl').innerText = tgl;
+        const hariArr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        document.getElementById('txt-hari').innerText = hariArr[now.getDay()];
 
-        const cab = localStorage.getItem('last_cab') || "Tandur";
-        const shf = localStorage.getItem('last_shf') || "SHIFT 1";
-        document.getElementById('sel-cabang').value = cab;
-        document.getElementById('sel-shift').value = shf;
+        const c = localStorage.getItem('c_pref') || "Tandur";
+        const s = localStorage.getItem('s_pref') || "SHIFT 1";
+        document.getElementById('sel-cab').value = c;
+        document.getElementById('sel-shf').value = s;
 
-        buildUI();
-        loadData(tgl, cab, shf);
+        renderUI();
+        muatData(tgl, c, s);
     }
 
-    function buildUI() {
-        const b = document.getElementById('list-barang');
-        b.innerHTML = "";
+    function renderUI() {
+        const b = document.getElementById('body-items'); b.innerHTML = "";
         items.forEach(i => {
             const id = i.replace(/[^A-Z0-9]/ig, "_");
             b.innerHTML += `<tr><td class="col-nama">${i}</td>
-                <td><input type="text" id="stok_${id}" oninput="saveLive()"></td>
-                <td><input type="text" id="msk_${id}" oninput="saveLive()"></td>
-                <td><input type="text" id="rsk_${id}" oninput="saveLive()"></td>
-                <td><input type="text" id="trjl_${id}" oninput="saveLive()"></td>
-                <td><input type="text" id="sisa_${id}" oninput="saveLive()"></td></tr>`;
+                <td><input type="text" id="stok_${id}" oninput="handleInput()"></td>
+                <td><input type="text" id="msk_${id}" oninput="handleInput()"></td>
+                <td><input type="text" id="rsk_${id}" oninput="handleInput()"></td>
+                <td><input type="text" id="trjl_${id}" oninput="handleInput()"></td>
+                <td><input type="text" id="sisa_${id}" oninput="handleInput()"></td></tr>`;
         });
 
-        const o = document.getElementById('list-omset');
-        o.innerHTML = "";
+        const o = document.getElementById('body-omset'); o.innerHTML = "";
         omsets.forEach(m => {
-            o.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-omset" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="saveLive()"></div>`;
+            o.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="i-omset" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="handleInput()"></div>`;
         });
     }
 
-    function loadData(tgl, cab, shf) {
-        const local = localStorage.getItem(`draft_${cab}_${shf}`);
-        if(local) {
-            const d = JSON.parse(local);
+    function muatData(tgl, cab, shf) {
+        // 1. Ambil dari Draft Lokal DULU (Supaya saat refresh data TIDAK HILANG)
+        const draft = localStorage.getItem(`draft_${cab}_${shf}`);
+        if(draft) {
+            const d = JSON.parse(draft);
             Object.keys(d).forEach(k => { if(document.getElementById(k)) document.getElementById(k).value = d[k]; });
         }
-        sumTotal();
+
+        // 2. Tarik sisa stok dari shift sebelumnya HANYA jika kolom stok masih kosong
+        let path;
+        if(shf === "SHIFT 2") {
+            path = `LiveSync/${tgl}/${cab}/SHIFT 1`;
+        } else {
+            const kmrn = new Date(); kmrn.setDate(kmrn.getDate()-1);
+            path = `LiveSync/${kmrn.toISOString().split('T')[0]}/${cab}/SHIFT 2`;
+        }
+
+        db.ref(path).once('value', s => {
+            const data = s.val();
+            if(data) {
+                items.forEach(i => {
+                    const idStok = "stok_" + i.replace(/[^A-Z0-9]/ig, "_");
+                    const idSisa = "sisa_" + i.replace(/[^A-Z0-9]/ig, "_");
+                    const inputEl = document.getElementById(idStok);
+                    // Hanya isi otomatis jika input masih kosong
+                    if(inputEl && !inputEl.value) inputEl.value = data[idSisa] || "";
+                });
+            }
+            calcTotal();
+        });
     }
 
-    function saveLive() {
-        const cab = document.getElementById('sel-cabang').value;
-        const shf = document.getElementById('sel-shift').value;
-        const tgl = document.getElementById('tgl-ini').innerText;
+    function handleInput() {
+        const c = document.getElementById('sel-cab').value;
+        const s = document.getElementById('sel-shf').value;
+        const t = document.getElementById('txt-tgl').innerText;
         const data = {};
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
         
-        localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
-        db.ref('LiveSync/' + tgl + '/' + cab + '/' + shf).set(data);
-        sumTotal();
+        // Simpan ke Lokal & Firebase seketika
+        localStorage.setItem(`draft_${c}_${s}`, JSON.stringify(data));
+        db.ref('LiveSync/' + t + '/' + c + '/' + s).set(data);
+        calcTotal();
     }
 
-    function sumTotal() {
+    function calcTotal() {
         let t = 0;
-        document.querySelectorAll('.inp-omset').forEach(i => { t += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
-        document.getElementById('total-omset').innerText = t.toLocaleString('id-ID');
+        document.querySelectorAll('.i-omset').forEach(i => { t += parseInt(i.value.replace(/[^0-9]/g,'')) || 0; });
+        document.getElementById('val-total').innerText = t.toLocaleString('id-ID');
     }
 
-    function gantiLokasi() {
-        const c = document.getElementById('sel-cabang').value;
-        const s = document.getElementById('sel-shift').value;
-        localStorage.setItem('last_cab', c); localStorage.setItem('last_shf', s);
+    function switchLoc() {
+        localStorage.setItem('c_pref', document.getElementById('sel-cab').value);
+        localStorage.setItem('s_pref', document.getElementById('sel-shf').value);
         location.reload();
     }
 
-    function simpanKeFirebase() {
-        const t = document.getElementById('tgl-ini').innerText;
-        const c = document.getElementById('sel-cabang').value;
-        const s = document.getElementById('sel-shift').value;
-        const data = { total: document.getElementById('total-omset').innerText };
+    function generateReport() {
+        const t = document.getElementById('txt-tgl').innerText;
+        const c = document.getElementById('sel-cab').value;
+        const s = document.getElementById('sel-shf').value;
+        const data = { total: document.getElementById('val-total').innerText };
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
 
         db.ref('Laporan/' + t + '/' + c + '/' + s).set(data).then(() => {
-            drawReport(data, t, c, s);
+            const h = `<div style="background:#000; padding:15px; border:1px solid #d4af37; color:#fff;">
+                <div style="text-align:center; color:#d4af37; font-weight:bold; margin-bottom:10px;">KOPI SETENGAH-4</div>
+                <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:10px;">
+                    <div>TGL: ${t}<br>CAB: ${c}<br>SHIFT: ${s}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333;">
+                    <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
+            items.forEach(i => {
+                const id = i.replace(/[^A-Z0-9]/ig, "_");
+                h += `<tr><td style="color:#d4af37; border:1px solid #333; font-weight:bold;">${i}</td>
+                    <td style="text-align:center; border:1px solid #333;">${data['stok_'+id]||0}</td>
+                    <td style="text-align:center; border:1px solid #333;">${data['msk_'+id]||0}</td>
+                    <td style="text-align:center; border:1px solid #333;">${data['trjl_'+id]||0}</td>
+                    <td style="text-align:center; border:1px solid #333; font-weight:bold;">${data['sisa_'+id]||0}</td></tr>`;
+            });
+            document.getElementById('report-content').innerHTML = h + `</table><div style="text-align:center; padding:10px; font-size:20px; font-weight:bold;">Total: Rp ${data.total}</div></div>`;
             document.getElementById('report-overlay').style.display = 'block';
         });
     }
 
-    function drawReport(d, tgl, cab, shf) {
-        let html = `<div style="background:#000; padding:15px; border:1px solid #d4af37; color:#fff;">
-            <div style="text-align:center; color:#d4af37; font-weight:bold; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">KOPI SETENGAH-4</div>
-            <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:10px;">
-                <div>TGL: ${tgl}<br>CABANG: ${cab}<br>SHIFT: ${shf}</div>
-                <div style="width:35%; border:1px solid #333; padding:2px;">
-                    <div style="text-align:center; color:#888; font-size:8px; background:#1a1a1a;">SISA ROTI</div>
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #111;"><span>COK</span><span>${d['r_coklat']||0}</span></div>
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #111;"><span>VAN</span><span>${d['r_vanilla']||0}</span></div>
-                    <div style="display:flex; justify-content:space-between;"><span>BLU</span><span>${d['r_blueberry']||0}</span></div>
-                </div>
-            </div>
-            <table style="width:100%; border-collapse:collapse; font-size:9px; color:#fff; border:1px solid #333;">
-                <tr style="background:#1a1a1a; color:#888;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>TRJL</th><th>SISA</th></tr>`;
-        
-        items.forEach(i => {
-            const id = i.replace(/[^A-Z0-9]/ig, "_");
-            html += `<tr><td style="color:#d4af37; border:1px solid #333; font-weight:bold;">${i}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['stok_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['msk_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333;">${d['trjl_'+id]||0}</td>
-                <td style="text-align:center; border:1px solid #333; font-weight:bold;">${d['sisa_'+id]||0}</td></tr>`;
-        });
-        html += `</table><div style="margin-top:10px; background:#050505; border:1px solid #333; padding:10px; text-align:center;">
-            <div style="color:#888; font-size:10px;">TOTAL OMSET</div>
-            <div style="font-size:24px; font-weight:bold; color:#fff;">Rp ${d.total}</div>
-        </div></div>`;
-        document.getElementById('isi-laporan').innerHTML = html;
-    }
-
-    function eksporPNG() {
-        html2canvas(document.getElementById('capture-area'), { backgroundColor: "#000", scale: 3 }).then(c => {
-            const a = document.createElement('a'); 
-            a.download = `Report_${document.getElementById('sel-cabang').value}.png`; 
-            a.href = c.toDataURL(); a.click();
+    function doDownload() {
+        html2canvas(document.getElementById('report-area'), { backgroundColor: "#000", scale: 3 }).then(c => {
+            const a = document.createElement('a'); a.download = 'Laporan.png'; a.href = c.toDataURL(); a.click();
         });
     }
 
-    function showRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
-    function closeRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
-    function closeReport() { document.getElementById('report-overlay').style.display = 'none'; }
-    function getRiwayat() {
-        const t = document.getElementById('h_tgl').value;
-        const c = document.getElementById('h_cabang').value;
-        const s = document.getElementById('h_shift').value;
-        if(!t) return alert("Pilih tanggal!");
-        db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
-            if(snp.val()) { drawReport(snp.val(), t, c, s); closeRiwayat(); document.getElementById('report-overlay').style.display = 'block'; }
-            else alert("Data Kosong!");
-        });
-    }
-    function hapusDraft() { if(confirm("Hapus draft?")) { localStorage.clear(); location.reload(); } }
+    function resetAll() { if(confirm("Hapus semua data di halaman ini?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
