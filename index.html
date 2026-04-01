@@ -124,8 +124,7 @@
             <option value="Cemput">Cemput</option>
             <option value="Menteng">Menteng</option>
         </select>
-        <select id="hist-shift">
-            </select>
+        <select id="hist-shift"></select>
         <input type="date" id="hist-date">
         <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="ambilDataRiwayat()">CARI DATA</button>
         <button class="btn-main" style="width:100%; background:#444;" onclick="tutupRiwayat()">TUTUP</button>
@@ -151,16 +150,12 @@
 
     let inputManualUser = new Set();
 
-    // FUNGSI BARU: Update opsi shift berdasarkan cabang
     function updateShiftOptions() {
         const cab = document.getElementById('main-cabang').value;
         const shiftSelect = document.getElementById('main-shift');
         const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
-        
         let options = '<option value="SHIFT 1">SHIFT 1</option>';
-        if (!cabangSatuShift.includes(cab)) {
-            options += '<option value="SHIFT 2">SHIFT 2</option>';
-        }
+        if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
         shiftSelect.innerHTML = options;
     }
 
@@ -168,11 +163,8 @@
         const cab = document.getElementById('hist-cabang').value;
         const shiftSelect = document.getElementById('hist-shift');
         const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
-        
         let options = '<option value="SHIFT 1">SHIFT 1</option>';
-        if (!cabangSatuShift.includes(cab)) {
-            options += '<option value="SHIFT 2">SHIFT 2</option>';
-        }
+        if (!cabangSatuShift.includes(cab)) options += '<option value="SHIFT 2">SHIFT 2</option>';
         shiftSelect.innerHTML = options;
     }
 
@@ -185,16 +177,14 @@
 
         const sc = localStorage.getItem('kunci_cabang') || "Tandur";
         document.getElementById('main-cabang').value = sc;
-        
-        // Update shift dulu sebelum set value
         updateShiftOptions();
         
         const ss = localStorage.getItem('kunci_shift') || "SHIFT 1";
-        // Cek jika shift yang tersimpan valid (misal pindah dari Tandur Shift 2 ke Cemput)
         const shiftSelect = document.getElementById('main-shift');
-        const isValidShift = Array.from(shiftSelect.options).some(opt => opt.value === ss);
-        shiftSelect.value = isValidShift ? ss : "SHIFT 1";
+        const isValid = Array.from(shiftSelect.options).some(o => o.value === ss);
+        shiftSelect.value = isValid ? ss : "SHIFT 1";
 
+        // Render Tabel Barang
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -207,6 +197,7 @@
                 <td><input type="text" id="sisa_${id}" oninput="inputBerubah(this)"></td></tr>`;
         });
 
+        // Render Omset
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -321,4 +312,35 @@
         const tgl = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
-      
+        const data = {};
+        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
+        data.total = document.getElementById('display-total').innerText;
+        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
+            alert("Laporan Terkirim!");
+            localStorage.removeItem(`draft_${cab}_${shf}`);
+            localStorage.removeItem(`manual_${cab}_${shf}`);
+            renderLaporanPutih(data, tgl, cab, shf);
+            document.getElementById('report-overlay').style.display = 'block';
+        });
+    }
+
+    function gantiCabangAtauShift() {
+        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
+        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
+        location.reload(); 
+    }
+
+    function resetDraftHalaman() {
+        if(confirm("Hapus draf?")) {
+            const cab = document.getElementById('main-cabang').value;
+            const shf = document.getElementById('main-shift').value;
+            localStorage.removeItem(`draft_${cab}_${shf}`);
+            localStorage.removeItem(`manual_${cab}_${shf}`);
+            location.reload();
+        }
+    }
+
+    window.onload = inisialisasi;
+</script>
+</body>
+</html>
