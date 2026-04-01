@@ -190,9 +190,7 @@
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
         data.total = total.toLocaleString('id-ID');
         
-        // Simpan ke Firebase
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
-        // Kunci ke memori lokal HP sebagai draft (ini yang akan dipanggil jika besoknya belum ada data baru)
         localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
     }
 
@@ -205,13 +203,13 @@
         localStorage.setItem('last_shift', shf);
         document.getElementById('label-tgl').innerText = tgl;
 
-        // Cek Firebase hari ini
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
             const saved = snapshot.val();
             if (saved) {
+                // Jika sudah ada data resmi hari ini, tampilkan
                 isiFormulir(saved);
             } else {
-                // Jika Firebase kosong (karena ganti hari), tampilkan draft terakhir dari memori lokal
+                // JIKA HARI INI KOSONG, TARIK DATA KEMARIN DARI LOCALSTORAGE
                 const draft = localStorage.getItem(`draft_${cab}_${shf}`);
                 if (draft) {
                     isiFormulir(JSON.parse(draft));
@@ -228,7 +226,6 @@
             const cab = document.getElementById('main-cabang').value;
             const shf = document.getElementById('main-shift').value;
             
-            const dataBaru = {};
             daftarBarang.forEach(item => {
                 const id = item.replace(/[^A-Z0-9]/ig, "_");
                 const currentSisa = document.getElementById(`sisa_${id}`).value;
