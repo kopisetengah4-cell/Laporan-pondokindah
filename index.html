@@ -11,7 +11,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
@@ -44,18 +43,14 @@
         .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; }
         .footer-box label { font-size: 8px; color: #888; display: block; margin-bottom: 2px; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
-
-        #overlay-filter { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
-        .filter-box { background: #1a1a1a; padding: 20px; border: 1px solid #d4af37; border-radius: 10px; width: 85%; max-width: 320px; text-align: center; }
-        .filter-box input, .filter-box select { width: 100%; padding: 10px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <button class="btn-main btn-wa" onclick="bukaLaporanSekarang()">SIMPAN & LIHAT</button>
-    <button class="btn-main btn-menu" onclick="bukaOverlayFilter()">RIWAYAT</button>
-    <button class="btn-main btn-new" onclick="jalankanNewSistem()">NEW</button>
+    <button class="btn-main btn-wa" onclick="simpanManual()">SIMPAN DATA</button>
+    <button class="btn-main btn-menu" onclick="alert('Buka Riwayat...')">RIWAYAT</button>
+    <button class="btn-main btn-new" onclick="jalankanNewSistem()">NEW RESET</button>
 </div>
 
 <div class="container">
@@ -104,20 +99,6 @@
     </div>
 </div>
 
-<div id="overlay-filter">
-    <div class="filter-box">
-        <h3 style="color:#d4af37; margin-top:0;">CARI RIWAYAT</h3>
-        <input type="date" id="f-tgl">
-        <select id="f-cab">
-            <option>Pondok Indah</option><option>Cemput</option><option>Otista</option>
-            <option>Jl.Panjang</option><option>Tandur</option><option>Menteng</option>
-        </select>
-        <select id="f-shf"><option>SHIFT 1</option><option>SHIFT 2</option></select>
-        <button class="btn-main btn-wa" style="width:100%; margin-bottom:10px;" onclick="alert('Mencari...')">LIHAT LAPORAN</button>
-        <button class="btn-main btn-menu" style="width:100%;" onclick="tutupOverlay()">BATAL</button>
-    </div>
-</div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
@@ -146,7 +127,6 @@
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="simpanFirebase()"></div>`; 
         });
 
-        // Load Cabang/Shift Terakhir
         const savedCab = localStorage.getItem('locked_cabang');
         const savedShf = localStorage.getItem('locked_shift');
         if(savedCab) document.getElementById('main-cabang').value = savedCab;
@@ -170,19 +150,38 @@
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).once('value', (snapshot) => {
             const dataHariIni = snapshot.val();
             if (dataHariIni) {
-                // Jika data hari ini ada, tampilkan
                 isiFormulir(dataHariIni);
             } else {
-                // JIKA HARI INI KOSONG -> AMBIL DATA TERAKHIR TER-SAVE (DATA KEMARIN)
-                const dataKemarin = localStorage.getItem(`draft_${cab}_${shf}`);
-                if (dataKemarin) {
-                    isiFormulir(JSON.parse(dataKemarin));
-                    simpanFirebase(); // Langsung rekatkan ke database hari ini
+                // JIKA DATA HARI INI KOSONG -> MIGRASI SISA KEMARIN KE STOK HARI INI
+                const dataTerakhir = localStorage.getItem(`draft_${cab}_${shf}`);
+                if (dataTerakhir) {
+                    const dataLama = JSON.parse(dataTerakhir);
+                    migrasiData(dataLama);
                 } else {
                     bersihkanForm();
                 }
             }
         });
+    }
+
+    function migrasiData(dataLama) {
+        // Bersihkan semua input dulu
+        bersihkanForm();
+        
+        // Pindahkan SISA kemarin ke STOK hari ini
+        daftarBarang.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const sisaKemarin = dataLama[`sisa_${id}`] || "";
+            document.getElementById(`stok_${id}`).value = sisaKemarin;
+        });
+
+        // Pindahkan sisa roti spesifik
+        document.getElementById('roti-coklat').value = dataLama['roti-coklat'] || "";
+        document.getElementById('roti-vanilla').value = dataLama['roti-vanilla'] || "";
+        document.getElementById('roti-blueberry').value = dataLama['roti-blueberry'] || "";
+        
+        // Simpan sebagai draft baru hari ini
+        simpanFirebase();
     }
 
     function simpanFirebase() {
@@ -198,7 +197,6 @@
         document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
         data.total = total.toLocaleString('id-ID');
         
-        // Simpan ke Firebase (Online) dan LocalStorage (Backup Offline)
         db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data);
         localStorage.setItem(`draft_${cab}_${shf}`, JSON.stringify(data));
     }
@@ -215,23 +213,14 @@
         document.getElementById('display-total').innerText = "0";
     }
 
-    function bukaLaporanSekarang() { simpanFirebase(); alert("Tersimpan!"); }
-    function bukaOverlayFilter() { document.getElementById('overlay-filter').style.display = 'flex'; }
-    function tutupOverlay() { document.getElementById('overlay-filter').style.display = 'none'; }
+    function simpanManual() { simpanFirebase(); alert("Data Disimpan Online & Offline!"); }
 
     function jalankanNewSistem() {
-        if(confirm("Jalankan NEW? Sisa hari ini akan dipindah ke Stok baru.")) {
-            daftarBarang.forEach(item => {
-                const id = item.replace(/[^A-Z0-9]/ig, "_");
-                const currentSisa = document.getElementById(`sisa_${id}`).value;
-                document.getElementById(`stok_${id}`).value = currentSisa;
-                document.getElementById(`msk_${id}`).value = "";
-                document.getElementById(`rsk_${id}`).value = "";
-                document.getElementById(`trjl_${id}`).value = "";
-            });
-            document.querySelectorAll('.omset-val').forEach(el => el.value = "");
-            simpanFirebase();
-            alert("Reset Stok Berhasil!");
+        if(confirm("Lakukan Reset? Sisa akan dipindah ke Stok dan kolom lain dikosongkan.")) {
+            const dataSekarang = {};
+            document.querySelectorAll('input').forEach(el => { if(el.id) dataSekarang[el.id] = el.value; });
+            migrasiData(dataSekarang);
+            alert("Reset Berhasil!");
         }
     }
 
