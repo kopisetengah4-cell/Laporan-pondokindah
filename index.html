@@ -64,7 +64,7 @@
         <div style="flex: 1;">
             <span id="label-hari" style="font-weight:bold; display:block;">-</span>
             TGL: <span id="label-tgl">-</span><br>
-            CAB: <select id="main-cabang" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
+            CAB: <select id="main-cabang" onchange="updateShiftOptions(); gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
                 <option value="Tandur">Tandur</option>
                 <option value="Kebon Jeruk">Kebon Jeruk</option>
                 <option value="Pondok Indah">Pondok Indah</option>
@@ -73,9 +73,7 @@
                 <option value="Menteng">Menteng</option>
             </select><br>
             SHIFT: <select id="main-shift" onchange="gantiCabangAtauShift()" style="background:#000; color:#fff; border:none; font-size:10px; font-weight:bold;">
-                <option value="SHIFT 1">SHIFT 1</option>
-                <option value="SHIFT 2">SHIFT 2</option>
-            </select>
+                </select>
         </div>
         <div class="roti-container">
             <table class="roti-table-main">
@@ -118,7 +116,7 @@
 <div id="riwayat-modal">
     <div class="modal-content">
         <h3 style="color:#d4af37; text-align:center; margin-top:0;">LIHAT RIWAYAT</h3>
-        <select id="hist-cabang">
+        <select id="hist-cabang" onchange="updateShiftOptionsHistory()">
             <option value="Tandur">Tandur</option>
             <option value="Kebon Jeruk">Kebon Jeruk</option>
             <option value="Pondok Indah">Pondok Indah</option>
@@ -126,7 +124,8 @@
             <option value="Cemput">Cemput</option>
             <option value="Menteng">Menteng</option>
         </select>
-        <select id="hist-shift"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
+        <select id="hist-shift">
+            </select>
         <input type="date" id="hist-date">
         <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="ambilDataRiwayat()">CARI DATA</button>
         <button class="btn-main" style="width:100%; background:#444;" onclick="tutupRiwayat()">TUTUP</button>
@@ -152,6 +151,31 @@
 
     let inputManualUser = new Set();
 
+    // FUNGSI BARU: Update opsi shift berdasarkan cabang
+    function updateShiftOptions() {
+        const cab = document.getElementById('main-cabang').value;
+        const shiftSelect = document.getElementById('main-shift');
+        const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
+        
+        let options = '<option value="SHIFT 1">SHIFT 1</option>';
+        if (!cabangSatuShift.includes(cab)) {
+            options += '<option value="SHIFT 2">SHIFT 2</option>';
+        }
+        shiftSelect.innerHTML = options;
+    }
+
+    function updateShiftOptionsHistory() {
+        const cab = document.getElementById('hist-cabang').value;
+        const shiftSelect = document.getElementById('hist-shift');
+        const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
+        
+        let options = '<option value="SHIFT 1">SHIFT 1</option>';
+        if (!cabangSatuShift.includes(cab)) {
+            options += '<option value="SHIFT 2">SHIFT 2</option>';
+        }
+        shiftSelect.innerHTML = options;
+    }
+
     function inisialisasi() {
         const now = new Date();
         const tglHariIni = now.toISOString().split('T')[0];
@@ -160,9 +184,16 @@
         document.getElementById('label-hari').innerText = opsiHari[now.getDay()];
 
         const sc = localStorage.getItem('kunci_cabang') || "Tandur";
-        const ss = localStorage.getItem('kunci_shift') || "SHIFT 1";
         document.getElementById('main-cabang').value = sc;
-        document.getElementById('main-shift').value = ss;
+        
+        // Update shift dulu sebelum set value
+        updateShiftOptions();
+        
+        const ss = localStorage.getItem('kunci_shift') || "SHIFT 1";
+        // Cek jika shift yang tersimpan valid (misal pindah dari Tandur Shift 2 ke Cemput)
+        const shiftSelect = document.getElementById('main-shift');
+        const isValidShift = Array.from(shiftSelect.options).some(opt => opt.value === ss);
+        shiftSelect.value = isValidShift ? ss : "SHIFT 1";
 
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
@@ -182,7 +213,7 @@
             oDiv.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="omset-val" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="inputBerubah(this)"></div>`; 
         });
 
-        muatDataAwal(tglHariIni, sc, ss);
+        muatDataAwal(tglHariIni, sc, shiftSelect.value);
     }
 
     function muatDataAwal(tgl, cab, shf) {
@@ -248,7 +279,7 @@
         document.getElementById('display-total').innerText = t.toLocaleString('id-ID');
     }
 
-    function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
+    function bukaRiwayat() { updateShiftOptionsHistory(); document.getElementById('riwayat-modal').style.display = 'block'; }
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
     
     function ambilDataRiwayat() {
@@ -281,7 +312,7 @@
     function downloadLaporanGambar() {
         html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Report_${document.getElementById('hist-cabang').value}.png`;
+            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
             link.href = canvas.toDataURL("image/png"); link.click();
         });
     }
@@ -290,35 +321,4 @@
         const tgl = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cabang').value;
         const shf = document.getElementById('main-shift').value;
-        const data = {};
-        document.querySelectorAll('input').forEach(el => { if(el.id) data[el.id] = el.value; });
-        data.total = document.getElementById('display-total').innerText;
-        db.ref('Laporan/' + tgl + '/' + cab + '/' + shf).set(data).then(() => {
-            alert("Terkirim!");
-            localStorage.removeItem(`draft_${cab}_${shf}`);
-            localStorage.removeItem(`manual_${cab}_${shf}`);
-            renderLaporanPutih(data, tgl, cab, shf);
-            document.getElementById('report-overlay').style.display = 'block';
-        });
-    }
-
-    function gantiCabangAtauShift() {
-        localStorage.setItem('kunci_cabang', document.getElementById('main-cabang').value);
-        localStorage.setItem('kunci_shift', document.getElementById('main-shift').value);
-        location.reload(); 
-    }
-
-    function resetDraftHalaman() {
-        if(confirm("Hapus draf?")) {
-            const cab = document.getElementById('main-cabang').value;
-            const shf = document.getElementById('main-shift').value;
-            localStorage.removeItem(`draft_${cab}_${shf}`);
-            localStorage.removeItem(`manual_${cab}_${shf}`);
-            location.reload();
-        }
-    }
-
-    window.onload = inisialisasi;
-</script>
-</body>
-</html>
+      
