@@ -18,6 +18,7 @@
         .btn-reset { background-color: #e74c3c; }
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
+        /* Tabel Utama */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
@@ -25,10 +26,12 @@
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
-        .roti-box { width: 26%; } 
+        /* Tabel Roti - Nama dibuat lebih lebar (65%) */
+        .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
-        table.roti-table td { width: 50%; border: 1px solid #333; height: 20px; vertical-align: middle; color: #fff; }
-        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 11px; }
+        .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
+        .r-inp { width: 35%; border: 1px solid #333; }
+        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 11px; height: 20px; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
         .omset-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
@@ -74,10 +77,10 @@
         </div>
         <div class="roti-box">
             <table class="roti-table">
-                <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px;">SISA ROTI</td></tr>
-                <tr><td style="padding-left:3px;">COKLAT</td><td><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
-                <tr><td style="padding-left:3px;">VANILLA</td><td><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
-                <tr><td style="padding-left:3px;">BLUEBERRY</td><td><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
+                <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px; border: 1px solid #333;">SISA ROTI</td></tr>
+                <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="text" id="r_cok" oninput="saveDraft()"></td></tr>
+                <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="text" id="r_van" oninput="saveDraft()"></td></tr>
+                <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="text" id="r_blu" oninput="saveDraft()"></td></tr>
             </table>
         </div>
     </div>
@@ -122,7 +125,6 @@
 </div>
 
 <script>
-    // Konfigurasi Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDZU6wFZPbBX0di2sAG7ve93ArFgdZ0trw",
         authDomain: "laporan-harian-f096f.firebaseapp.com",
@@ -143,15 +145,12 @@
         const d = new Date();
         const tglStr = d.toISOString().split('T')[0];
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-        
         document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
-        
         const c = localStorage.getItem('p_cab') || "Tandur";
         const s = localStorage.getItem('p_shf') || "SHIFT 1";
         document.getElementById('main-cab').value = c;
         document.getElementById('main-shf').value = s;
-
         renderFields();
         muatData(tglStr, c, s);
     }
@@ -200,11 +199,8 @@
     }
 
     function simpanLaporan() {
-        // Ambil data langsung dari yang sedang diketik di layar
         const d = {};
         document.querySelectorAll('input').forEach(i => { if(i.id) d[i.id] = i.value; });
-        
-        // Data Header (WAJIB ADA)
         d.total = document.getElementById('val-total').innerText;
         d.hari = document.getElementById('label-hari').innerText;
         d.tgl = document.getElementById('label-tgl').innerText;
@@ -221,15 +217,15 @@
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
                 <div style="font-size:11px; color:#000; line-height:1.4;">
                     <b>HARI:</b> ${d.hari}<br>
-                    <b>TGL:</b> ${d.tgl}<br>
-                    <b>CAB:</b> ${d.cab} | <b>SHF:</b> ${d.shf}
+                    <b>TANGGAL:</b> ${d.tgl}<br>
+                    <b>CABANG:</b> ${d.cab} | <b>SHIFT:</b> ${d.shf}
                 </div>
-                <div style="width:26%; border:1.5px solid #000;">
+                <div style="width:32%; border:1.5px solid #000;">
                     <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
                         <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_cok||0}</b></td></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_van||0}</b></td></tr>
-                        <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_blu||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:65%; text-align:left; padding-left:3px;">COKLAT</td><td style="text-align:center; border-left:1px solid #000; width:35%;"><b>${d.r_cok||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; text-align:left; padding-left:3px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_van||0}</b></td></tr>
+                        <tr><td style="padding:2px; text-align:left; padding-left:3px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d.r_blu||0}</b></td></tr>
                     </table>
                 </div>
             </div>
@@ -245,7 +241,7 @@
         
         barang_list.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${item}</td>
+            res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold; text-align:left;">${item}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['stok_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['msk_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000;">${d['rsk_'+id]||0}</td>
@@ -258,19 +254,16 @@
                     <div style="flex:1.5; border:1.5px solid #000;">
                         <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
                             <tr style="background:#eee;"><th colspan="2" style="padding:4px; border-bottom:1px solid #000;">RINCIAN OMSET</th></tr>`;
-        
         omset_list.forEach(m => {
             const idO = "o_" + m.replace(/[^A-Z0-9]/ig,'_');
-            res += `<tr><td style="border-bottom:1px solid #ddd; padding:3px;">${m}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${d[idO]||0}</td></tr>`;
+            res += `<tr><td style="border-bottom:1px solid #ddd; padding:3px; text-align:left;">${m}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${d[idO]||0}</td></tr>`;
         });
-
         res += `</table></div>
                     <div style="flex:1; border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#eee;">
                         <span style="font-size:9px; color:#333; font-weight:bold;">TOTAL OMSET</span>
                         <span style="font-size:20px; font-weight:bold; color:#000;">Rp ${d.total}</span>
                     </div>
                 </div>`;
-
         res += `<div style="display:flex; gap:5px;">
                     <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
                         <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">CASH AWAL/AKHIR</div>
@@ -281,7 +274,6 @@
                         <div style="color:#000; font-size:10px;">${d.f_note || '-'}</div>
                     </div>
                 </div>`;
-        
         document.getElementById('isi-laporan').innerHTML = res;
         document.getElementById('report-overlay').style.display = 'block';
     }
@@ -293,12 +285,7 @@
     }
     function downloadPNG() {
         html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); 
-            const t = document.getElementById('label-tgl').innerText;
-            const c = document.getElementById('main-cab').value;
-            link.download = `LAPORAN_${c}_${t}.png`; 
-            link.href = canv.toDataURL(); 
-            link.click();
+            const link = document.createElement('a'); link.download = 'Laporan_PI.png'; link.href = canv.toDataURL(); link.click();
         });
     }
     function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
@@ -317,4 +304,4 @@
     function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
-            </html>
+</html>
