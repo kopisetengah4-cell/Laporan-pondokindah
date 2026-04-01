@@ -38,7 +38,7 @@
 
         .bottom-section { display: flex; gap: 5px; margin-top: 5px; width: 100%; }
         .footer-box { border: 1px solid #333; padding: 5px; text-align: center; background-color: #050505; flex: 1; }
-        .footer-box label { font-size: 8px; color: #888; display: block; margin-bottom: 2px; }
+        .footer-box label { font-size: 8px; color: #888; border-bottom: 1px solid #222; margin-bottom: 2px; }
         .footer-box input { background: transparent; border: none; color: #fff; width: 100%; text-align: center; font-size: 11px; outline: none; }
 
         #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f0f0f0; z-index:4000; overflow-y: auto; padding: 10px; box-sizing: border-box; color: #000; }
@@ -145,6 +145,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // VARIABEL DATA YANG SEMPAT HILANG
     const daftarBarang = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const daftarOmset = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const cabangSatuShift = ["Pondok Indah", "Cemput", "Menteng"];
@@ -183,6 +184,7 @@
         const isValid = Array.from(shiftSelect.options).some(o => o.value === ss);
         shiftSelect.value = isValid ? ss : "SHIFT 1";
 
+        // RENDER BARANG
         const tbody = document.getElementById('inventory-body');
         tbody.innerHTML = "";
         daftarBarang.forEach(item => {
@@ -195,6 +197,7 @@
                 <td><input type="text" id="sisa_${id}" oninput="inputBerubah(this)"></td></tr>`;
         });
 
+        // RENDER OMSET
         const oDiv = document.getElementById('omset-inputs');
         oDiv.innerHTML = "";
         daftarOmset.forEach(m => { 
@@ -205,7 +208,6 @@
     }
 
     function muatDataAwal(tgl, cab, shf) {
-        // 1. Muat Draft Lokal
         const saved = localStorage.getItem(`draft_${cab}_${shf}`);
         const listManual = localStorage.getItem(`manual_${cab}_${shf}`);
         if(listManual) inputManualUser = new Set(JSON.parse(listManual));
@@ -216,21 +218,16 @@
             hitungTotal();
         }
 
-        // 2. SISTEM TARIK OTOMATIS (LOGIKA BARU)
         const dObj = new Date(tgl);
         dObj.setDate(dObj.getDate() - 1);
         const tglKemarin = dObj.toISOString().split('T')[0];
 
-        // LOGIKA:
-        // - Jika Shift 1: Tarik dari Shift 2 Kemarin (untuk cabang 2 shift) atau Shift 1 Kemarin (untuk cabang 1 shift)
-        // - Jika Shift 2: Tarik dari Shift 1 Hari Ini
-        
         let pathSumber;
         if (shf === "SHIFT 2") {
-            pathSumber = `LiveSync/${tgl}/${cab}/SHIFT 1`; // Shift 2 narik dari Shift 1 hari yang sama
+            pathSumber = `LiveSync/${tgl}/${cab}/SHIFT 1`;
         } else {
             const shiftKemarin = cabangSatuShift.includes(cab) ? "SHIFT 1" : "SHIFT 2";
-            pathSumber = `LiveSync/${tglKemarin}/${cab}/${shiftKemarin}`; // Shift 1 narik data terakhir (S2 kemarin atau S1 kemarin)
+            pathSumber = `LiveSync/${tglKemarin}/${cab}/${shiftKemarin}`;
         }
 
         db.ref(pathSumber).on('value', s => {
@@ -238,10 +235,7 @@
             if(dataSumber) {
                 Object.keys(dataSumber).forEach(id => {
                     const el = document.getElementById(id);
-                    // Update hanya jika user belum ngetik manual di kolom itu (agar tidak menimpa editan user)
-                    if(el && !inputManualUser.has(id)) { 
-                        el.value = dataSumber[id]; 
-                    }
+                    if(el && !inputManualUser.has(id)) { el.value = dataSumber[id]; }
                 });
                 hitungTotal();
             }
@@ -317,4 +311,13 @@
 
     function tutupOverlayLaporan() { document.getElementById('report-overlay').style.display = 'none'; }
     function downloadLaporanGambar() {
-        html2canvas(document.getElementById('printable-a
+        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Report_${document.getElementById('main-cabang').value}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+        });
+    }
+
+    function simpanDanTampilkanLaporan() {
+        const tgl = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cabang').valu
