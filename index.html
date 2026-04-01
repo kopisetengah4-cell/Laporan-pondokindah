@@ -19,16 +19,14 @@
 
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
-        /* Layout Utama */
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
-        .col-data { width: 13%; } /* Lebar kolom data 13% x 5 kolom = 65%. Nama 35%. Total 100% */
+        .col-data { width: 13%; }
         
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
 
-        /* Tabel Sisa Roti Menyesuaikan Kolom Terjual + Sisa (26%) */
         .roti-box { width: 26%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
         table.roti-table td { width: 50%; border: 1px solid #333; height: 20px; vertical-align: middle; }
@@ -46,7 +44,6 @@
 
         #report-overlay, #riwayat-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
         .modal-inner { background: #000; width: 360px; margin: 20px auto; padding: 15px; border: 1px solid #333; color: #fff; }
-        .modal-inner select, .modal-inner input { width: 100%; padding: 10px; margin-bottom: 10px; background: #111; color: #fff; border: 1px solid #333; box-sizing: border-box; }
     </style>
 </head>
 <body onload="initApp()">
@@ -118,9 +115,9 @@
 <div id="riwayat-modal">
     <div class="modal-inner">
         <h3 style="text-align:center; color:#d4af37; margin-top:0;">CARI RIWAYAT</h3>
-        <select id="h_cab"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
-        <select id="h_shf"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
-        <input type="date" id="h_tgl">
+        <select id="h_cab" style="width:100%; padding:10px; margin-bottom:5px;"><option value="Tandur">Tandur</option><option value="Kebon Jeruk">Kebon Jeruk</option><option value="Pondok Indah">Pondok Indah</option><option value="Otista">Otista</option><option value="Cemput">Cemput</option><option value="Menteng">Menteng</option></select>
+        <select id="h_shf" style="width:100%; padding:10px; margin-bottom:5px;"><option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option></select>
+        <input type="date" id="h_tgl" style="width:100%; padding:10px; margin-bottom:10px;">
         <button class="btn-main" style="width:100%; background:#d4af37; color:#000; margin-bottom:10px;" onclick="cariLaporan()">TAMPILKAN</button>
         <button class="btn-main" style="width:100%; background:#333;" onclick="tutupRiwayat()">BATAL</button>
     </div>
@@ -149,10 +146,12 @@
         document.getElementById('label-tgl').innerText = tglStr;
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-hari').innerText = hr[d.getDay()];
+        
         const c = localStorage.getItem('p_cab') || "Tandur";
         const s = localStorage.getItem('p_shf') || "SHIFT 1";
         document.getElementById('main-cab').value = c;
         document.getElementById('main-shf').value = s;
+
         renderFields();
         muatData(tglStr, c, s);
     }
@@ -224,19 +223,35 @@
         const t = document.getElementById('label-tgl').innerText;
         const c = document.getElementById('main-cab').value;
         const s = document.getElementById('main-shf').value;
-        const data = { total: document.getElementById('val-total').innerText };
+        const h = document.getElementById('label-hari').innerText;
+        const totalVal = document.getElementById('val-total').innerText;
+        
+        const data = { 
+            total: totalVal,
+            tgl_label: t,
+            hari_label: h,
+            cab_label: c,
+            shf_label: s
+        };
         document.querySelectorAll('input').forEach(i => { if(i.id) data[i.id] = i.value; });
-        db.ref('Laporan/' + t + '/' + c + '/' + s).set(data).then(() => { showResult(data, t, c, s); });
+
+        db.ref('Laporan/' + t + '/' + c + '/' + s).set(data).then(() => { 
+            showResult(data); 
+        });
     }
 
-    function showResult(d, t, c, s) {
+    function showResult(d) {
         let res = `<div style="text-align:center; color:#000; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px; font-size:16px;">KOPI SETENGAH-4</div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items: flex-end;">
-                <div style="font-size:11px; color:#000; line-height:1.4;"><b>TANGGAL:</b> ${t}<br><b>CABANG:</b> ${c}<br><b>SHIFT:</b> ${s}</div>
+                <div style="font-size:11px; color:#000; line-height:1.4;">
+                    <b>HARI:</b> ${d.hari_label}<br>
+                    <b>TGL:</b> ${d.tgl_label}<br>
+                    <b>CAB:</b> ${d.cab_label} | <b>SHF:</b> ${d.shf_label}
+                </div>
                 <div style="width:26%; border:1.5px solid #000;">
                     <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000; table-layout:fixed;">
                         <tr style="background:#eee;"><th colspan="2" style="border-bottom:1px solid #000; padding:2px;">SISA ROTI</th></tr>
-                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000; width:50%;"><b>${d['r_cok']||0}</b></td></tr>
+                        <tr><td style="border-bottom:1px solid #ddd; padding:2px; width:50%;">COKLAT</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_cok']||0}</b></td></tr>
                         <tr><td style="border-bottom:1px solid #ddd; padding:2px;">VANILLA</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_van']||0}</b></td></tr>
                         <tr><td style="padding:2px;">BLUEBERRY</td><td style="text-align:center; border-left:1px solid #000;"><b>${d['r_blu']||0}</b></td></tr>
                     </table>
@@ -251,6 +266,7 @@
                     <th style="border:1px solid #000; width:13%;">TRJL</th>
                     <th style="border:1px solid #000; width:13%;">SISA</th>
                 </tr>`;
+        
         barang.forEach(i => {
             const id = i.replace(/[^A-Z0-9]/ig, "_");
             res += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${i}</td>
@@ -260,21 +276,25 @@
                 <td style="text-align:center; border:1px solid #000;">${d['trjl_'+id]||0}</td>
                 <td style="text-align:center; border:1px solid #000; font-weight:bold; background:#f9f9f9;">${d['sisa_'+id]||0}</td></tr>`;
         });
+        
         res += `</table>`;
         res += `<div style="display:flex; gap:5px; margin-bottom:10px;">
                     <div style="flex:1.5; border:1.5px solid #000;">
                         <table style="width:100%; border-collapse:collapse; font-size:9px; color:#000;">
                             <tr style="background:#eee;"><th colspan="2" style="padding:4px; border-bottom:1px solid #000;">RINCIAN OMSET</th></tr>`;
+        
         omset_list.forEach(m => {
             const idO = "o_" + m.replace(/[^A-Z0-9]/ig,'_');
             res += `<tr><td style="border-bottom:1px solid #ddd; padding:3px;">${m}</td><td style="border-bottom:1px solid #ddd; text-align:right; padding-right:5px; border-left:1px solid #000;">${d[idO]||0}</td></tr>`;
         });
+
         res += `</table></div>
                     <div style="flex:1; border:1.5px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#eee;">
                         <span style="font-size:9px; color:#333; font-weight:bold;">TOTAL OMSET</span>
                         <span style="font-size:20px; font-weight:bold; color:#000;">Rp ${d.total}</span>
                     </div>
                 </div>`;
+
         res += `<div style="display:flex; gap:5px;">
                     <div style="flex:1; border:1.5px solid #000; padding:6px; text-align:center;">
                         <div style="font-size:9px; font-weight:bold; color:#333; border-bottom:1px solid #000; margin-bottom:4px;">CASH AWAL/AKHIR</div>
@@ -285,26 +305,25 @@
                         <div style="color:#000; font-size:10px;">${d.f_note || '-'}</div>
                     </div>
                 </div>`;
+        
         document.getElementById('isi-laporan').innerHTML = res;
         document.getElementById('report-overlay').style.display = 'block';
     }
 
     function downloadPNG() {
         html2canvas(document.getElementById('printable-area'), { backgroundColor: "#fff", scale: 3 }).then(canv => {
-            const link = document.createElement('a'); link.download = 'Laporan_PI_Presisi.png'; link.href = canv.toDataURL(); link.click();
+            const link = document.createElement('a'); link.download = 'Laporan_Fix.png'; link.href = canv.toDataURL(); link.click();
         });
     }
+
     function bukaRiwayat() { document.getElementById('riwayat-modal').style.display = 'block'; }
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display = 'none'; }
     function tutupOverlay() { document.getElementById('report-overlay').style.display = 'none'; }
+
     function cariLaporan() {
         const t = document.getElementById('h_tgl').value;
         const c = document.getElementById('h_cab').value;
         const s = document.getElementById('h_shf').value;
         if(!t) return alert("Pilih tanggal!");
         db.ref('Laporan/' + t + '/' + c + '/' + s).once('value', snp => {
-            if(snp.val()) { showResult(snp.val(), t, c, s); tutupRiwayat(); }
-            else alert("Data tidak ditemukan.");
-        });
-    }
-    function resetApp() { if(confirm("Hapus semua draft?")) { localStorage.clear(); locat
+          
