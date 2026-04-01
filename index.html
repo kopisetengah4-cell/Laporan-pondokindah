@@ -273,18 +273,39 @@
     }
 
     function resetSemuaRiwayat() {
-        const pin = prompt("Masukkan PIN Reset:");
+        const pin = prompt("Masukkan PIN Konfirmasi:");
         if (pin === "9812") {
             const tglHariIni = document.getElementById('label-tgl').innerText;
-            const d = new Date(tglHariIni); d.setDate(d.getDate() - 1);
+            const d = new Date(tglHariIni);
+            d.setDate(d.getDate() - 1);
             const tglKemarin = d.toISOString().split('T')[0];
+
             db.ref('Laporan').once('value', (snapshot) => {
                 const allData = snapshot.val();
                 if (!allData) return;
+
                 Object.keys(allData).forEach(tanggal => {
-                    if (tanggal !== tglHariIni && tanggal !== tglKemarin) db.ref('Laporan/' + tanggal).remove();
+                    // 1. Hapus data yang lebih tua dari kemarin (Arsip Lama)
+                    if (tanggal !== tglHariIni && tanggal !== tglKemarin) {
+                        db.ref('Laporan/' + tanggal).remove();
+                    }
+                    
+                    // 2. Khusus data kemarin: Hapus jika belum diisi (Total Omset kosong atau 0)
+                    if (tanggal === tglKemarin) {
+                        const cabangKemarin = allData[tanggal];
+                        Object.keys(cabangKemarin).forEach(cab => {
+                            Object.keys(cabangKemarin[cab]).forEach(shf => {
+                                const dataDetail = cabangKemarin[cab][shf];
+                                // Indikator data belum diisi: total kosong, "0", atau tidak ada Note
+                                if (!dataDetail.total || dataDetail.total === "0" || dataDetail.total === "") {
+                                    db.ref(`Laporan/${tanggal}/${cab}/${shf}`).remove();
+                                    console.log(`Menghapus data kosong: ${cab} - ${shf}`);
+                                }
+                            });
+                        });
+                    }
                 });
-                alert("Database Lama Bersih.");
+                alert("Pembersihan Selesai: Data lama dihapus & Data kosong kemarin dibersihkan.");
             });
         } else if (pin !== null) {
             alert("PIN Salah!");
