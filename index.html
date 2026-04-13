@@ -10,35 +10,42 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | STABLE v118</title>
+    <title>PI Dashboard | ICON EXPERIMENT v122</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; }
+        body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .top-nav { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin-bottom: 5px; gap: 3px; }
         .btn-main { padding: 12px 6px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; color: white; text-transform: uppercase; }
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-reset { background-color: #e74c3c; }
         
-        .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
+        .container { width: 100%; max-width: 600px; padding-bottom: 20px; box-sizing: border-box; }
         
-        /* Tampilan Tabel Kotak / Tombol Kolom */
-        table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
-        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
-        .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
-        .col-data { width: 13%; }
-        table.main-table td { border: 1px solid #333; height: 35px; text-align: center; padding: 0; }
-        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 14px; }
+        /* 1. Pengaturan Header Tabel (Wajib Kaku) */
+        table.main-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; background: #000; }
+        table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 7px; text-transform: uppercase; }
+        
+        /* 2. Lebar Kolom (Fixed agar Ikon Tidak Goyang) */
+        .col-icon { width: 7.5%; text-align: center; } /* Kolom khusus Ikon baru */
+        .col-nama { width: 33.5%; text-align: left !important; padding-left: 2px !important; color: #fff; font-size: 10px; font-weight: bold; text-transform: uppercase;}
+        .col-data { width: 11.8%; }
+
+        /* 3. Gaya Baris Barang (Layout Kotak/Tombol Kolom) */
+        table.main-table td { border: 1px solid #333; height: 38px; text-align: center; padding: 0; box-sizing: border-box; vertical-align: middle;}
+        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 15px; font-weight: bold; box-sizing: border-box; display: block; padding: 0; }
+        table.main-table input:focus { background-color: rgba(212, 175, 55, 0.1); }
+
+        /* 4. Gaya Ikon Teks (Ringan & Keren) */
+        .barang-icon { font-size: 18px; color: #d4af37; font-weight: bold; line-height: 1; display: inline-block; width: 100%; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
         .omset-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #111; font-size: 11px; color: #fff; }
         .omset-row input { background: transparent; border: none; color: white; width: 100px; text-align: right; outline: none; font-size: 13px; }
         .omset-total-box { font-size: 32px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
-
-        #report-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:4000; padding: 10px; overflow-y: auto; }
     </style>
 </head>
 <body onload="initApp()">
@@ -52,7 +59,7 @@
 <div class="container">
     <div style="text-align: center; font-size: 16px; font-weight: bold; margin: 10px 0; color: #d4af37;">KOPI SETENGAH-4</div>
     
-    <div style="font-size:11px; margin-bottom:10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+    <div style="font-size:11px; margin-bottom:10px; border-bottom: 1px solid #333; padding-bottom: 5px; text-align: center;">
         <span id="label-hari" style="font-weight:bold; color: #fff;">-</span> | 
         <span id="label-tgl">-</span> | 
         CAB: <select id="main-cab" onchange="gantiLokasi()"></select> | 
@@ -61,7 +68,7 @@
 
     <table class="main-table">
         <thead>
-            <tr><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
+            <tr><th class="col-icon"></th><th class="col-nama">BARANG</th><th class="col-data">STOK</th><th class="col-data">MSK</th><th class="col-data">RSK</th><th class="col-data">TRJL</th><th class="col-data">SISA</th></tr>
         </thead>
         <tbody id="list-barang"></tbody>
     </table>
@@ -87,7 +94,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
+    // Data Barang & Ikon (Sistem Ikon Generative Ringan)
+    const barang_data = [
+        { nama: "CUP KECIL", icon: "🍵" }, { nama: "CUP BESAR", icon: "🥛" }, { nama: "CUP HOT", icon: "☕" },
+        { nama: "BOTOL 1 LITER", icon: "🍾" }, { nama: "BOTOL 500 ML", icon: "🍶" }, { nama: "GULA AREN", icon: "🟤" },
+        { nama: "GULA PUTIH", icon: "⚪" }, { nama: "KOPI", icon: "🫘" }, { nama: "SUSU UHT", icon: "🐮" },
+        { nama: "KRIMER", icon: "🥥" }, { nama: "SEA SALT", icon: "🧂" }, { nama: "FN", icon: "🥛" },
+        { nama: "SKM", icon: "🍼" }, { nama: "HERSHEY'S", icon: "🍫" }, { nama: "REMON", icon: "🍋" },
+        { nama: "SEDOTAN KEC", icon: "🥤" }, { nama: "SEDOTAN BSR", icon: "🥤" }, { nama: "PLASTIK ISI 2", icon: "🛍️" },
+        { nama: "PLASTIK ISI 1", icon: "🛍️" }, { nama: "PLASTIK BSR", icon: "🛍️" }, { nama: "CUP SEALER", icon: "🌀" },
+        { nama: "BASE SUSU", icon: "🥣" }, { nama: "BASE KOPI", icon: "☕" }, { nama: "ROTI", icon: "🍞" }
+    ];
+
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const cab_list = ["Tandur", "Kebon Jeruk", "Pondok Indah", "Otista", "Cemput", "Menteng"];
     
@@ -113,7 +131,6 @@
         renderTables();
         pathAktif = `Drafts/${tglStr}/${savedCab}/${savedShf}`;
         
-        // Tarik data live
         db.ref(pathAktif).on('value', snp => {
             const data = snp.val();
             if (data) {
@@ -126,15 +143,25 @@
         });
     }
 
+    // FUNGSI RENDER TABEL DENGAN KOLOM IKON BARU
     function renderTables() {
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
-        barang_list.forEach(item => {
-            const id = item.replace(/[^A-Z0-9]/ig, "_");
-            bBody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}" oninput="liveSync(this)"></td><td><input type="text" id="msk_${id}" oninput="liveSync(this)"></td><td><input type="text" id="rsk_${id}" oninput="liveSync(this)"></td><td><input type="text" id="trjl_${id}" oninput="liveSync(this)"></td><td><input type="text" id="sisa_${id}" oninput="liveSync(this)"></td></tr>`;
+        barang_data.forEach(item => {
+            const id = item.nama.replace(/[^A-Z0-9]/ig, "_");
+            // Menambahkan kolom khusus ikon di awal baris
+            bBody.innerHTML += `<tr>
+                <td class="col-icon"><span class="barang-icon">${item.icon}</span></td>
+                <td class="col-nama">${item.nama}</td>
+                <td><input type="number" id="stok_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="msk_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="rsk_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="trjl_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="sisa_${id}" oninput="liveSync(this)"></td>
+            </tr>`;
         });
         const oBody = document.getElementById('list-omset'); oBody.innerHTML = "";
         omset_list.forEach(m => {
-            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="liveSync(this)"></div>`;
+            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="number" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="liveSync(this)"></div>`;
         });
     }
 
