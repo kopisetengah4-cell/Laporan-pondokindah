@@ -345,7 +345,7 @@
                 const pureBase64 = imgData.split(',')[1];
                 // Mengirim sinyal "UNDUH_GAMBAR|||" ditambah kode gambarnya ke Kodular
                 window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + pureBase64);
-                alert("Sinyal unduh dikirim! Gambar akan tersimpan ke folder Pictures HP Anda dalam beberapa detik.");
+                alert("Sinyal unduh dikirim! Gambar akan tersimpan ke folder Download/Pictures HP Anda dalam beberapa detik.");
             } else {
                 // Jika dibuka di browser Chrome biasa
                 const a = document.createElement('a');
@@ -375,4 +375,4 @@
     function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
 </script>
 </body>
-    </html>
+</html>
