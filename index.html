@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | LIVE SYNC v68</title>
+    <title>PI Dashboard | LIVE SYNC v70</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -136,8 +136,7 @@
     const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const cab_list = ["Tandur", "Kebon Jeruk", "Pondok Indah", "Otista", "Cemput", "Menteng"];
-    const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
-
+    
     let pathAktif = "";
     let currentReportData = null; 
 
@@ -158,7 +157,6 @@
         document.getElementById('main-shf').value = savedShf;
 
         renderTables();
-        
         pathAktif = `Drafts/${tglStr}/${savedCab}/${savedShf}`;
         mulaiListenSync();
     }
@@ -177,8 +175,7 @@
 
     function liveSync(el) {
         hitungTotal();
-        const update = {};
-        update[el.id] = el.value;
+        const update = {}; update[el.id] = el.value;
         db.ref(pathAktif).update(update);
     }
 
@@ -188,37 +185,9 @@
             if (data) {
                 Object.keys(data).forEach(key => {
                     const input = document.getElementById(key);
-                    if (input && input !== document.activeElement) {
-                        input.value = data[key];
-                    }
+                    if (input && input !== document.activeElement) input.value = data[key];
                 });
                 hitungTotal();
-            } else {
-                tarikDataKemarin();
-            }
-        });
-    }
-
-    function tarikDataKemarin() {
-        const tglSekarang = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cab').value;
-        let kemaren = new Date(tglSekarang);
-        kemaren.setDate(kemaren.getDate() - 1);
-        const tglKemarinStr = kemaren.toISOString().split('T')[0];
-        const shiftSumber = (["Pondok Indah", "Cemput", "Menteng"].includes(cab)) ? "SHIFT 1" : "SHIFT 2";
-
-        db.ref(`Laporan/${tglKemarinStr}/${cab}/${shiftSumber}/barang`).once('value', snp => {
-            if(snp.val()) {
-                const dataK = snp.val();
-                const initDraft = {};
-                barang_list.forEach(item => {
-                    const id = item.replace(/[^A-Z0-9]/ig, "_");
-                    if(dataK[id]) {
-                        initDraft[`stok_${id}`] = dataK[id].sisa || "0";
-                        if(!list_kosongkan.includes(id)) initDraft[`sisa_${id}`] = dataK[id].sisa || "0";
-                    }
-                });
-                db.ref(pathAktif).update(initDraft);
             }
         });
     }
@@ -253,19 +222,11 @@
         omset_list.forEach(m => { d.omset[m] = document.getElementById("o_" + m.replace(/[^A-Z0-9]/ig,'_')).value || 0; });
 
         db.ref(`Laporan/${d.tgl}/${d.cab}/${d.shf}`).set(d).then(() => {
-            alert("FINAL DISIMPAN!");
-            tampilkanLaporanFinal(d);
+            alert("FINAL DISIMPAN!"); tampilkanLaporanFinal(d);
         });
     }
 
-    function resetApp() {
-        if (prompt("PIN RESET:") === "9812") {
-            if(confirm("Hapus draft sinkronisasi ini?")) {
-                db.ref(pathAktif).remove().then(() => location.reload());
-            }
-        }
-    }
-
+    function resetApp() { if (prompt("PIN RESET:") === "9812") { db.ref(pathAktif).remove().then(() => location.reload()); } }
     function gantiLokasi() { localStorage.setItem('p_cab', document.getElementById('main-cab').value); location.reload(); }
     function gantiShift() { localStorage.setItem('p_shf', document.getElementById('main-shf').value); location.reload(); }
     function updateShiftDropdown(cabang, targetId) {
@@ -274,8 +235,7 @@
     }
 
     function tampilkanLaporanFinal(d) {
-        currentReportData = d; 
-        
+        currentReportData = d;
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -315,54 +275,30 @@
     }
 
     function copyLaporanWA() {
-        if(!currentReportData) return;
         const d = currentReportData;
-        let txt = `*LAPORAN KOPI SETENGAH 4*\n`;
-        txt += `Cabang: *${d.cab}*\nShift: *${d.shf}*\nTanggal: ${d.tgl}\n\n`;
-        txt += `*--- OMSET ---*\n`;
-        omset_list.forEach(m => { if(d.omset[m] && d.omset[m] != "0" && d.omset[m] != "") { txt += `${m}: ${d.omset[m]}\n`; } });
-        txt += `*TOTAL: Rp ${d.total}*\n\n*--- SISA ROTI ---*\nCoklat: ${d.roti.cok}\nVanilla: ${d.roti.van}\nBlueberry: ${d.roti.blu}\n\n*CASH:* ${d.f_cash}\n*NOTE:* ${d.f_note}\n`;
-
-        const ta = document.createElement("textarea");
-        ta.value = txt; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); alert("✅ Teks Laporan berhasil di-copy!\n\nSilakan buka WhatsApp dan tekan 'Tempel' (Paste) ke grup/admin."); } 
-        catch (err) { alert("Gagal copy otomatis."); }
-        document.body.removeChild(ta);
+        let txt = `*LAPORAN KOPI SETENGAH 4*\nCabang: *${d.cab}*\nShift: *${d.shf}*\n\n*TOTAL OMSET: Rp ${d.total}*\n\n*SISA ROTI:* \nCoklat: ${d.roti.cok}\nVanilla: ${d.roti.van}\nBlueberry: ${d.roti.blu}\n\n*NOTE:* ${d.f_note}`;
+        const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); alert("✅ Teks laporan di-copy!"); document.body.removeChild(ta);
     }
 
-    // FUNGSI PAKSA KIRIM KE KODULAR
     function downloadPNG() {
-        const btn = document.getElementById('btn-dl-png');
-        if(btn) btn.innerText = "MEMPROSES...";
-
-        html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canv => {
-            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
-            const imgData = canv.toDataURL("image/png");
-
-            // Cek apakah dibuka di dalam aplikasi Kodular
+        const btn = document.getElementById('btn-dl-png'); btn.innerText = "MEMPROSES...";
+        // SCALE: 1.5 AGAR LEBIH RINGAN
+        html2canvas(document.getElementById('printable-area'), { scale: 1.5 }).then(canv => {
+            btn.innerText = "📸 SIMPAN GAMBAR";
+            const imgData = canv.toDataURL("image/png").split(',')[1];
             if (window.AppInventor) {
-                // Memisahkan tulisan 'data:image/png;base64,' agar murni kodenya saja
-                const pureBase64 = imgData.split(',')[1];
-                // Mengirim sinyal "UNDUH_GAMBAR|||" ditambah kode gambarnya ke Kodular
-                window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + pureBase64);
-                alert("Sinyal unduh dikirim! Gambar akan tersimpan ke folder Download/Pictures HP Anda dalam beberapa detik.");
+                window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + imgData);
             } else {
-                // Jika dibuka di browser Chrome biasa
-                const a = document.createElement('a');
-                a.download = `LAPORAN_${document.getElementById('main-cab').value}.png`;
-                a.href = imgData;
-                a.click();
+                alert("Gunakan aplikasi APK untuk mengunduh gambar.");
             }
-        }).catch(err => {
-            alert("Gagal memproses gambar.");
-            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
         });
     }
 
     function bukaRiwayat() {
         const hCab = document.getElementById('h_cab'); hCab.innerHTML = document.getElementById('main-cab').innerHTML;
-        hCab.value = document.getElementById('main-cab').value;
-        updateShiftRiwayat(); document.getElementById('riwayat-modal').style.display='block';
+        hCab.value = document.getElementById('main-cab').value; updateShiftRiwayat();
+        document.getElementById('riwayat-modal').style.display='block';
     }
     function updateShiftRiwayat() { updateShiftDropdown(document.getElementById('h_cab').value, 'h_shf'); }
     function cariDataRiwayat() {
