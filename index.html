@@ -2,17 +2,15 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="KS4 Dash">
-<link rel="apple-touch-icon" href="Logo-al.png">
-
-<meta name="theme-color" content="#d4af37">
-<link rel="icon" type="image/png" href="Logo-al.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KS4 Dash">
+    <link rel="apple-touch-icon" href="Logo-al.png">
+    <meta name="theme-color" content="#d4af37">
+    <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | LIVE SYNC</title>
+    <title>PI Dashboard | LIVE SYNC v68</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -102,11 +100,12 @@
 </div>
 
 <div id="report-overlay">
-    <div style="display:flex; gap:5px; margin-bottom:10px; width: 400px; margin: 0 auto;">
-        <button onclick="tutupOverlay()" style="padding:10px; flex:1; background:#444; color:#fff; border:none; border-radius:5px;">KEMBALI</button>
-        <button id="btn-dl-png" onclick="downloadPNG()" style="padding:10px; flex:2; background:#e74c3c; color:white; border:none; font-weight:bold; border-radius:5px;">DOWNLOAD / SHARE</button>
+    <div style="display:flex; gap:5px; margin-bottom:10px; width: 400px; max-width: 100%; margin: 0 auto;">
+        <button onclick="tutupOverlay()" style="padding:10px; flex:1; background:#444; color:#fff; border:none; border-radius:5px; font-weight:bold;">KEMBALI</button>
+        <button onclick="copyLaporanWA()" style="padding:10px; flex:1.2; background:#25D366; color:white; border:none; font-weight:bold; border-radius:5px;">📋 COPY WA</button>
+        <button id="btn-dl-png" onclick="downloadPNG()" style="padding:10px; flex:1.2; background:#e74c3c; color:white; border:none; font-weight:bold; border-radius:5px;">📸 SIMPAN GAMBAR</button>
     </div>
-    <div id="printable-area" style="width: 400px; margin: 0 auto; background:#fff; padding:15px; border:1px solid #ccc;"><div id="isi-laporan"></div></div>
+    <div id="printable-area" style="width: 400px; max-width: 100%; margin: 0 auto; background:#fff; padding:15px; border:1px solid #ccc; box-sizing: border-box;"><div id="isi-laporan"></div></div>
 </div>
 
 <div id="riwayat-modal">
@@ -140,6 +139,7 @@
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
     let pathAktif = "";
+    let currentReportData = null; 
 
     function initApp() {
         const d = new Date();
@@ -274,6 +274,8 @@
     }
 
     function tampilkanLaporanFinal(d) {
+        currentReportData = d; 
+        
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -312,65 +314,49 @@
         document.getElementById('report-overlay').style.display = 'block';
     }
 
-    // FUNGSI DOWNLOAD BARU YANG ANTI-WEBVIEW ERROR
+    function copyLaporanWA() {
+        if(!currentReportData) return;
+        const d = currentReportData;
+        let txt = `*LAPORAN KOPI SETENGAH 4*\n`;
+        txt += `Cabang: *${d.cab}*\nShift: *${d.shf}*\nTanggal: ${d.tgl}\n\n`;
+        txt += `*--- OMSET ---*\n`;
+        omset_list.forEach(m => { if(d.omset[m] && d.omset[m] != "0" && d.omset[m] != "") { txt += `${m}: ${d.omset[m]}\n`; } });
+        txt += `*TOTAL: Rp ${d.total}*\n\n*--- SISA ROTI ---*\nCoklat: ${d.roti.cok}\nVanilla: ${d.roti.van}\nBlueberry: ${d.roti.blu}\n\n*CASH:* ${d.f_cash}\n*NOTE:* ${d.f_note}\n`;
+
+        const ta = document.createElement("textarea");
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); alert("✅ Teks Laporan berhasil di-copy!\n\nSilakan buka WhatsApp dan tekan 'Tempel' (Paste) ke grup/admin."); } 
+        catch (err) { alert("Gagal copy otomatis."); }
+        document.body.removeChild(ta);
+    }
+
+    // FUNGSI PAKSA KIRIM KE KODULAR
     function downloadPNG() {
         const btn = document.getElementById('btn-dl-png');
         if(btn) btn.innerText = "MEMPROSES...";
 
         html2canvas(document.getElementById('printable-area'), { scale: 3 }).then(canv => {
-            if(btn) btn.innerText = "DOWNLOAD / SHARE";
-            
-            try {
-                canv.toBlob(function(blob) {
-                    const namaFile = `LAPORAN_${document.getElementById('main-cab').value}_${document.getElementById('label-tgl').innerText}.png`;
-                    const f = new File([blob], namaFile, {type: "image/png"});
-                    
-                    // Coba buka fitur Share WA Otomatis HP
-                    if (navigator.canShare && navigator.canShare({ files: [f] })) {
-                        navigator.share({
-                            title: 'Laporan Kasir',
-                            files: [f]
-                        }).catch((e) => {
-                            // Kalau dibatalkan atau gagal, buka gambar secara manual
-                            tampilkanGambarManual(canv.toDataURL("image/png"));
-                        });
-                    } else {
-                        // Kalau fitur share HP dimatikan, buka gambar secara manual
-                        tampilkanGambarManual(canv.toDataURL("image/png"));
-                    }
-                });
-            } catch(e) {
-                // Untuk HP/WebView versi jadul
-                tampilkanGambarManual(canv.toDataURL("image/png"));
+            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
+            const imgData = canv.toDataURL("image/png");
+
+            // Cek apakah dibuka di dalam aplikasi Kodular
+            if (window.AppInventor) {
+                // Memisahkan tulisan 'data:image/png;base64,' agar murni kodenya saja
+                const pureBase64 = imgData.split(',')[1];
+                // Mengirim sinyal "UNDUH_GAMBAR|||" ditambah kode gambarnya ke Kodular
+                window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + pureBase64);
+                alert("Sinyal unduh dikirim! Gambar akan tersimpan ke folder Pictures HP Anda dalam beberapa detik.");
+            } else {
+                // Jika dibuka di browser Chrome biasa
+                const a = document.createElement('a');
+                a.download = `LAPORAN_${document.getElementById('main-cab').value}.png`;
+                a.href = imgData;
+                a.click();
             }
         }).catch(err => {
             alert("Gagal memproses gambar.");
-            if(btn) btn.innerText = "DOWNLOAD / SHARE";
+            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
         });
-    }
-
-    function tampilkanGambarManual(imgData) {
-        const div = document.createElement('div');
-        div.style.position = "fixed";
-        div.style.top = "0"; div.style.left = "0";
-        div.style.width = "100%"; div.style.height = "100%";
-        div.style.backgroundColor = "rgba(0,0,0,0.98)";
-        div.style.zIndex = "9999";
-        div.style.display = "flex";
-        div.style.flexDirection = "column";
-        div.style.alignItems = "center";
-        div.style.padding = "20px";
-        div.style.overflowY = "auto";
-
-        div.innerHTML = `
-            <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:15px; text-align:center; border: 1px solid #d4af37;">
-                <p style="color:#2ecc71; font-weight:bold; font-size:16px; margin:0 0 5px 0;">Laporan Berhasil Dibuat!</p>
-                <p style="color:white; font-size:12px; margin:0;"><b>TEKAN TAHAN (Long Press)</b> gambar di bawah ini, lalu pilih <b>"Download Image"</b> atau <b>"Share Image"</b></p>
-            </div>
-            <img src="${imgData}" style="width:100%; max-width:400px; border-radius:5px; margin-bottom:20px;">
-            <button onclick="this.parentElement.remove()" style="padding:15px; width:100%; max-width:400px; background:#e74c3c; color:white; border:none; font-weight:bold; border-radius:8px; font-size:14px; margin-bottom:40px;">TUTUP</button>
-        `;
-        document.body.appendChild(div);
     }
 
     function bukaRiwayat() {
