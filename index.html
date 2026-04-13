@@ -6,17 +6,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KS4 Dash">
     <link rel="apple-touch-icon" href="Logo-al.png">
-    <meta name="theme-color" content="#1a432b"> <link rel="icon" type="image/png" href="Logo-al.png">
+    <meta name="theme-color" content="#3e2723"> <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | STABLE SECURE v118</title>
+    <title>PI Dashboard | SECURE GOLD v120</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* ================= TAMPILAN UTAMA (TOMBOL KOLOM) ================= */
+        /* ================= TAMPILAN UTAMA (TOMBOL KOLOM - HITAM EMAS) ================= */
         body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 4px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         #main-app { width: 100%; max-width: 600px; display: none; flex-direction: column; align-items: center; } /* Disembunyikan sebelum login */
         
@@ -58,38 +58,56 @@
         .modal-inner { background: #000; width: 320px; margin: 40px auto; padding: 20px; border: 2px solid #d4af37; color: #fff; border-radius: 8px; }
         .modal-inner select, .modal-inner input { width: 100%; padding: 12px; margin-bottom: 12px; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; font-size: 14px; border-radius: 4px;}
 
-        /* ================= TAMPILAN LOGIN (HIJAU) ================= */
+        /* ================= TAMPILAN LOGIN (TEMA COKLAT EMAS) ================= */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #1b4332; /* Hijau gelap persis gambar */
+            background-color: #3e2723; /* Background Coklat Tua (Deep Chocolate) */
             z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
         .login-card {
-            background: #fff; border-radius: 15px; padding: 30px 20px;
-            width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: #fffde7; /* Warna Cream Keemasan untuk kartu */
+            border-radius: 15px; padding: 35px 25px;
+            width: 85%; max-width: 320px; text-align: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            border: 2px solid #bf9b30; /* Border Emas Tua */
         }
-        .login-title { color: #1b4332; font-size: 22px; font-weight: 800; margin-bottom: 25px; font-family: sans-serif; }
+        .login-title { 
+            color: #3e2723; /* Judul Coklat Tua */
+            font-size: 24px; font-weight: 800; margin-bottom: 30px; font-family: sans-serif; 
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0px rgba(191, 155, 48, 0.5); /* Shadow Emas halus */
+        }
         .login-input {
-            width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc;
+            width: 100%; padding: 14px; margin-bottom: 15px; 
+            border: 2px solid #ccc; /* Border default abu */
             border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s;
+            background: #fff;
         }
-        .login-input:focus { border: 2px solid #d4af37; padding: 13px; } /* Garis kuning saat diketik */
+        .login-input:focus { border-color: #bf9b30; background: #fff; } /* Fokus border jadi Emas Tua */
+        
         .login-check-row {
-            display: flex; align-items: center; margin-bottom: 20px; font-size: 13px; color: #333; font-weight: bold; justify-content: flex-start; padding-left: 5px;
+            display: flex; align-items: center; margin-bottom: 25px; font-size: 13px; 
+            color: #3e2723; /* Teks Coklat */
+            font-weight: bold; justify-content: flex-start; padding-left: 5px;
         }
-        .login-check-row input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+        .login-check-row input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; accent-color: #bf9b30; /* Warna check emas */ }
+        
         .btn-login {
-            width: 100%; background: #1b4332; color: #fff; padding: 14px;
-            border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            width: 100%; 
+            background: linear-gradient(135deg, #bf9b30 0%, #3e2723 100%); /* Gradasi Emas ke Coklat */
+            color: #fff; padding: 15px;
+            border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: 0.2s;
         }
+        .btn-login:active { transform: scale(0.98); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body onload="initApp()">
 
 <div id="login-overlay">
     <div class="login-card">
-        <div class="login-title">POS KS4</div>
-        <input type="text" id="login-id" class="login-input" placeholder="ID CABANG / ADMIN" autocomplete="off">
+        <div class="login-title" id="login-header-title">LAPORAN KS4</div> <input type="text" id="login-id" class="login-input" placeholder="ID CABANG / ADMIN" autocomplete="off">
         <input type="password" id="login-pass" class="login-input" placeholder="PASSWORD" autocomplete="off">
         <div class="login-check-row">
             <input type="checkbox" id="login-remember" checked>
@@ -179,7 +197,7 @@
     const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     
-    // DATABASE CABANG & PASSWORD
+    // DATABASE CABANG & PASSWORD (DATA BOS)
     const authData = [
         { id: "KS4-TD", nama: "Tandur", pass: "1245" },
         { id: "KS4-KB", nama: "Kebon Jeruk", pass: "1425" },
@@ -192,7 +210,7 @@
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
     let pathAktif = "";
-    let cabangSebelumnya = ""; // Menyimpan status cabang sebelum diganti
+    let cabangSebelumnya = ""; 
 
     function initApp() {
         const d = new Date();
@@ -222,7 +240,7 @@
             }
         }
         
-        // Jika tidak ada data login, tetap di layar hijau
+        // Jika tidak ada data login, tetap di layar Coklat Emas
         cSel.value = savedCabName;
         cabangSebelumnya = savedCabName;
         lanjutkanLoadData(tglStr, savedCabName);
@@ -255,26 +273,30 @@
             const d = new Date();
             lanjutkanLoadData(d.toISOString().split('T')[0], user.nama);
             
+            // Kembalikan judul login ke default jika sebelumnya habis ganti cabang
+            document.getElementById('login-header-title').innerText = "LAPORAN KS4";
+            
         } else {
             alert("❌ Akses Ditolak!\nID Cabang atau Password salah.");
-            // Jika login gagal setelah mencoba ganti dropdown, kembalikan ke cabang semula
+            // Jika login gagal setelah mencoba ganti dropdown, kembalikan ke cabang semula di dropdown
             document.getElementById('main-cab').value = cabangSebelumnya; 
         }
     }
 
-    // FUNGSI SAAT DROPDOWN CABANG DIGANTI
+    // FUNGSI SAAT DROPDOWN CABANG DIGANTI (MEMANCING LOGIN COKLAT)
     function konfirmasiGantiLokasi() {
         const targetCab = document.getElementById('main-cab').value;
         
-        // Bersihkan inputan login sebelumnya
+        // Bersihkan inputan login sebelumnya agar tidak auto-fill sandi cabang lama
         document.getElementById('login-id').value = "";
         document.getElementById('login-pass').value = "";
         
-        // Munculkan layar hijau untuk verifikasi
+        // Ubah judul login untuk memberi tahu kasir mereka sedang verifikasi cabang mana
+        document.getElementById('login-header-title').innerText = `VERIFIKASI ${targetCab.toUpperCase()}`;
+        
+        // Munculkan layar Coklat Emas untuk verifikasi
         document.getElementById('main-app').style.display = 'none';
         document.getElementById('login-overlay').style.display = 'flex';
-        
-        alert(`VERIFIKASI KEAMANAN\nSilakan masukkan ID & Password untuk mengakses cabang: ${targetCab}`);
     }
 
     function lanjutkanLoadData(tglStr, cabang) {
@@ -443,7 +465,7 @@
         document.getElementById('report-overlay').style.display = 'block';
     }
 
-    // FUNGSI PRINT/DOWNLOAD KODULAR (Scale 1.5 agar tidak ngestuck)
+    // FUNGSI PRINT/DOWNLOAD KODULAR (Scale 1.5 agar ringan)
     function downloadPNG() {
         const btn = document.getElementById('btn-dl-png');
         if(btn) btn.innerText = "MEMPROSES...";
@@ -453,9 +475,11 @@
             const imgData = canv.toDataURL("image/png");
 
             if (window.AppInventor) {
+                // Ekstensi KIO4_Base64 (Assume v68 blocks are ready in Kodular)
                 const pureBase64 = imgData.split(',')[1];
                 window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + pureBase64);
             } else {
+                // Browser Biasa
                 const a = document.createElement('a');
                 a.download = `LAPORAN_${document.getElementById('main-cab').value}.png`;
                 a.href = imgData;
