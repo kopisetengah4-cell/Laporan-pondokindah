@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | FIX SYNC v126</title>
+    <title>PI Dashboard | FIX RIWAYAT v127</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -336,7 +336,7 @@
     }
 
     // ==========================================
-    // FUNGSI KASIR (TIDAK BERUBAH)
+    // FUNGSI KASIR 
     // ==========================================
     function konfirmasiGantiLokasi() {
         const targetCab = document.getElementById('main-cab').value;
@@ -384,41 +384,31 @@
                 });
                 hitungTotal();
             } else {
-                tarikDataKemarin(); // MENGGUNAKAN LOGIKA CERDAS BARU
+                tarikDataKemarin(); // LOGIKA CERDAS SHIFT
             }
         });
     }
 
-    // ==============================================================
-    // PERBAIKAN FATAL: LOGIKA PENCARIAN SISA SHIFT KEMARIN
-    // ==============================================================
     function tarikDataKemarin() {
         const tglSekarang = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cab').value;
         const shfSekarang = document.getElementById('main-shf').value;
         
-        // Logika 1: Jika ini SHIFT 2, coba tarik dari SHIFT 1 HARI INI
         if (shfSekarang === "SHIFT 2") {
             tarikDariLaporan(tglSekarang, cab, "SHIFT 1", (berhasil) => {
                 if (!berhasil) {
-                    // Jika SHIFT 1 hari ini belum ada, coba tarik dari SHIFT 2 KEMARIN
                     let kemaren = new Date(tglSekarang);
                     kemaren.setDate(kemaren.getDate() - 1);
                     tarikDariLaporan(kemaren.toISOString().split('T')[0], cab, "SHIFT 2", () => {});
                 }
             });
-        } 
-        // Logika 2: Jika ini SHIFT 1, WAJIB tarik dari data KEMARIN
-        else {
+        } else {
             let kemaren = new Date(tglSekarang);
             kemaren.setDate(kemaren.getDate() - 1);
             const tglKemarinStr = kemaren.toISOString().split('T')[0];
             
-            // Coba cari di SHIFT 2 kemarin dulu (karena itu shift terakhir)
             tarikDariLaporan(tglKemarinStr, cab, "SHIFT 2", (berhasilShift2) => {
-                // Kalau SHIFT 2 kemarin tidak ada (misal cabang itu cuma punya 1 shift)
                 if (!berhasilShift2) {
-                    // Maka cari di SHIFT 1 kemarin
                     tarikDariLaporan(tglKemarinStr, cab, "SHIFT 1", () => {});
                 }
             });
@@ -438,13 +428,12 @@
                     }
                 });
                 db.ref(pathAktif).update(initDraft);
-                callback(true); // Memberi sinyal bahwa data ditemukan
+                callback(true); 
             } else {
-                callback(false); // Sinyal data kosong
+                callback(false); 
             }
         });
     }
-    // ==============================================================
 
     function hitungTotal() {
         let tot = 0;
@@ -475,12 +464,15 @@
     }
 
     function gantiShift() { localStorage.setItem('p_shf', document.getElementById('main-shf').value); location.reload(); }
+    
     function updateShiftDropdown(cabang, targetId) {
         const shfSelect = document.getElementById(targetId);
         shfSelect.innerHTML = (["Pondok Indah", "Cemput", "Menteng"].includes(cabang)) ? `<option value="SHIFT 1">SHIFT 1</option>` : `<option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option>`;
     }
 
-    // FUNGSI TAMPILKAN LAPORAN BERSAMA (Dipakai Kasir & Admin)
+    // ==========================================
+    // FUNGSI TAMPILKAN GAMBAR LAPORAN
+    // ==========================================
     function tampilkanLaporanFinal(d) {
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
@@ -544,12 +536,43 @@
         });
     }
 
-    function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
+    function tutupOverlay() { 
+        document.getElementById('report-overlay').style.display='none'; 
+    }
     
-    // RIWAYAT UNTUK KASIR
-    function bukaRiwayat() { const hCab = document.getElementById('h_cab'); hCab.innerHTML = document.getElementById('main-cab').innerHTML; hCab.value = document.getElementById('main-cab').value; updateShiftRiwayat(); document.getElementById('riwayat-modal').style.display='block'; }
-    function cariDataRiwayat() { const t = document.getElementById('h_tgl').value; const c = document.getElementById('h_cab').value; const s = document.getElementById('h_shf').value; db.ref(`Laporan/${t}/${c}/${s}`).once('value', snp => { if(snp.val()) { tampilkanLaporanFinal(snp.val()); tutupRiwayat(); } else alert("Data Kosong!"); }); }
-    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display='none'; }
+    // ==========================================
+    // FUNGSI RIWAYAT UNTUK KASIR
+    // ==========================================
+    function bukaRiwayat() { 
+        const hCab = document.getElementById('h_cab'); 
+        hCab.innerHTML = document.getElementById('main-cab').innerHTML; 
+        hCab.value = document.getElementById('main-cab').value; 
+        updateShiftRiwayat(); 
+        document.getElementById('riwayat-modal').style.display='block'; 
+    }
+
+    // INI DIA FUNGSI YANG KEMARIN TERPOTONG!
+    function updateShiftRiwayat() { 
+        updateShiftDropdown(document.getElementById('h_cab').value, 'h_shf'); 
+    }
+
+    function cariDataRiwayat() { 
+        const t = document.getElementById('h_tgl').value; 
+        const c = document.getElementById('h_cab').value; 
+        const s = document.getElementById('h_shf').value; 
+        db.ref(`Laporan/${t}/${c}/${s}`).once('value', snp => { 
+            if(snp.val()) { 
+                tampilkanLaporanFinal(snp.val()); 
+                tutupRiwayat(); 
+            } else {
+                alert("Data Kosong!"); 
+            }
+        }); 
+    }
+
+    function tutupRiwayat() { 
+        document.getElementById('riwayat-modal').style.display='none'; 
+    }
 </script>
 </body>
 </html>
