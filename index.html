@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | MANUAL PULL v131</title>
+    <title>PI Dashboard | AUTO MIGRATE v132</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -26,7 +26,6 @@
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-reset { background-color: #e74c3c; }
-        .btn-tarik { background-color: #2980b9; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; width: 100%; margin-bottom: 8px; cursor: pointer; text-transform: uppercase; }
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
@@ -141,8 +140,6 @@
                 </table>
             </div>
         </div>
-
-        <button id="btn-tarik-manual" class="btn-tarik" onclick="tarikDataManual()">⬇️ TARIK DATA KEMARIN OTOMATIS</button>
 
         <table class="main-table">
             <thead>
@@ -287,16 +284,35 @@
                 return;
             }
 
+            // PERBAIKAN DI ADMIN KARENA SUDAH TIDAK ADA SHIFT
             Object.keys(data).forEach(namaCabang => {
                 const lap = data[namaCabang];
-                const omsetStr = lap.total || "0";
-                grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
+                
+                // Pengecekan aman, karena struktur lama ada shift, struktur baru langsung data
+                if(lap.total) { // Ini format baru (tanpa shift)
+                    const omsetStr = lap.total || "0";
+                    grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
 
-                const card = document.createElement('div');
-                card.className = "admin-card";
-                card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Final: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
-                card.onclick = () => { tampilkanLaporanFinal(lap); };
-                content.appendChild(card);
+                    const card = document.createElement('div');
+                    card.className = "admin-card";
+                    card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Kas: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
+                    card.onclick = () => { tampilkanLaporanFinal(lap); };
+                    content.appendChild(card);
+                } else { // Ini format lama (masih ada shift)
+                    Object.keys(lap).forEach(namaShift => {
+                        const shiftDetail = lap[namaShift];
+                        if(shiftDetail.total) {
+                            const omsetStr = shiftDetail.total || "0";
+                            grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
+
+                            const card = document.createElement('div');
+                            card.className = "admin-card";
+                            card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">${namaShift} | Kas: ${shiftDetail.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
+                            card.onclick = () => { tampilkanLaporanFinal(shiftDetail); };
+                            content.appendChild(card);
+                        }
+                    });
+                }
             });
             document.getElementById('admin-grand-total').innerText = "Rp " + grandTotal.toLocaleString('id-ID');
         });
@@ -331,29 +347,43 @@
             if (data) {
                 Object.keys(data).forEach(key => { const input = document.getElementById(key); if (input && input !== document.activeElement) input.value = data[key]; });
                 hitungTotal();
+            } else {
+                // JIKA HARI INI KOSONG, OTOMATIS JALANKAN MESIN WAKTU MENCARI KE KEMARIN
+                tarikDataMesinWaktu(1);
             }
         });
     }
 
     // ===============================================
-    // FUNGSI TOMBOL SAKTI: Menarik Data Kemarin Otomatis
+    // JEMBATAN MIGRASI & MESIN WAKTU (AUTO PULL)
     // ===============================================
-    function tarikDataManual() {
-        const btn = document.getElementById('btn-tarik-manual');
-        btn.innerText = "MENCARI DATA...";
-        btn.style.backgroundColor = "#e67e22";
-        tarikDataMesinWaktu(1);
+    function cariDataLama(tglStr, cab, callback) {
+        // 1. Cek format baru (Tanpa Shift)
+        db.ref(`Laporan/${tglStr}/${cab}/barang`).once('value', snp => {
+            if (snp.val()) {
+                callback(snp.val());
+            } else {
+                // 2. Cek format lama (Cari SHIFT 2 dulu sebagai penutup hari)
+                db.ref(`Laporan/${tglStr}/${cab}/SHIFT 2/barang`).once('value', snp2 => {
+                    if (snp2.val()) {
+                        callback(snp2.val());
+                    } else {
+                        // 3. Cek format lama (Cari SHIFT 1 jika SHIFT 2 tidak ada)
+                        db.ref(`Laporan/${tglStr}/${cab}/SHIFT 1/barang`).once('value', snp1 => {
+                            if (snp1.val()) {
+                                callback(snp1.val());
+                            } else {
+                                callback(null); // Data di tanggal ini benar-benar kosong
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 
     function tarikDataMesinWaktu(hariMundur) {
-        const btn = document.getElementById('btn-tarik-manual');
-        
-        if (hariMundur > 7) {
-            alert("Sistem mundur sampai 7 hari ke belakang dan tidak menemukan laporan final apapun untuk cabang ini.");
-            btn.innerText = "⬇️ TARIK DATA KEMARIN OTOMATIS";
-            btn.style.backgroundColor = "#2980b9";
-            return;
-        }
+        if (hariMundur > 7) return; // Batas mundur 7 hari
 
         const tglSekarang = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cab').value;
@@ -361,9 +391,9 @@
         d.setDate(d.getDate() - hariMundur);
         let tglMundurStr = d.toISOString().split('T')[0];
 
-        db.ref(`Laporan/${tglMundurStr}/${cab}/barang`).once('value', snp => {
-            if(snp.val()) {
-                const dataK = snp.val();
+        // Panggil fungsi jembatan pencari data
+        cariDataLama(tglMundurStr, cab, function(dataK) {
+            if(dataK) {
                 const initDraft = {};
                 barang_list.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
@@ -372,16 +402,9 @@
                         if(!list_kosongkan.includes(id)) initDraft[`sisa_${id}`] = dataK[id].sisa || "0";
                     }
                 });
-                
-                db.ref(pathAktif).update(initDraft).then(() => {
-                    btn.innerText = "✅ DATA BERHASIL DITARIK!";
-                    btn.style.backgroundColor = "#27ae60";
-                    setTimeout(() => { 
-                        btn.innerText = "⬇️ TARIK DATA KEMARIN OTOMATIS"; 
-                        btn.style.backgroundColor = "#2980b9";
-                    }, 3000);
-                });
+                db.ref(pathAktif).update(initDraft);
             } else { 
+                // Kosong? Mundur 1 hari lagi.
                 tarikDataMesinWaktu(hariMundur + 1); 
             }
         });
@@ -463,7 +486,38 @@
 
     function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
     function bukaRiwayat() { const hCab = document.getElementById('h_cab'); hCab.innerHTML = document.getElementById('main-cab').innerHTML; hCab.value = document.getElementById('main-cab').value; document.getElementById('riwayat-modal').style.display='block'; }
-    function cariDataRiwayat() { const t = document.getElementById('h_tgl').value; const c = document.getElementById('h_cab').value; db.ref(`Laporan/${t}/${c}`).once('value', snp => { if(snp.val()) { tampilkanLaporanFinal(snp.val()); tutupRiwayat(); } else alert("Data Kosong!"); }); }
+    
+    // PENCARIAN RIWAYAT (Bisa baca format lama maupun baru)
+    function cariDataRiwayat() { 
+        const t = document.getElementById('h_tgl').value; 
+        const c = document.getElementById('h_cab').value; 
+        
+        // Cek format baru dulu
+        db.ref(`Laporan/${t}/${c}`).once('value', snp => { 
+            const data = snp.val();
+            if(data) { 
+                if (data.total) {
+                    tampilkanLaporanFinal(data); 
+                    tutupRiwayat(); 
+                } else {
+                    // Kalau data ada tapi bukan format baru, berarti ini format lama dengan Shift
+                    // Tampilkan Shift 2 dulu, kalau tidak ada tampilkan Shift 1
+                    if(data["SHIFT 2"]) {
+                        tampilkanLaporanFinal(data["SHIFT 2"]);
+                        tutupRiwayat();
+                    } else if(data["SHIFT 1"]) {
+                        tampilkanLaporanFinal(data["SHIFT 1"]);
+                        tutupRiwayat();
+                    } else {
+                        alert("Data Shift Kosong!");
+                    }
+                }
+            } else {
+                alert("Data Kosong!"); 
+            }
+        }); 
+    }
+    
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display='none'; }
 </script>
 </body>
