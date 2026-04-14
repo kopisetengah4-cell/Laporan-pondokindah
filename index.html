@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | AUTO CALC v135</title>
+    <title>PI Dashboard | AUTO CALC v136</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -33,18 +33,21 @@
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
         .col-data { width: 13%; }
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
-        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; transition: 0.2s; }
-        table.main-table input:focus { background-color: rgba(212, 175, 55, 0.1); } /* Efek highlight saat ngetik */
+        
+        /* Modifikasi Input Angka agar lebih bersih di HP */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 14px; font-weight: bold; transition: 0.2s; -moz-appearance: textfield; }
+        table.main-table input:focus { background-color: rgba(212, 175, 55, 0.15); } 
 
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
         .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
         .r-inp { width: 35%; border: 1px solid #333; }
-        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 11px; height: 20px; }
+        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 12px; font-weight: bold; height: 20px; -moz-appearance: textfield; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
         .omset-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
-        .omset-row input { background: transparent; border: none; color: white; width: 90px; text-align: right; outline: none; font-size: 12px; }
+        .omset-row input { background: transparent; border: none; color: white; width: 90px; text-align: right; outline: none; font-size: 13px; font-weight: bold; -moz-appearance: textfield; }
         .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
 
         .bottom-section { display: flex; gap: 5px; margin-top: 5px; width: 100%; }
@@ -128,9 +131,9 @@
             <div class="roti-box">
                 <table class="roti-table">
                     <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px; border: 1px solid #333;">SISA ROTI</td></tr>
-                    <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="text" id="r_cok" oninput="liveSync(this)"></td></tr>
-                    <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="text" id="r_van" oninput="liveSync(this)"></td></tr>
-                    <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="text" id="r_blu" oninput="liveSync(this)"></td></tr>
+                    <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="number" id="r_cok" oninput="liveSync(this)"></td></tr>
+                    <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="number" id="r_van" oninput="liveSync(this)"></td></tr>
+                    <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="number" id="r_blu" oninput="liveSync(this)"></td></tr>
                 </table>
             </div>
         </div>
@@ -323,6 +326,7 @@
 
     function renderTables() {
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
+        // UPDATE: Semua kolom tabel diubah menjadi type="number"
         barang_list.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
             bBody.innerHTML += `<tr>
@@ -335,8 +339,9 @@
             </tr>`;
         });
         const oBody = document.getElementById('list-omset'); oBody.innerHTML = "";
+        // UPDATE: Omset diubah jadi type="number" agar cepat diketik tanpa titik
         omset_list.forEach(m => {
-            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="text" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="liveSync(this)"></div>`;
+            oBody.innerHTML += `<div class="omset-row"><span>${m}</span><input type="number" class="inp-o" id="o_${m.replace(/[^A-Z0-9]/ig,'_')}" oninput="liveSync(this)"></div>`;
         });
     }
 
@@ -344,29 +349,25 @@
     // FUNGSI PINTAR: HITUNG SISA OTOMATIS & LIVE SYNC
     // ===============================================
     function liveSync(el) { 
-        hitungTotal(); // Menghitung Omset
+        hitungTotal(); 
         const update = {}; 
         update[el.id] = el.value; 
 
-        // CEK APAKAH YANG DIKETIK ADALAH KOLOM BARANG (BUKAN OMSET/ROTI)
         const prefix = el.id.split('_')[0];
         if (["stok", "msk", "rsk", "trjl"].includes(prefix)) {
-            const id = el.id.substring(prefix.length + 1); // Mendapatkan nama ID barangnya (cth: CUP_KECIL)
+            const id = el.id.substring(prefix.length + 1); 
             
-            // Ambil angka dari masing-masing kolom
             const stok = parseInt(document.getElementById('stok_' + id).value) || 0;
             const msk = parseInt(document.getElementById('msk_' + id).value) || 0;
             const rsk = parseInt(document.getElementById('rsk_' + id).value) || 0;
             const trjl = parseInt(document.getElementById('trjl_' + id).value) || 0;
 
-            // RUMUS: (Stok Awal + Masuk) - Rusak - Terjual
             const sisaBaru = stok + msk - rsk - trjl;
             const sisaInput = document.getElementById('sisa_' + id);
 
-            // Jangan update otomatis kalau kasir sedang mengetik manual di kolom SISA
             if (document.activeElement !== sisaInput) {
                 sisaInput.value = sisaBaru;
-                update['sisa_' + id] = sisaBaru; // Push sisa baru ke Firebase
+                update['sisa_' + id] = sisaBaru; 
             }
         }
 
