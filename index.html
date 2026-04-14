@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | NO SHIFT v129</title>
+    <title>PI Dashboard | KS4 v130</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -196,14 +196,18 @@
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
+    // ===============================================
+    // DATABASE CABANG & ADMIN BARU (DENGAN SUNTER)
+    // ===============================================
     const authData = [
-        { id: "KS4-ADM", nama: "Admin Pro", pass: "9812", role: "admin" },
+        { id: "KS4-ADM", nama: "Admin", pass: "9812", role: "admin" }, // Akun Admin Baru
         { id: "KS4-TD", nama: "Tandur", pass: "1245", role: "kasir" },
         { id: "KS4-KB", nama: "Kebon Jeruk", pass: "1425", role: "kasir" },
         { id: "KS4-PI", nama: "Pondok Indah", pass: "3265", role: "kasir" },
         { id: "KS4-MT", nama: "Menteng", pass: "9865", role: "kasir" },
         { id: "KS4-CP", nama: "Cemput", pass: "7845", role: "kasir" },
-        { id: "KS4-OT", nama: "Otista", pass: "1478", role: "kasir" }
+        { id: "KS4-OT", nama: "Otista", pass: "1478", role: "kasir" },
+        { id: "KS4-ST", nama: "Sunter", pass: "1312", role: "kasir" } // Cabang Baru
     ];
 
     let pathAktif = "";
@@ -326,12 +330,15 @@
             if (data) {
                 Object.keys(data).forEach(key => { const input = document.getElementById(key); if (input && input !== document.activeElement) input.value = data[key]; });
                 hitungTotal();
-            } else { tarikDataMesinWaktu(1); }
+            } else { tarikDataMesinWaktu(1); } // OTOMATIS TARIK DATA SAAT KOSONG
         });
     }
 
+    // ===============================================
+    // MESIN WAKTU: Menarik Data Kemarin Otomatis
+    // ===============================================
     function tarikDataMesinWaktu(hariMundur) {
-        if (hariMundur > 7) return;
+        if (hariMundur > 7) return; // Batas mundur maksimal 7 hari
         const tglSekarang = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cab').value;
         let d = new Date(tglSekarang);
@@ -345,12 +352,15 @@
                 barang_list.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
                     if(dataK[id]) {
-                        initDraft[`stok_${id}`] = dataK[id].sisa || "0";
+                        initDraft[`stok_${id}`] = dataK[id].sisa || "0"; // Sisa kemarin pindah ke Stok hari ini
                         if(!list_kosongkan.includes(id)) initDraft[`sisa_${id}`] = dataK[id].sisa || "0";
                     }
                 });
                 db.ref(pathAktif).update(initDraft);
-            } else { tarikDataMesinWaktu(hariMundur + 1); }
+            } else { 
+                // Jika hari kemarin kosong (misal libur), mundur 1 hari lagi!
+                tarikDataMesinWaktu(hariMundur + 1); 
+            }
         });
     }
 
