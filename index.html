@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | AUTO MIGRATE v132</title>
+    <title>PI Dashboard | ULTIMATE PULL v133</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -26,6 +26,11 @@
         .btn-wa { background-color: #25D366; }
         .btn-menu { background-color: #d4af37; color: #000; }
         .btn-reset { background-color: #e74c3c; }
+        
+        /* Gaya Tombol Tarik Data */
+        .btn-tarik { background-color: #2980b9; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; width: 100%; margin-bottom: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; }
+        .btn-tarik:active { transform: scale(0.98); }
+
         .container { width: 100%; max-width: 600px; padding-bottom: 20px; }
         
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
@@ -99,19 +104,15 @@
 
 <div id="admin-app">
     <h2 style="color: #bf9b30; margin-bottom: 15px; text-shadow: 1px 1px 2px #000;">DASHBOARD BOS</h2>
-    
     <div class="admin-header-box">
         <input type="date" id="admin-date" class="admin-date-input" onchange="loadAdminData()">
         <button class="admin-btn" onclick="loadAdminData()">🔄 CEK</button>
     </div>
-
     <div id="admin-content" style="width: 100%; display: flex; flex-direction: column;"></div>
-
     <div class="grand-total-box">
         <div style="color: #bf9b30; font-size: 12px; font-weight: bold; letter-spacing: 1px;">TOTAL OMSET HARI INI</div>
         <div id="admin-grand-total" style="color: #fff; font-size: 32px; font-weight: bold; margin-top: 5px;">Rp 0</div>
     </div>
-    
     <button class="admin-btn-logout" onclick="logoutSystem()">KELUAR (LOGOUT)</button>
 </div>
 
@@ -140,6 +141,8 @@
                 </table>
             </div>
         </div>
+
+        <button id="btn-tarik-manual" class="btn-tarik" onclick="tarikDataManual()">⬇️ TARIK DATA KEMARIN</button>
 
         <table class="main-table">
             <thead>
@@ -196,7 +199,6 @@
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
-    // DATABASE CABANG & ADMIN BARU
     const authData = [
         { id: "KS4-ADM", nama: "Admin", pass: "9812", role: "admin" },
         { id: "KS4-TD", nama: "Tandur", pass: "1245", role: "kasir" },
@@ -219,7 +221,13 @@
         document.getElementById('label-hari').innerText = hr[d.getDay()];
         
         const cSel = document.getElementById('main-cab');
-        authData.forEach(c => { if(c.role !== "admin") cSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; });
+        const hSel = document.getElementById('h_cab');
+        authData.forEach(c => { 
+            if(c.role !== "admin") {
+                cSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; 
+                hSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; 
+            }
+        });
         
         const savedId = localStorage.getItem('ks4_id');
         const savedPass = localStorage.getItem('ks4_pass');
@@ -284,27 +292,22 @@
                 return;
             }
 
-            // PERBAIKAN DI ADMIN KARENA SUDAH TIDAK ADA SHIFT
             Object.keys(data).forEach(namaCabang => {
                 const lap = data[namaCabang];
-                
-                // Pengecekan aman, karena struktur lama ada shift, struktur baru langsung data
-                if(lap.total) { // Ini format baru (tanpa shift)
+                if(lap.total) { 
                     const omsetStr = lap.total || "0";
                     grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
-
                     const card = document.createElement('div');
                     card.className = "admin-card";
                     card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Kas: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
                     card.onclick = () => { tampilkanLaporanFinal(lap); };
                     content.appendChild(card);
-                } else { // Ini format lama (masih ada shift)
+                } else { 
                     Object.keys(lap).forEach(namaShift => {
                         const shiftDetail = lap[namaShift];
                         if(shiftDetail.total) {
                             const omsetStr = shiftDetail.total || "0";
                             grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
-
                             const card = document.createElement('div');
                             card.className = "admin-card";
                             card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">${namaShift} | Kas: ${shiftDetail.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
@@ -348,42 +351,30 @@
                 Object.keys(data).forEach(key => { const input = document.getElementById(key); if (input && input !== document.activeElement) input.value = data[key]; });
                 hitungTotal();
             } else {
-                // JIKA HARI INI KOSONG, OTOMATIS JALANKAN MESIN WAKTU MENCARI KE KEMARIN
-                tarikDataMesinWaktu(1);
+                // Jalankan otomatis sekali saat aplikasi baru dibuka dan kosong
+                tarikDataMesinWaktu(1, false);
             }
         });
     }
 
     // ===============================================
-    // JEMBATAN MIGRASI & MESIN WAKTU (AUTO PULL)
+    // JEMBATAN MIGRASI SUPER: CARI FINAL ATAU DRAFT
     // ===============================================
-    function cariDataLama(tglStr, cab, callback) {
-        // 1. Cek format baru (Tanpa Shift)
-        db.ref(`Laporan/${tglStr}/${cab}/barang`).once('value', snp => {
-            if (snp.val()) {
-                callback(snp.val());
-            } else {
-                // 2. Cek format lama (Cari SHIFT 2 dulu sebagai penutup hari)
-                db.ref(`Laporan/${tglStr}/${cab}/SHIFT 2/barang`).once('value', snp2 => {
-                    if (snp2.val()) {
-                        callback(snp2.val());
-                    } else {
-                        // 3. Cek format lama (Cari SHIFT 1 jika SHIFT 2 tidak ada)
-                        db.ref(`Laporan/${tglStr}/${cab}/SHIFT 1/barang`).once('value', snp1 => {
-                            if (snp1.val()) {
-                                callback(snp1.val());
-                            } else {
-                                callback(null); // Data di tanggal ini benar-benar kosong
-                            }
-                        });
-                    }
-                });
-            }
-        });
+    function tarikDataManual() {
+        const btn = document.getElementById('btn-tarik-manual');
+        btn.innerText = "MENCARI DATA...";
+        btn.style.backgroundColor = "#e67e22";
+        tarikDataMesinWaktu(1, true);
     }
 
-    function tarikDataMesinWaktu(hariMundur) {
-        if (hariMundur > 7) return; // Batas mundur 7 hari
+    function tarikDataMesinWaktu(hariMundur, isManual = false) {
+        const btn = document.getElementById('btn-tarik-manual');
+        if (hariMundur > 7) { 
+            if(isManual) alert("Sistem telah mencari sampai 7 hari ke belakang tapi tidak menemukan data sisa kemarin yang bisa ditarik.");
+            btn.innerText = "⬇️ TARIK DATA KEMARIN";
+            btn.style.backgroundColor = "#2980b9";
+            return; 
+        }
 
         const tglSekarang = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cab').value;
@@ -391,9 +382,9 @@
         d.setDate(d.getDate() - hariMundur);
         let tglMundurStr = d.toISOString().split('T')[0];
 
-        // Panggil fungsi jembatan pencari data
-        cariDataLama(tglMundurStr, cab, function(dataK) {
-            if(dataK) {
+        cariDataLama(tglMundurStr, cab, function(fullData, asalData) {
+            if(fullData) {
+                const dataK = fullData.barang || {};
                 const initDraft = {};
                 barang_list.forEach(item => {
                     const id = item.replace(/[^A-Z0-9]/ig, "_");
@@ -402,12 +393,66 @@
                         if(!list_kosongkan.includes(id)) initDraft[`sisa_${id}`] = dataK[id].sisa || "0";
                     }
                 });
-                db.ref(pathAktif).update(initDraft);
+                
+                // Ambil sisa Roti juga jika ada
+                if(fullData.roti) {
+                    initDraft['r_cok'] = fullData.roti.cok || "0";
+                    initDraft['r_van'] = fullData.roti.van || "0";
+                    initDraft['r_blu'] = fullData.roti.blu || "0";
+                }
+
+                db.ref(pathAktif).update(initDraft).then(() => {
+                    if(isManual) alert("✅ Data berhasil ditarik dari: " + tglMundurStr + " (" + asalData + ")");
+                    btn.innerText = "✅ DATA BERHASIL DITARIK!";
+                    btn.style.backgroundColor = "#27ae60";
+                    setTimeout(() => { btn.innerText = "⬇️ TARIK DATA KEMARIN"; btn.style.backgroundColor = "#2980b9"; }, 3000);
+                });
             } else { 
-                // Kosong? Mundur 1 hari lagi.
-                tarikDataMesinWaktu(hariMundur + 1); 
+                tarikDataMesinWaktu(hariMundur + 1, isManual); 
             }
         });
+    }
+
+    function cariDataLama(tglStr, cab, callback) {
+        // 1. Cek Laporan Format Baru (Tanpa Shift)
+        db.ref(`Laporan/${tglStr}/${cab}`).once('value', s1 => {
+            if (s1.val() && s1.val().barang) return callback(s1.val(), "Laporan Baru");
+            
+            // 2. Cek Laporan Format Lama (SHIFT 2)
+            db.ref(`Laporan/${tglStr}/${cab}/SHIFT 2`).once('value', s2 => {
+                if (s2.val() && s2.val().barang) return callback(s2.val(), "Laporan Shift 2");
+                
+                // 3. Cek Laporan Format Lama (SHIFT 1)
+                db.ref(`Laporan/${tglStr}/${cab}/SHIFT 1`).once('value', s3 => {
+                    if (s3.val() && s3.val().barang) return callback(s3.val(), "Laporan Shift 1");
+                    
+                    // 4. JIKA KASIR LUPA KLIK SIMPAN, KITA CURI DARI DRAFT MEREKA!
+                    db.ref(`Drafts/${tglStr}/${cab}/SHIFT 2`).once('value', d2 => {
+                        if(d2.val()) return convertDraft(d2.val(), callback, "Draft Shift 2");
+                        
+                        db.ref(`Drafts/${tglStr}/${cab}/SHIFT 1`).once('value', d1 => {
+                            if(d1.val()) return convertDraft(d1.val(), callback, "Draft Shift 1");
+                            
+                            // Jika semua gagal, berarti toko memang libur / kosong total hari itu
+                            callback(null, ""); 
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    function convertDraft(draftData, callback, asal) {
+        let converted = { barang: {}, roti: {} };
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const sisaVal = draftData[`sisa_${id}`];
+            if (sisaVal !== undefined) converted.barang[id] = { sisa: sisaVal };
+        });
+        converted.roti.cok = draftData['r_cok'] || "0";
+        converted.roti.van = draftData['r_van'] || "0";
+        converted.roti.blu = draftData['r_blu'] || "0";
+        callback(converted, asal);
     }
 
     function hitungTotal() {
@@ -485,36 +530,21 @@
     }
 
     function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
-    function bukaRiwayat() { const hCab = document.getElementById('h_cab'); hCab.innerHTML = document.getElementById('main-cab').innerHTML; hCab.value = document.getElementById('main-cab').value; document.getElementById('riwayat-modal').style.display='block'; }
+    function bukaRiwayat() { document.getElementById('h_cab').value = document.getElementById('main-cab').value; document.getElementById('riwayat-modal').style.display='block'; }
     
-    // PENCARIAN RIWAYAT (Bisa baca format lama maupun baru)
     function cariDataRiwayat() { 
         const t = document.getElementById('h_tgl').value; 
         const c = document.getElementById('h_cab').value; 
-        
-        // Cek format baru dulu
         db.ref(`Laporan/${t}/${c}`).once('value', snp => { 
             const data = snp.val();
             if(data) { 
-                if (data.total) {
-                    tampilkanLaporanFinal(data); 
-                    tutupRiwayat(); 
-                } else {
-                    // Kalau data ada tapi bukan format baru, berarti ini format lama dengan Shift
-                    // Tampilkan Shift 2 dulu, kalau tidak ada tampilkan Shift 1
-                    if(data["SHIFT 2"]) {
-                        tampilkanLaporanFinal(data["SHIFT 2"]);
-                        tutupRiwayat();
-                    } else if(data["SHIFT 1"]) {
-                        tampilkanLaporanFinal(data["SHIFT 1"]);
-                        tutupRiwayat();
-                    } else {
-                        alert("Data Shift Kosong!");
-                    }
+                if (data.total) { tampilkanLaporanFinal(data); tutupRiwayat(); } 
+                else {
+                    if(data["SHIFT 2"]) { tampilkanLaporanFinal(data["SHIFT 2"]); tutupRiwayat(); } 
+                    else if(data["SHIFT 1"]) { tampilkanLaporanFinal(data["SHIFT 1"]); tutupRiwayat(); } 
+                    else { alert("Data Shift Kosong!"); }
                 }
-            } else {
-                alert("Data Kosong!"); 
-            }
+            } else { alert("Data Kosong!"); }
         }); 
     }
     
