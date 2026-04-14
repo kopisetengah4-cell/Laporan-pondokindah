@@ -6,10 +6,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KS4 Dash">
     <link rel="apple-touch-icon" href="Logo-al.png">
-    <meta name="theme-color" content="#3e2723"> <link rel="icon" type="image/png" href="Logo-al.png">
+    <meta name="theme-color" content="#3e2723">
+    <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | TIME MACHINE v128</title>
+    <title>PI Dashboard | NO SHIFT v129</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -18,7 +19,6 @@
     <style>
         /* ================= TAMPILAN UTAMA TABEL ASLI ================= */
         body { background-color: #000; color: #d4af37; font-family: sans-serif; margin: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
-        
         #main-app { width: 100%; max-width: 600px; display: none; flex-direction: column; align-items: center; } 
         
         .top-nav { width: 100%; max-width: 600px; display: flex; justify-content: space-between; margin-bottom: 5px; gap: 3px; }
@@ -105,8 +105,7 @@
         <button class="admin-btn" onclick="loadAdminData()">🔄 CEK</button>
     </div>
 
-    <div id="admin-content" style="width: 100%; display: flex; flex-direction: column;">
-        </div>
+    <div id="admin-content" style="width: 100%; display: flex; flex-direction: column;"></div>
 
     <div class="grand-total-box">
         <div style="color: #bf9b30; font-size: 12px; font-weight: bold; letter-spacing: 1px;">TOTAL OMSET HARI INI</div>
@@ -130,8 +129,7 @@
             <div style="flex: 1;">
                 <span id="label-hari" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
                 TGL: <span id="label-tgl">-</span><br>
-                CAB: <select id="main-cab" onchange="konfirmasiGantiLokasi()"></select><br>
-                SHIFT: <select id="main-shf" onchange="gantiShift()"></select>
+                CAB: <select id="main-cab" onchange="konfirmasiGantiLokasi()"></select>
             </div>
             <div class="roti-box">
                 <table class="roti-table">
@@ -173,8 +171,7 @@
 <div id="riwayat-modal">
     <div class="modal-inner">
         <h3 style="color:#d4af37; text-align:center;">CARI RIWAYAT</h3>
-        <select id="h_cab" onchange="updateShiftRiwayat()"></select>
-        <select id="h_shf"></select>
+        <select id="h_cab"></select>
         <input type="date" id="h_tgl">
         <button class="btn-main btn-menu" style="width:100%;" onclick="cariDataRiwayat()">TAMPILKAN</button>
         <button class="btn-main btn-reset" style="width:100%; margin-top:5px;" onclick="tutupRiwayat()">BATAL</button>
@@ -197,8 +194,8 @@
 
     const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
-    
-    // DATABASE CABANG & AKUN ADMIN KHUSUS
+    const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
+
     const authData = [
         { id: "KS4-ADM", nama: "Admin Pro", pass: "9812", role: "admin" },
         { id: "KS4-TD", nama: "Tandur", pass: "1245", role: "kasir" },
@@ -208,8 +205,6 @@
         { id: "KS4-CP", nama: "Cemput", pass: "7845", role: "kasir" },
         { id: "KS4-OT", nama: "Otista", pass: "1478", role: "kasir" }
     ];
-
-    const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
     let pathAktif = "";
     let cabangSebelumnya = "";
@@ -222,19 +217,14 @@
         document.getElementById('label-hari').innerText = hr[d.getDay()];
         
         const cSel = document.getElementById('main-cab');
-        authData.forEach(c => { 
-            if(c.role !== "admin") cSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; 
-        });
+        authData.forEach(c => { if(c.role !== "admin") cSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; });
         
         const savedId = localStorage.getItem('ks4_id');
         const savedPass = localStorage.getItem('ks4_pass');
 
         if (savedId && savedPass) {
             const user = authData.find(u => u.id === savedId && u.pass === savedPass);
-            if (user) {
-                jalankanAplikasi(user, tglStr);
-                return;
-            }
+            if (user) { jalankanAplikasi(user, tglStr); return; }
         }
     }
 
@@ -242,29 +232,21 @@
         const inputId = document.getElementById('login-id').value.toUpperCase();
         const inputPass = document.getElementById('login-pass').value;
         const ingat = document.getElementById('login-remember').checked;
-
         const user = authData.find(u => u.id === inputId && u.pass === inputPass);
 
         if (user) {
-            if (ingat) {
-                localStorage.setItem('ks4_id', user.id);
-                localStorage.setItem('ks4_pass', user.pass);
-            } else {
-                localStorage.removeItem('ks4_id');
-                localStorage.removeItem('ks4_pass');
-            }
-            
+            if (ingat) { localStorage.setItem('ks4_id', user.id); localStorage.setItem('ks4_pass', user.pass); }
+            else { localStorage.removeItem('ks4_id'); localStorage.removeItem('ks4_pass'); }
             const d = new Date();
             jalankanAplikasi(user, d.toISOString().split('T')[0]);
         } else {
-            alert("❌ Akses Ditolak!\nID atau Password salah.");
+            alert("❌ Akses Ditolak!");
             if(cabangSebelumnya !== "") document.getElementById('main-cab').value = cabangSebelumnya; 
         }
     }
 
     function jalankanAplikasi(user, tglStr) {
         document.getElementById('login-overlay').style.display = 'none';
-        
         if (user.role === "admin") {
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('admin-app').style.display = 'flex';
@@ -273,24 +255,18 @@
         } else {
             document.getElementById('admin-app').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
-            
             localStorage.setItem('p_cab', user.nama);
             document.getElementById('main-cab').value = user.nama;
             cabangSebelumnya = user.nama;
-            lanjutkanLoadData(tglStr, user.nama);
+            renderTables();
+            pathAktif = `Drafts/${tglStr}/${user.nama}`;
+            mulaiListenSync();
             document.getElementById('login-header-title').innerText = "LAPORAN KS4";
         }
     }
 
-    function logoutSystem() {
-        localStorage.removeItem('ks4_id');
-        localStorage.removeItem('ks4_pass');
-        location.reload();
-    }
+    function logoutSystem() { localStorage.removeItem('ks4_id'); localStorage.removeItem('ks4_pass'); location.reload(); }
 
-    // ==========================================
-    // FUNGSI DASHBOARD ADMIN
-    // ==========================================
     function loadAdminData() {
         const tgl = document.getElementById('admin-date').value;
         const content = document.getElementById('admin-content');
@@ -300,44 +276,27 @@
         db.ref(`Laporan/${tgl}`).once('value', snp => {
             content.innerHTML = "";
             const data = snp.val();
-            
             if(!data) {
-                content.innerHTML = `<div style='color:#888; text-align:center; margin-top:20px;'>Belum ada laporan yang masuk di tanggal ini.</div>`;
+                content.innerHTML = `<div style='color:#888; text-align:center; margin-top:20px;'>Belum ada laporan hari ini.</div>`;
                 document.getElementById('admin-grand-total').innerText = "Rp 0";
                 return;
             }
 
             Object.keys(data).forEach(namaCabang => {
-                const shiftData = data[namaCabang];
-                Object.keys(shiftData).forEach(namaShift => {
-                    const laporanDetail = shiftData[namaShift];
-                    
-                    const omsetStr = laporanDetail.total || "0";
-                    const omsetNum = parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
-                    grandTotal += omsetNum;
+                const lap = data[namaCabang];
+                const omsetStr = lap.total || "0";
+                grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
 
-                    const card = document.createElement('div');
-                    card.className = "admin-card";
-                    card.innerHTML = `
-                        <div>
-                            <div class="card-title">${namaCabang}</div>
-                            <div class="card-subtitle">${namaShift} | Kas: ${laporanDetail.f_cash || '-'}</div>
-                        </div>
-                        <div class="card-omset">Rp ${omsetStr}</div>
-                    `;
-                    
-                    card.onclick = () => { tampilkanLaporanFinal(laporanDetail); };
-                    content.appendChild(card);
-                });
+                const card = document.createElement('div');
+                card.className = "admin-card";
+                card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Final: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
+                card.onclick = () => { tampilkanLaporanFinal(lap); };
+                content.appendChild(card);
             });
-
             document.getElementById('admin-grand-total').innerText = "Rp " + grandTotal.toLocaleString('id-ID');
         });
     }
 
-    // ==========================================
-    // FUNGSI KASIR (TAMPILAN TABEL ASLI)
-    // ==========================================
     function konfirmasiGantiLokasi() {
         const targetCab = document.getElementById('main-cab').value;
         document.getElementById('login-id').value = "";
@@ -345,15 +304,6 @@
         document.getElementById('login-header-title').innerText = `VERIFIKASI ${targetCab.toUpperCase()}`;
         document.getElementById('main-app').style.display = 'none';
         document.getElementById('login-overlay').style.display = 'flex';
-    }
-
-    function lanjutkanLoadData(tglStr, cabang) {
-        updateShiftDropdown(cabang, 'main-shf');
-        const savedShf = localStorage.getItem('p_shf') || "SHIFT 1";
-        document.getElementById('main-shf').value = savedShf;
-        renderTables();
-        pathAktif = `Drafts/${tglStr}/${cabang}/${savedShf}`;
-        mulaiListenSync();
     }
 
     function renderTables() {
@@ -368,74 +318,27 @@
         });
     }
 
-    function liveSync(el) {
-        hitungTotal();
-        const update = {};
-        update[el.id] = el.value;
-        db.ref(pathAktif).update(update);
-    }
+    function liveSync(el) { hitungTotal(); const update = {}; update[el.id] = el.value; db.ref(pathAktif).update(update); }
 
     function mulaiListenSync() {
         db.ref(pathAktif).on('value', snp => {
             const data = snp.val();
             if (data) {
-                Object.keys(data).forEach(key => {
-                    const input = document.getElementById(key);
-                    if (input && input !== document.activeElement) {
-                        input.value = data[key];
-                    }
-                });
+                Object.keys(data).forEach(key => { const input = document.getElementById(key); if (input && input !== document.activeElement) input.value = data[key]; });
                 hitungTotal();
-            } else {
-                tarikDataKemarin(); // Mulai Mesin Waktu
-            }
+            } else { tarikDataMesinWaktu(1); }
         });
     }
 
-    // ==============================================================
-    // MESIN WAKTU (AUTO-REWIND) UNTUK MENCARI SISA HARI SEBELUMNYA
-    // ==============================================================
-    function tarikDataKemarin() {
+    function tarikDataMesinWaktu(hariMundur) {
+        if (hariMundur > 7) return;
         const tglSekarang = document.getElementById('label-tgl').innerText;
         const cab = document.getElementById('main-cab').value;
-        const shfSekarang = document.getElementById('main-shf').value;
-        
-        if (shfSekarang === "SHIFT 2") {
-            // Kalau sekarang Shift 2, coba cari Shift 1 hari ini dulu
-            tarikDariLaporan(tglSekarang, cab, "SHIFT 1", (berhasil) => {
-                if (!berhasil) {
-                    mulaiMesinWaktu(tglSekarang, cab, 1); // Mundur 1 hari
-                }
-            });
-        } else {
-            // Kalau sekarang Shift 1, langsung mundur 1 hari
-            mulaiMesinWaktu(tglSekarang, cab, 1);
-        }
-    }
-
-    function mulaiMesinWaktu(tglAwal, cabang, hariMundur) {
-        if (hariMundur > 7) return; // Batas maksimal mundur 7 hari agar tidak infinite loop
-
-        let d = new Date(tglAwal);
+        let d = new Date(tglSekarang);
         d.setDate(d.getDate() - hariMundur);
         let tglMundurStr = d.toISOString().split('T')[0];
 
-        // Cari Shift 2 dulu (karena itu shift penutup dalam sehari)
-        tarikDariLaporan(tglMundurStr, cabang, "SHIFT 2", (berhasilShift2) => {
-            if (!berhasilShift2) {
-                // Kalau Shift 2 kosong, cari Shift 1
-                tarikDariLaporan(tglMundurStr, cabang, "SHIFT 1", (berhasilShift1) => {
-                    if (!berhasilShift1) {
-                        // Kalau hari ini kosong total (misal libur), MUNDUR LAGI ke hari sebelumnya!
-                        mulaiMesinWaktu(tglAwal, cabang, hariMundur + 1);
-                    }
-                });
-            }
-        });
-    }
-
-    function tarikDariLaporan(tanggal, cabang, shift, callback) {
-        db.ref(`Laporan/${tanggal}/${cabang}/${shift}/barang`).once('value', snp => {
+        db.ref(`Laporan/${tglMundurStr}/${cab}/barang`).once('value', snp => {
             if(snp.val()) {
                 const dataK = snp.val();
                 const initDraft = {};
@@ -447,13 +350,9 @@
                     }
                 });
                 db.ref(pathAktif).update(initDraft);
-                callback(true); // Memberi sinyal bahwa data ditemukan
-            } else {
-                callback(false); // Sinyal data kosong
-            }
+            } else { tarikDataMesinWaktu(hariMundur + 1); }
         });
     }
-    // ==============================================================
 
     function hitungTotal() {
         let tot = 0;
@@ -466,7 +365,6 @@
             hari: document.getElementById('label-hari').innerText,
             tgl: document.getElementById('label-tgl').innerText,
             cab: document.getElementById('main-cab').value,
-            shf: document.getElementById('main-shf').value,
             total: document.getElementById('val-total').innerText,
             roti: { cok: document.getElementById('r_cok').value || 0, van: document.getElementById('r_van').value || 0, blu: document.getElementById('r_blu').value || 0 },
             omset: {}, barang: {},
@@ -474,41 +372,24 @@
         };
         barang_list.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            d.barang[id] = { 
-                stok: document.getElementById('stok_'+id).value || 0, 
-                msk: document.getElementById('msk_'+id).value || 0, 
-                rsk: document.getElementById('rsk_'+id).value || 0, 
-                trjl: document.getElementById('trjl_'+id).value || 0, 
-                sisa: document.getElementById('sisa_'+id).value || 0 
-            };
+            d.barang[id] = { stok: document.getElementById('stok_'+id).value || 0, msk: document.getElementById('msk_'+id).value || 0, rsk: document.getElementById('rsk_'+id).value || 0, trjl: document.getElementById('trjl_'+id).value || 0, sisa: document.getElementById('sisa_'+id).value || 0 };
         });
         omset_list.forEach(m => { d.omset[m] = document.getElementById("o_" + m.replace(/[^A-Z0-9]/ig,'_')).value || 0; });
 
-        db.ref(`Laporan/${d.tgl}/${d.cab}/${d.shf}`).set(d).then(() => {
-            alert("FINAL DISIMPAN!");
-            tampilkanLaporanFinal(d);
-        });
+        db.ref(`Laporan/${d.tgl}/${d.cab}`).set(d).then(() => { alert("FINAL DISIMPAN!"); tampilkanLaporanFinal(d); });
     }
 
-    function gantiShift() { localStorage.setItem('p_shf', document.getElementById('main-shf').value); location.reload(); }
-    
-    function updateShiftDropdown(cabang, targetId) {
-        const shfSelect = document.getElementById(targetId);
-        shfSelect.innerHTML = (["Pondok Indah", "Cemput", "Menteng"].includes(cabang)) ? `<option value="SHIFT 1">SHIFT 1</option>` : `<option value="SHIFT 1">SHIFT 1</option><option value="SHIFT 2">SHIFT 2</option>`;
-    }
-
-    // FUNGSI TAMPILKAN LAPORAN BERSAMA (Dipakai Kasir & Admin)
     function tampilkanLaporanFinal(d) {
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <div style="font-size:11px;"><b>${d.hari || 'HARI INI'}</b><br>TGL: ${d.tgl}<br>CAB: ${d.cab}<br>SHIFT: ${d.shf}</div>
+                <div style="font-size:11px;"><b>${d.hari || ''}</b><br>TGL: ${d.tgl}<br>CAB: ${d.cab}</div>
                 <div style="width:120px;">
                     <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #000;">
                         <tr style="background:#eee;"><td colspan="2" style="text-align:center; font-weight:bold; border:1px solid #000;">SISA ROTI</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center;">${d.roti ? d.roti.cok : 0}</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center;">${d.roti ? d.roti.van : 0}</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center;">${d.roti ? d.roti.blu : 0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.cok:0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.van:0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.blu:0}</td></tr>
                     </table>
                 </div>
             </div>
@@ -523,80 +404,34 @@
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <table style="flex:1.5; border-collapse:collapse; font-size:10px; border:1px solid #000;">
                     <tr style="background:#eee;"><th colspan="2" style="border:1px solid #000;">OMSET</th></tr>`;
-        omset_list.forEach(m => { h += `<tr><td style="border:1px solid #000; padding:2px;">${m}</td><td style="border:1px solid #000; text-align:right; padding-right:5px;">${(d.omset && d.omset[m]) ? d.omset[m] : 0}</td></tr>`; });
+        omset_list.forEach(m => { h += `<tr><td style="border:1px solid #000; padding:2px;">${m}</td><td style="border:1px solid #000; text-align:right; padding-right:5px;">${(d.omset&&d.omset[m])?d.omset[m]:0}</td></tr>`; });
         h += `</table>
                 <div style="flex:1; border:2px solid #000; background:#eee; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                     <span style="font-size:10px; font-weight:bold;">TOTAL</span>
-                    <span style="font-size:18px; font-weight:bold;">Rp ${d.total || 0}</span>
+                    <span style="font-size:18px; font-weight:bold;">Rp ${d.total||0}</span>
                 </div>
             </div>
-            <div style="border:1px solid #000; padding:5px; font-size:11px;"><b>CASH:</b> ${d.f_cash || '-'}</div>
-            <div style="border:1px solid #000; padding:5px; font-size:11px; margin-top:3px;"><b>NOTE:</b> ${d.f_note || '-'}</div>
+            <div style="border:1px solid #000; padding:5px; font-size:11px;"><b>CASH:</b> ${d.f_cash||'-'}</div>
+            <div style="border:1px solid #000; padding:5px; font-size:11px; margin-top:3px;"><b>NOTE:</b> ${d.f_note||'-'}</div>
         </div>`;
         document.getElementById('isi-laporan').innerHTML = h;
         document.getElementById('report-overlay').style.display = 'block';
     }
 
     function downloadPNG() {
-        const btn = document.getElementById('btn-dl-png');
-        if(btn) btn.innerText = "MEMPROSES...";
-
+        const btn = document.getElementById('btn-dl-png'); btn.innerText = "MEMPROSES...";
         html2canvas(document.getElementById('printable-area'), { scale: 1.5 }).then(canv => {
-            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
+            btn.innerText = "📸 SIMPAN GAMBAR";
             const imgData = canv.toDataURL("image/png");
-
-            if (window.AppInventor) {
-                const pureBase64 = imgData.split(',')[1];
-                window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + pureBase64);
-            } else {
-                const a = document.createElement('a');
-                let tglNama = document.getElementById('admin-date') ? document.getElementById('admin-date').value : "LAPORAN";
-                a.download = `LAPORAN_KS4_${tglNama}.png`;
-                a.href = imgData;
-                a.click();
-            }
-        }).catch(err => {
-            alert("Gagal memproses gambar.");
-            if(btn) btn.innerText = "📸 SIMPAN GAMBAR";
+            if (window.AppInventor) { window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + imgData.split(',')[1]); } 
+            else { const a = document.createElement('a'); a.download = `LAPORAN_${document.getElementById('main-cab').value}.png`; a.href = imgData; a.click(); }
         });
     }
 
-    function tutupOverlay() { 
-        document.getElementById('report-overlay').style.display='none'; 
-    }
-    
-    // ==========================================
-    // FUNGSI RIWAYAT UNTUK KASIR
-    // ==========================================
-    function bukaRiwayat() { 
-        const hCab = document.getElementById('h_cab'); 
-        hCab.innerHTML = document.getElementById('main-cab').innerHTML; 
-        hCab.value = document.getElementById('main-cab').value; 
-        updateShiftRiwayat(); 
-        document.getElementById('riwayat-modal').style.display='block'; 
-    }
-
-    function updateShiftRiwayat() { 
-        updateShiftDropdown(document.getElementById('h_cab').value, 'h_shf'); 
-    }
-
-    function cariDataRiwayat() { 
-        const t = document.getElementById('h_tgl').value; 
-        const c = document.getElementById('h_cab').value; 
-        const s = document.getElementById('h_shf').value; 
-        db.ref(`Laporan/${t}/${c}/${s}`).once('value', snp => { 
-            if(snp.val()) { 
-                tampilkanLaporanFinal(snp.val()); 
-                tutupRiwayat(); 
-            } else {
-                alert("Data Kosong!"); 
-            }
-        }); 
-    }
-
-    function tutupRiwayat() { 
-        document.getElementById('riwayat-modal').style.display='none'; 
-    }
+    function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
+    function bukaRiwayat() { const hCab = document.getElementById('h_cab'); hCab.innerHTML = document.getElementById('main-cab').innerHTML; hCab.value = document.getElementById('main-cab').value; document.getElementById('riwayat-modal').style.display='block'; }
+    function cariDataRiwayat() { const t = document.getElementById('h_tgl').value; const c = document.getElementById('h_cab').value; db.ref(`Laporan/${t}/${c}`).once('value', snp => { if(snp.val()) { tampilkanLaporanFinal(snp.val()); tutupRiwayat(); } else alert("Data Kosong!"); }); }
+    function tutupRiwayat() { document.getElementById('riwayat-modal').style.display='none'; }
 </script>
 </body>
 </html>
