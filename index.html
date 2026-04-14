@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | AUTO SYNC v134</title>
+    <title>PI Dashboard | AUTO CALC v135</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -33,7 +33,8 @@
         .col-nama { width: 35%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
         .col-data { width: 13%; }
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
-        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; }
+        table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 13px; transition: 0.2s; }
+        table.main-table input:focus { background-color: rgba(212, 175, 55, 0.1); } /* Efek highlight saat ngetik */
 
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
@@ -55,33 +56,40 @@
         .modal-inner { background: #000; width: 320px; margin: 40px auto; padding: 20px; border: 2px solid #d4af37; color: #fff; border-radius: 8px; }
         .modal-inner select, .modal-inner input { width: 100%; padding: 12px; margin-bottom: 12px; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; font-size: 14px; }
 
+        /* ================= TAMPILAN DASHBOARD ADMIN ================= */
         #admin-app { width: 100%; max-width: 600px; display: none; flex-direction: column; align-items: center; padding-top: 10px; box-sizing: border-box; }
         .admin-header-box { width: 100%; display: flex; gap: 8px; margin-bottom: 15px; }
         .admin-date-input { flex: 2; background: #fffde7; border: 2px solid #bf9b30; padding: 12px; border-radius: 6px; font-weight: bold; color: #3e2723; outline: none; font-size: 14px; }
         .admin-btn { flex: 1; background: linear-gradient(135deg, #bf9b30, #3e2723); border: none; color: #fff; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
         .admin-btn-logout { background: #e74c3c; border: none; color: white; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px;}
-        .admin-card { background: #0a0a0a; border: 1px solid #bf9b30; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: pointer; width: 100%; box-sizing: border-box; }
+        .admin-card { background: #0a0a0a; border: 1px solid #bf9b30; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
+        .admin-card:active { transform: scale(0.98); background: #1a1a1a; }
         .card-title { color: #d4af37; font-weight: bold; font-size: 15px; text-transform: uppercase; }
         .card-subtitle { color: #888; font-size: 11px; margin-top: 3px; }
         .card-omset { color: #fff; font-size: 18px; font-weight: bold; }
         .grand-total-box { margin-top: 20px; background: #111; border: 2px dashed #bf9b30; padding: 15px; width: 100%; box-sizing: border-box; text-align: center; border-radius: 8px; }
 
+        /* ================= TAMPILAN LOGIN ================= */
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #3e2723; z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .login-card { background: #fffde7; border-radius: 15px; padding: 35px 25px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.6); border: 2px solid #bf9b30; }
         .login-title { color: #3e2723; font-size: 24px; font-weight: 800; margin-bottom: 30px; font-family: sans-serif; letter-spacing: 1px; text-shadow: 1px 1px 0px rgba(191, 155, 48, 0.5); }
         .login-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #ccc; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; background: #fff; }
-        .btn-login { width: 100%; background: linear-gradient(135deg, #bf9b30 0%, #3e2723 100%); color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; }
+        .login-input:focus { border-color: #bf9b30; }
+        .login-check-row { display: flex; align-items: center; margin-bottom: 25px; font-size: 13px; color: #3e2723; font-weight: bold; justify-content: flex-start; padding-left: 5px; }
+        .login-check-row input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; accent-color: #bf9b30; }
+        .btn-login { width: 100%; background: linear-gradient(135deg, #bf9b30 0%, #3e2723 100%); color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-login:active { transform: scale(0.98); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body onload="initApp()">
 
 <div id="login-overlay">
     <div class="login-card">
-        <div class="login-title">LAPORAN KS4</div>
+        <div class="login-title" id="login-header-title">LAPORAN KS4</div>
         <input type="text" id="login-id" class="login-input" placeholder="ID CABANG / ADMIN" autocomplete="off">
         <input type="password" id="login-pass" class="login-input" placeholder="PASSWORD" autocomplete="off">
-        <div style="display:flex; align-items:center; margin-bottom:25px; font-size:13px; color:#3e2723; font-weight:bold; justify-content:flex-start; padding-left:5px;">
-            <input type="checkbox" id="login-remember" checked style="margin-right:10px; width:18px; height:18px; accent-color:#bf9b30;">
+        <div class="login-check-row">
+            <input type="checkbox" id="login-remember" checked>
             <label for="login-remember">Ingat Sandi & ID</label>
         </div>
         <button class="btn-login" onclick="prosesLogin()">MASUK</button>
@@ -190,7 +198,7 @@
         { id: "KS4-MT", nama: "Menteng", pass: "9865", role: "kasir" },
         { id: "KS4-CP", nama: "Cemput", pass: "7845", role: "kasir" },
         { id: "KS4-OT", nama: "Otista", pass: "1478", role: "kasir" },
-        { id: "KS4-ST", nama: "Sunter", pass: "1312", role: "kasir" } 
+        { id: "KS4-ST", nama: "Sunter", pass: "1312", role: "kasir" }
     ];
 
     let pathAktif = "";
@@ -202,6 +210,7 @@
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
+        
         const cSel = document.getElementById('main-cab');
         const hSel = document.getElementById('h_cab');
         authData.forEach(c => { 
@@ -210,8 +219,10 @@
                 hSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; 
             }
         });
+        
         const savedId = localStorage.getItem('ks4_id');
         const savedPass = localStorage.getItem('ks4_pass');
+
         if (savedId && savedPass) {
             const user = authData.find(u => u.id === savedId && u.pass === savedPass);
             if (user) { jalankanAplikasi(user, tglStr); return; }
@@ -223,10 +234,12 @@
         const inputPass = document.getElementById('login-pass').value;
         const ingat = document.getElementById('login-remember').checked;
         const user = authData.find(u => u.id === inputId && u.pass === inputPass);
+
         if (user) {
             if (ingat) { localStorage.setItem('ks4_id', user.id); localStorage.setItem('ks4_pass', user.pass); }
             else { localStorage.removeItem('ks4_id'); localStorage.removeItem('ks4_pass'); }
-            jalankanAplikasi(user, document.getElementById('label-tgl').innerText);
+            const d = new Date();
+            jalankanAplikasi(user, d.toISOString().split('T')[0]);
         } else {
             alert("❌ Akses Ditolak!");
             if(cabangSebelumnya !== "") document.getElementById('main-cab').value = cabangSebelumnya; 
@@ -249,6 +262,7 @@
             renderTables();
             pathAktif = `Drafts/${tglStr}/${user.nama}`;
             mulaiListenSync();
+            document.getElementById('login-header-title').innerText = "LAPORAN KS4";
         }
     }
 
@@ -259,6 +273,7 @@
         const content = document.getElementById('admin-content');
         content.innerHTML = `<div style='color:#bf9b30; text-align:center; margin-top:20px;'>Mencari Laporan...</div>`;
         let grandTotal = 0;
+
         db.ref(`Laporan/${tgl}`).once('value', snp => {
             content.innerHTML = "";
             const data = snp.val();
@@ -267,24 +282,27 @@
                 document.getElementById('admin-grand-total').innerText = "Rp 0";
                 return;
             }
+
             Object.keys(data).forEach(namaCabang => {
                 const lap = data[namaCabang];
                 if(lap.total) { 
-                    grandTotal += parseInt(lap.total.replace(/[^0-9]/g, '')) || 0;
+                    const omsetStr = lap.total || "0";
+                    grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
                     const card = document.createElement('div');
                     card.className = "admin-card";
-                    card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Kas: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${lap.total}</div>`;
+                    card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">Kas: ${lap.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
                     card.onclick = () => { tampilkanLaporanFinal(lap); };
                     content.appendChild(card);
                 } else { 
-                    Object.keys(lap).forEach(shf => {
-                        const sD = lap[shf];
-                        if(sD.total) {
-                            grandTotal += parseInt(sD.total.replace(/[^0-9]/g, '')) || 0;
+                    Object.keys(lap).forEach(namaShift => {
+                        const shiftDetail = lap[namaShift];
+                        if(shiftDetail.total) {
+                            const omsetStr = shiftDetail.total || "0";
+                            grandTotal += parseInt(omsetStr.replace(/[^0-9]/g, '')) || 0;
                             const card = document.createElement('div');
                             card.className = "admin-card";
-                            card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">${shf} | Kas: ${sD.f_cash || '-'}</div></div><div class="card-omset">Rp ${sD.total}</div>`;
-                            card.onclick = () => { tampilkanLaporanFinal(sD); };
+                            card.innerHTML = `<div><div class="card-title">${namaCabang}</div><div class="card-subtitle">${namaShift} | Kas: ${shiftDetail.f_cash || '-'}</div></div><div class="card-omset">Rp ${omsetStr}</div>`;
+                            card.onclick = () => { tampilkanLaporanFinal(shiftDetail); };
                             content.appendChild(card);
                         }
                     });
@@ -295,7 +313,10 @@
     }
 
     function konfirmasiGantiLokasi() {
-        document.getElementById('login-id').value = ""; document.getElementById('login-pass').value = "";
+        const targetCab = document.getElementById('main-cab').value;
+        document.getElementById('login-id').value = "";
+        document.getElementById('login-pass').value = "";
+        document.getElementById('login-header-title').innerText = `VERIFIKASI ${targetCab.toUpperCase()}`;
         document.getElementById('main-app').style.display = 'none';
         document.getElementById('login-overlay').style.display = 'flex';
     }
@@ -304,7 +325,14 @@
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
         barang_list.forEach(item => {
             const id = item.replace(/[^A-Z0-9]/ig, "_");
-            bBody.innerHTML += `<tr><td class="col-nama">${item}</td><td><input type="text" id="stok_${id}" oninput="liveSync(this)"></td><td><input type="text" id="msk_${id}" oninput="liveSync(this)"></td><td><input type="text" id="rsk_${id}" oninput="liveSync(this)"></td><td><input type="text" id="trjl_${id}" oninput="liveSync(this)"></td><td><input type="text" id="sisa_${id}" oninput="liveSync(this)"></td></tr>`;
+            bBody.innerHTML += `<tr>
+                <td class="col-nama">${item}</td>
+                <td><input type="number" id="stok_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="msk_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="rsk_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="trjl_${id}" oninput="liveSync(this)"></td>
+                <td><input type="number" id="sisa_${id}" oninput="liveSync(this)"></td>
+            </tr>`;
         });
         const oBody = document.getElementById('list-omset'); oBody.innerHTML = "";
         omset_list.forEach(m => {
@@ -312,7 +340,38 @@
         });
     }
 
-    function liveSync(el) { hitungTotal(); const u = {}; u[el.id] = el.value; db.ref(pathAktif).update(u); }
+    // ===============================================
+    // FUNGSI PINTAR: HITUNG SISA OTOMATIS & LIVE SYNC
+    // ===============================================
+    function liveSync(el) { 
+        hitungTotal(); // Menghitung Omset
+        const update = {}; 
+        update[el.id] = el.value; 
+
+        // CEK APAKAH YANG DIKETIK ADALAH KOLOM BARANG (BUKAN OMSET/ROTI)
+        const prefix = el.id.split('_')[0];
+        if (["stok", "msk", "rsk", "trjl"].includes(prefix)) {
+            const id = el.id.substring(prefix.length + 1); // Mendapatkan nama ID barangnya (cth: CUP_KECIL)
+            
+            // Ambil angka dari masing-masing kolom
+            const stok = parseInt(document.getElementById('stok_' + id).value) || 0;
+            const msk = parseInt(document.getElementById('msk_' + id).value) || 0;
+            const rsk = parseInt(document.getElementById('rsk_' + id).value) || 0;
+            const trjl = parseInt(document.getElementById('trjl_' + id).value) || 0;
+
+            // RUMUS: (Stok Awal + Masuk) - Rusak - Terjual
+            const sisaBaru = stok + msk - rsk - trjl;
+            const sisaInput = document.getElementById('sisa_' + id);
+
+            // Jangan update otomatis kalau kasir sedang mengetik manual di kolom SISA
+            if (document.activeElement !== sisaInput) {
+                sisaInput.value = sisaBaru;
+                update['sisa_' + id] = sisaBaru; // Push sisa baru ke Firebase
+            }
+        }
+
+        db.ref(pathAktif).update(update); 
+    }
 
     function mulaiListenSync() {
         db.ref(pathAktif).on('value', snp => {
@@ -320,49 +379,24 @@
             if (data) {
                 Object.keys(data).forEach(key => { const input = document.getElementById(key); if (input && input !== document.activeElement) input.value = data[key]; });
                 hitungTotal();
-            } else { tarikDataMesinWaktu(1); }
+            } else {
+                tarikDataMesinWaktu(1);
+            }
         });
     }
 
-    // ===============================================
-    // MESIN WAKTU OTOMATIS (MENCARI DATA LAMA)
-    // ===============================================
-    function tarikDataMesinWaktu(hariMundur) {
-        if (hariMundur > 7) return; 
-        const tglS = document.getElementById('label-tgl').innerText;
-        const cab = document.getElementById('main-cab').value;
-        let d = new Date(tglS); d.setDate(d.getDate() - hariMundur);
-        let tglM = d.toISOString().split('T')[0];
-
-        cariDataLama(tglM, cab, function(full) {
-            if(full) {
-                const bD = full.barang || {};
-                const u = {};
-                barang_list.forEach(it => {
-                    const id = it.replace(/[^A-Z0-9]/ig, "_");
-                    if(bD[id]) {
-                        u[`stok_${id}`] = bD[id].sisa || "0"; 
-                        if(!list_kosongkan.includes(id)) u[`sisa_${id}`] = bD[id].sisa || "0";
-                    }
-                });
-                if(full.roti) { u['r_cok'] = full.roti.cok || "0"; u['r_van'] = full.roti.van || "0"; u['r_blu'] = full.roti.blu || "0"; }
-                db.ref(pathAktif).update(u);
-            } else { tarikDataMesinWaktu(hariMundur + 1); }
-        });
-    }
-
-    function cariDataLama(tgl, cab, cb) {
-        db.ref(`Laporan/${tgl}/${cab}`).once('value', s1 => {
-            if (s1.val() && s1.val().barang) return cb(s1.val());
-            db.ref(`Laporan/${tgl}/${cab}/SHIFT 2`).once('value', s2 => {
-                if (s2.val() && s2.val().barang) return cb(s2.val());
-                db.ref(`Laporan/${tgl}/${cab}/SHIFT 1`).once('value', s3 => {
-                    if (s3.val() && s3.val().barang) return cb(s3.val());
-                    db.ref(`Drafts/${tgl}/${cab}/SHIFT 2`).once('value', d2 => {
-                        if(d2.val()) return convert(d2.val(), cb);
-                        db.ref(`Drafts/${tgl}/${cab}/SHIFT 1`).once('value', d1 => {
-                            if(d1.val()) return convert(d1.val(), cb);
-                            cb(null); 
+    function cariDataLama(tglStr, cab, callback) {
+        db.ref(`Laporan/${tglStr}/${cab}`).once('value', s1 => {
+            if (s1.val() && s1.val().barang) return callback(s1.val());
+            db.ref(`Laporan/${tglStr}/${cab}/SHIFT 2`).once('value', s2 => {
+                if (s2.val() && s2.val().barang) return callback(s2.val());
+                db.ref(`Laporan/${tglStr}/${cab}/SHIFT 1`).once('value', s3 => {
+                    if (s3.val() && s3.val().barang) return callback(s3.val());
+                    db.ref(`Drafts/${tglStr}/${cab}/SHIFT 2`).once('value', d2 => {
+                        if(d2.val()) return convertDraft(d2.val(), callback);
+                        db.ref(`Drafts/${tglStr}/${cab}/SHIFT 1`).once('value', d1 => {
+                            if(d1.val()) return convertDraft(d1.val(), callback);
+                            callback(null); 
                         });
                     });
                 });
@@ -370,11 +404,51 @@
         });
     }
 
-    function convert(d, cb) {
-        let res = { barang: {}, roti: {} };
-        barang_list.forEach(it => { const id = it.replace(/[^A-Z0-9]/ig, "_"); if (d[`sisa_${id}`] !== undefined) res.barang[id] = { sisa: d[`sisa_${id}`] }; });
-        res.roti.cok = d['r_cok'] || "0"; res.roti.van = d['r_van'] || "0"; res.roti.blu = d['r_blu'] || "0";
-        cb(res);
+    function convertDraft(draftData, callback) {
+        let converted = { barang: {}, roti: {} };
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const sisaVal = draftData[`sisa_${id}`];
+            if (sisaVal !== undefined) converted.barang[id] = { sisa: sisaVal };
+        });
+        converted.roti.cok = draftData['r_cok'] || "0";
+        converted.roti.van = draftData['r_van'] || "0";
+        converted.roti.blu = draftData['r_blu'] || "0";
+        callback(converted);
+    }
+
+    function tarikDataMesinWaktu(hariMundur) {
+        if (hariMundur > 7) return; 
+
+        const tglSekarang = document.getElementById('label-tgl').innerText;
+        const cab = document.getElementById('main-cab').value;
+        let d = new Date(tglSekarang);
+        d.setDate(d.getDate() - hariMundur);
+        let tglMundurStr = d.toISOString().split('T')[0];
+
+        cariDataLama(tglMundurStr, cab, function(fullData) {
+            if(fullData) {
+                const dataK = fullData.barang || {};
+                const initDraft = {};
+                barang_list.forEach(item => {
+                    const id = item.replace(/[^A-Z0-9]/ig, "_");
+                    if(dataK[id]) {
+                        initDraft[`stok_${id}`] = dataK[id].sisa || "0"; 
+                        if(!list_kosongkan.includes(id)) initDraft[`sisa_${id}`] = dataK[id].sisa || "0";
+                    }
+                });
+                
+                if(fullData.roti) {
+                    initDraft['r_cok'] = fullData.roti.cok || "0";
+                    initDraft['r_van'] = fullData.roti.van || "0";
+                    initDraft['r_blu'] = fullData.roti.blu || "0";
+                }
+
+                db.ref(pathAktif).update(initDraft);
+            } else { 
+                tarikDataMesinWaktu(hariMundur + 1); 
+            }
+        });
     }
 
     function hitungTotal() {
@@ -385,13 +459,20 @@
 
     function prosesSimpan() {
         const d = {
-            hari: document.getElementById('label-hari').innerText, tgl: document.getElementById('label-tgl').innerText,
-            cab: document.getElementById('main-cab').value, total: document.getElementById('val-total').innerText,
+            hari: document.getElementById('label-hari').innerText,
+            tgl: document.getElementById('label-tgl').innerText,
+            cab: document.getElementById('main-cab').value,
+            total: document.getElementById('val-total').innerText,
             roti: { cok: document.getElementById('r_cok').value || 0, van: document.getElementById('r_van').value || 0, blu: document.getElementById('r_blu').value || 0 },
-            omset: {}, barang: {}, f_cash: document.getElementById('f_cash').value || "-", f_note: document.getElementById('f_note').value || "-"
+            omset: {}, barang: {},
+            f_cash: document.getElementById('f_cash').value || "-", f_note: document.getElementById('f_note').value || "-"
         };
-        barang_list.forEach(it => { const id = it.replace(/[^A-Z0-9]/ig, "_"); d.barang[id] = { stok: document.getElementById('stok_'+id).value || 0, msk: document.getElementById('msk_'+id).value || 0, rsk: document.getElementById('rsk_'+id).value || 0, trjl: document.getElementById('trjl_'+id).value || 0, sisa: document.getElementById('sisa_'+id).value || 0 }; });
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            d.barang[id] = { stok: document.getElementById('stok_'+id).value || 0, msk: document.getElementById('msk_'+id).value || 0, rsk: document.getElementById('rsk_'+id).value || 0, trjl: document.getElementById('trjl_'+id).value || 0, sisa: document.getElementById('sisa_'+id).value || 0 };
+        });
         omset_list.forEach(m => { d.omset[m] = document.getElementById("o_" + m.replace(/[^A-Z0-9]/ig,'_')).value || 0; });
+
         db.ref(`Laporan/${d.tgl}/${d.cab}`).set(d).then(() => { alert("FINAL DISIMPAN!"); tampilkanLaporanFinal(d); });
     }
 
@@ -411,21 +492,34 @@
             </div>
             <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #000; margin-bottom:10px;">
                 <tr style="background:#eee;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>`;
-        barang_list.forEach(it => {
-            const id = it.replace(/[^A-Z0-9]/ig, "_"); const b = (d.barang && d.barang[id]) ? d.barang[id] : {};
-            h += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${it}</td><td style="border:1px solid #000; text-align:center;">${b.stok||0}</td><td style="border:1px solid #000; text-align:center;">${b.msk||0}</td><td style="border:1px solid #000; text-align:center;">${b.rsk||0}</td><td style="border:1px solid #000; text-align:center;">${b.trjl||0}</td><td style="border:1px solid #000; text-align:center; font-weight:bold; background:#f2f2f2;">${b.sisa||0}</td></tr>`;
+        barang_list.forEach(item => {
+            const id = item.replace(/[^A-Z0-9]/ig, "_");
+            const b = (d.barang && d.barang[id]) ? d.barang[id] : {};
+            h += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${item}</td><td style="border:1px solid #000; text-align:center;">${b.stok||0}</td><td style="border:1px solid #000; text-align:center;">${b.msk||0}</td><td style="border:1px solid #000; text-align:center;">${b.rsk||0}</td><td style="border:1px solid #000; text-align:center;">${b.trjl||0}</td><td style="border:1px solid #000; text-align:center; font-weight:bold; background:#f2f2f2;">${b.sisa||0}</td></tr>`;
         });
-        h += `</table><div style="display:flex; gap:10px; margin-bottom:10px;"><table style="flex:1.5; border-collapse:collapse; font-size:10px; border:1px solid #000;"><tr style="background:#eee;"><th colspan="2" style="border:1px solid #000;">OMSET</th></tr>`;
+        h += `</table>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <table style="flex:1.5; border-collapse:collapse; font-size:10px; border:1px solid #000;">
+                    <tr style="background:#eee;"><th colspan="2" style="border:1px solid #000;">OMSET</th></tr>`;
         omset_list.forEach(m => { h += `<tr><td style="border:1px solid #000; padding:2px;">${m}</td><td style="border:1px solid #000; text-align:right; padding-right:5px;">${(d.omset&&d.omset[m])?d.omset[m]:0}</td></tr>`; });
-        h += `</table><div style="flex:1; border:2px solid #000; background:#eee; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span style="font-size:10px; font-weight:bold;">TOTAL</span><span style="font-size:18px; font-weight:bold;">Rp ${d.total||0}</span></div></div>
-            <div style="border:1px solid #000; padding:5px; font-size:11px;"><b>CASH:</b> ${d.f_cash||'-'}</div><div style="border:1px solid #000; padding:5px; font-size:11px; margin-top:3px;"><b>NOTE:</b> ${d.f_note||'-'}</div></div>`;
-        document.getElementById('isi-laporan').innerHTML = h; document.getElementById('report-overlay').style.display = 'block';
+        h += `</table>
+                <div style="flex:1; border:2px solid #000; background:#eee; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <span style="font-size:10px; font-weight:bold;">TOTAL</span>
+                    <span style="font-size:18px; font-weight:bold;">Rp ${d.total||0}</span>
+                </div>
+            </div>
+            <div style="border:1px solid #000; padding:5px; font-size:11px;"><b>CASH:</b> ${d.f_cash||'-'}</div>
+            <div style="border:1px solid #000; padding:5px; font-size:11px; margin-top:3px;"><b>NOTE:</b> ${d.f_note||'-'}</div>
+        </div>`;
+        document.getElementById('isi-laporan').innerHTML = h;
+        document.getElementById('report-overlay').style.display = 'block';
     }
 
     function downloadPNG() {
         const btn = document.getElementById('btn-dl-png'); btn.innerText = "MEMPROSES...";
         html2canvas(document.getElementById('printable-area'), { scale: 1.5 }).then(canv => {
-            btn.innerText = "📸 SIMPAN GAMBAR"; const imgData = canv.toDataURL("image/png");
+            btn.innerText = "📸 SIMPAN GAMBAR";
+            const imgData = canv.toDataURL("image/png");
             if (window.AppInventor) { window.AppInventor.setWebViewString("UNDUH_GAMBAR|||" + imgData.split(',')[1]); } 
             else { const a = document.createElement('a'); a.download = `LAPORAN_${document.getElementById('main-cab').value}.png`; a.href = imgData; a.click(); }
         });
@@ -433,16 +527,23 @@
 
     function tutupOverlay() { document.getElementById('report-overlay').style.display='none'; }
     function bukaRiwayat() { document.getElementById('h_cab').value = document.getElementById('main-cab').value; document.getElementById('riwayat-modal').style.display='block'; }
+    
     function cariDataRiwayat() { 
-        const t = document.getElementById('h_tgl').value; const c = document.getElementById('h_cab').value; 
+        const t = document.getElementById('h_tgl').value; 
+        const c = document.getElementById('h_cab').value; 
         db.ref(`Laporan/${t}/${c}`).once('value', snp => { 
-            const d = snp.val();
-            if(d) { 
-                if (d.total) { tampilkanLaporanFinal(d); tutupRiwayat(); } 
-                else { if(d["SHIFT 2"]) { tampilkanLaporanFinal(d["SHIFT 2"]); tutupRiwayat(); } else if(d["SHIFT 1"]) { tampilkanLaporanFinal(d["SHIFT 1"]); tutupRiwayat(); } else alert("Kosong!"); }
-            } else alert("Kosong!"); 
+            const data = snp.val();
+            if(data) { 
+                if (data.total) { tampilkanLaporanFinal(data); tutupRiwayat(); } 
+                else {
+                    if(data["SHIFT 2"]) { tampilkanLaporanFinal(data["SHIFT 2"]); tutupRiwayat(); } 
+                    else if(data["SHIFT 1"]) { tampilkanLaporanFinal(data["SHIFT 1"]); tutupRiwayat(); } 
+                    else { alert("Data Shift Kosong!"); }
+                }
+            } else { alert("Data Kosong!"); }
         }); 
     }
+    
     function tutupRiwayat() { document.getElementById('riwayat-modal').style.display='none'; }
 </script>
 </body>
