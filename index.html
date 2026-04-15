@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | FIX DATA v137</title>
+    <title>PI Dashboard | REMEMBER ME v138</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -209,6 +209,7 @@
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
+        
         const cSel = document.getElementById('main-cab');
         const hSel = document.getElementById('h_cab');
         authData.forEach(c => { 
@@ -217,11 +218,15 @@
                 hSel.innerHTML += `<option value="${c.nama}">${c.nama}</option>`; 
             }
         });
+        
+        // Cek data tersimpan dan tampilkan di input, tapi JANGAN langsung auto-login
         const savedId = localStorage.getItem('ks4_id');
         const savedPass = localStorage.getItem('ks4_pass');
+        
         if (savedId && savedPass) {
-            const user = authData.find(u => u.id === savedId && u.pass === savedPass);
-            if (user) { jalankanAplikasi(user, tglStr); return; }
+            document.getElementById('login-id').value = savedId;
+            document.getElementById('login-pass').value = savedPass;
+            document.getElementById('login-remember').checked = true;
         }
     }
 
@@ -230,12 +235,20 @@
         const inputPass = document.getElementById('login-pass').value;
         const ingat = document.getElementById('login-remember').checked;
         const user = authData.find(u => u.id === inputId && u.pass === inputPass);
+        
         if (user) {
-            if (ingat) { localStorage.setItem('ks4_id', user.id); localStorage.setItem('ks4_pass', user.pass); }
-            else { localStorage.removeItem('ks4_id'); localStorage.removeItem('ks4_pass'); }
+            // Simpan kalau dicentang, hapus kalau tidak dicentang
+            if (ingat) { 
+                localStorage.setItem('ks4_id', user.id); 
+                localStorage.setItem('ks4_pass', user.pass); 
+            } else { 
+                localStorage.removeItem('ks4_id'); 
+                localStorage.removeItem('ks4_pass'); 
+            }
+            
             jalankanAplikasi(user, document.getElementById('label-tgl').innerText);
         } else {
-            alert("❌ Akses Ditolak!");
+            alert("❌ Akses Ditolak! ID atau Password Salah.");
             if(cabangSebelumnya !== "") document.getElementById('main-cab').value = cabangSebelumnya; 
         }
     }
@@ -259,7 +272,10 @@
         }
     }
 
-    function logoutSystem() { localStorage.removeItem('ks4_id'); localStorage.removeItem('ks4_pass'); location.reload(); }
+    function logoutSystem() { 
+        // Hanya me-reload halaman. Data localStorage TIDAK dihapus agar tetap muncul di layar login
+        location.reload(); 
+    }
 
     function loadAdminData() {
         const tgl = document.getElementById('admin-date').value;
@@ -326,7 +342,6 @@
         const prefix = el.id.split('_')[0];
         if (["stok", "msk", "rsk", "trjl"].includes(prefix)) {
             const id = el.id.substring(prefix.length + 1);
-            // Coba hitung sisa (hanya jika angkanya murni, jika pecahan kalkulator otomatis libur)
             const sV = parseFloat(document.getElementById('stok_'+id).value) || 0;
             const mV = parseFloat(document.getElementById('msk_'+id).value) || 0;
             const rV = parseFloat(document.getElementById('rsk_'+id).value) || 0;
