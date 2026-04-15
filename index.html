@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | REMEMBER ME v138</title>
+    <title>PI Dashboard | RED SISA v139</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -34,7 +34,6 @@
         .col-data { width: 13%; }
         table.main-table td { border: 1px solid #333; height: 28px; text-align: center; padding: 0; }
         
-        /* Kembali ke type text agar bisa input pecahan (1/2, 35/450, dsb) */
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 14px; font-weight: bold; transition: 0.2s; }
         table.main-table input:focus { background-color: rgba(212, 175, 55, 0.15); } 
 
@@ -219,7 +218,6 @@
             }
         });
         
-        // Cek data tersimpan dan tampilkan di input, tapi JANGAN langsung auto-login
         const savedId = localStorage.getItem('ks4_id');
         const savedPass = localStorage.getItem('ks4_pass');
         
@@ -237,7 +235,6 @@
         const user = authData.find(u => u.id === inputId && u.pass === inputPass);
         
         if (user) {
-            // Simpan kalau dicentang, hapus kalau tidak dicentang
             if (ingat) { 
                 localStorage.setItem('ks4_id', user.id); 
                 localStorage.setItem('ks4_pass', user.pass); 
@@ -245,7 +242,6 @@
                 localStorage.removeItem('ks4_id'); 
                 localStorage.removeItem('ks4_pass'); 
             }
-            
             jalankanAplikasi(user, document.getElementById('label-tgl').innerText);
         } else {
             alert("❌ Akses Ditolak! ID atau Password Salah.");
@@ -272,10 +268,7 @@
         }
     }
 
-    function logoutSystem() { 
-        // Hanya me-reload halaman. Data localStorage TIDAK dihapus agar tetap muncul di layar login
-        location.reload(); 
-    }
+    function logoutSystem() { location.reload(); }
 
     function loadAdminData() {
         const tgl = document.getElementById('admin-date').value;
@@ -335,7 +328,6 @@
         });
     }
 
-    // FUNGSI PINTAR: HITUNG SISA OTOMATIS
     function liveSync(el) { 
         hitungTotal(); 
         const u = {}; u[el.id] = el.value; 
@@ -447,11 +439,13 @@
                 </div>
             </div>
             <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #000; margin-bottom:10px;">
-                <tr style="background:#eee;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th>SISA</th></tr>`;
+                <tr style="background:#eee;"><th>BARANG</th><th>STOK</th><th>MSK</th><th>RSK</th><th>TRJL</th><th style="background:#ffcccc; color:#cc0000;">SISA</th></tr>`;
+        
         barang_list.forEach(it => {
             const id = it.replace(/[^A-Z0-9]/ig, "_"); const b = (d.barang && d.barang[id]) ? d.barang[id] : {};
-            h += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${it}</td><td style="border:1px solid #000; text-align:center;">${b.stok||0}</td><td style="border:1px solid #000; text-align:center;">${b.msk||0}</td><td style="border:1px solid #000; text-align:center;">${b.rsk||0}</td><td style="border:1px solid #000; text-align:center;">${b.trjl||0}</td><td style="border:1px solid #000; text-align:center; font-weight:bold; background:#f2f2f2;">${b.sisa||0}</td></tr>`;
+            h += `<tr><td style="border:1px solid #000; padding:3px; font-weight:bold;">${it}</td><td style="border:1px solid #000; text-align:center;">${b.stok||0}</td><td style="border:1px solid #000; text-align:center;">${b.msk||0}</td><td style="border:1px solid #000; text-align:center;">${b.rsk||0}</td><td style="border:1px solid #000; text-align:center;">${b.trjl||0}</td><td style="border:1px solid #000; text-align:center; font-weight:bold; background:#ffcccc; color:#cc0000;">${b.sisa||0}</td></tr>`;
         });
+
         h += `</table><div style="display:flex; gap:10px; margin-bottom:10px;"><table style="flex:1.5; border-collapse:collapse; font-size:10px; border:1px solid #000;"><tr style="background:#eee;"><th colspan="2" style="border:1px solid #000;">OMSET</th></tr>`;
         omset_list.forEach(m => { h += `<tr><td style="border:1px solid #000; padding:2px;">${m}</td><td style="border:1px solid #000; text-align:right; padding-right:5px;">${(d.omset&&d.omset[m])?d.omset[m]:0}</td></tr>`; });
         h += `</table><div style="flex:1; border:2px solid #000; background:#eee; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span style="font-size:10px; font-weight:bold;">TOTAL</span><span style="font-size:18px; font-weight:bold;">Rp ${d.total||0}</span></div></div>
