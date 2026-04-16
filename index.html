@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" href="Logo-al.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI Dashboard | REFILL BUTTON v141</title>
+    <title>PI Dashboard | SPACING & QPON v142</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -31,7 +31,6 @@
         table.main-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; background: #000; }
         table.main-table th { background-color: #1a1a1a; border: 1px solid #333; padding: 6px 0; color: #888; font-size: 8px; }
         
-        /* Penyesuaian Lebar Kolom untuk Tabel Refill */
         .col-nama { width: 32%; text-align: left !important; padding-left: 5px !important; color: #d4af37; font-weight: bold; }
         .col-data { width: 12%; }
         .col-sisa { width: 12%; }
@@ -41,7 +40,6 @@
         table.main-table input { background: transparent; border: none; color: white; width: 100%; height: 100%; text-align: center; outline: none; font-size: 14px; font-weight: bold; transition: 0.2s; }
         table.main-table input:focus { background-color: rgba(212, 175, 55, 0.15); } 
 
-        /* Styling Tombol Refill */
         .btn-rfl { width: 100%; height: 100%; background: #111; color: #555; border: none; font-size: 11px; cursor: pointer; padding: 0; outline: none; transition: 0.2s; }
         .btn-rfl.active { background: #cc0000; color: #fff; font-weight: bold; }
         table.main-table input.sisa-active { background-color: rgba(204, 0, 0, 0.6) !important; color: #fff !important; }
@@ -53,8 +51,12 @@
         table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 12px; font-weight: bold; height: 20px; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
-        .omset-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
-        .omset-row input { background: transparent; border: none; color: white; width: 90px; text-align: right; outline: none; font-size: 13px; font-weight: bold; }
+        
+        /* PEMBARUAN: JARAK DAN KOTAK INPUT OMSET DIBUAT LEBIH LUAS */
+        .omset-row { display: flex; justify-content: space-between; padding: 8px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
+        .omset-row input { background: #1a1a1a; border: 1px solid #333; border-radius: 4px; color: white; width: 100px; padding: 5px 8px; text-align: right; outline: none; font-size: 13px; font-weight: bold; transition: 0.2s; }
+        .omset-row input:focus { border-color: #d4af37; background: #222; }
+        
         .omset-total-box { font-size: 28px; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; background: #000; border-left: 1px solid #333; }
 
         .bottom-section { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; width: 100%; }
@@ -203,7 +205,8 @@
     const db = firebase.database();
 
     const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
-    const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "AIRASIA"];
+    // PEMBARUAN: AIRASIA DIGANTI MENJADI QPON
+    const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "Qpon"];
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
     const authData = [
@@ -334,7 +337,6 @@
         document.getElementById('login-overlay').style.display = 'flex';
     }
 
-    // MEMBUAT TOMBOL REFILL DI RENDER TABLES
     function renderTables() {
         const bBody = document.getElementById('list-barang'); bBody.innerHTML = "";
         barang_list.forEach(item => {
@@ -355,7 +357,6 @@
         });
     }
 
-    // FUNGSI TOGGLE REFILL
     window.toggleRefill = function(id) {
         const btn = document.getElementById('btn_rfl_' + id);
         const isRefill = btn.classList.contains('active');
@@ -381,12 +382,10 @@
         db.ref(pathAktif).update(u); 
     }
 
-    // LISTEN SYNC DIMODIFIKASI UNTUK CEK STATUS REFILL
     function mulaiListenSync() {
         db.ref(pathAktif).on('value', snp => {
             const data = snp.val();
             if (data) {
-                // Reset semua warna sebelum menerapkan status dari database
                 document.querySelectorAll('.btn-rfl').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('[id^="sisa_"]').forEach(i => i.classList.remove('sisa-active'));
                 
@@ -471,7 +470,6 @@
         document.getElementById('val-total').innerText = tot.toLocaleString('id-ID');
     }
 
-    // SIMPAN FINAL MENYIMPAN STATUS REFILL MASING-MASING BARANG
     function prosesSimpan() {
         const d = {
             hari: document.getElementById('label-hari').innerText, tgl: document.getElementById('label-tgl').innerText,
@@ -495,7 +493,6 @@
         db.ref(`Laporan/${d.tgl}/${d.cab}`).set(d).then(() => { alert("FINAL DISIMPAN!"); tampilkanLaporanFinal(d); });
     }
 
-    // TAMPILKAN LAPORAN MENGECEK BARANG MANA YANG DITANDAI MERAH
     function tampilkanLaporanFinal(d) {
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
@@ -517,7 +514,6 @@
             const id = it.replace(/[^A-Z0-9]/ig, "_"); const b = (d.barang && d.barang[id]) ? d.barang[id] : {};
             let sisaHTML = `<td style="border:1px solid #000; text-align:center; font-weight:bold; background:#f2f2f2;">${b.sisa||0}</td>`;
             
-            // JIKA DITANDAI REFILL, UBAH WARNANYA JADI MERAH
             if (b.refill) {
                 sisaHTML = `<td style="border:1px solid #000; text-align:center; font-weight:bold; background:#ffcccc; color:#cc0000;">${b.sisa||0}</td>`;
             }
