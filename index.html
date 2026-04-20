@@ -46,13 +46,14 @@
 
         .roti-box { width: 32%; } 
         table.roti-table { width: 100%; border-collapse: collapse; font-size: 9px; border: 1px solid #333; table-layout: fixed; }
-        .r-name { width: 65%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
-        .r-inp { width: 35%; border: 1px solid #333; }
-        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 12px; font-weight: bold; height: 20px; }
+        .r-name { width: 50%; text-align: left !important; padding-left: 5px !important; color: #fff; border: 1px solid #333; }
+        .r-inp { width: 25%; border: 1px solid #333; }
+        .r-rfl { width: 25%; border: 1px solid #333; padding: 0; }
+        table.roti-table input { background: transparent; border: none; color: white; width: 100%; text-align: center; outline: none; font-size: 12px; font-weight: bold; height: 20px; transition: 0.2s; }
+        table.roti-table input.sisa-active { background-color: rgba(204, 0, 0, 0.6) !important; color: #fff !important; }
 
         .omset-grid { display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #333; margin-top: 5px; background: #050505; }
         
-        /* PEMBARUAN: JARAK DAN KOTAK INPUT OMSET DIBUAT LEBIH LUAS */
         .omset-row { display: flex; justify-content: space-between; padding: 8px 8px; border-bottom: 1px solid #111; font-size: 10px; align-items: center; color: #fff; }
         .omset-row input { background: #1a1a1a; border: 1px solid #333; border-radius: 4px; color: white; width: 100px; padding: 5px 8px; text-align: right; outline: none; font-size: 13px; font-weight: bold; transition: 0.2s; }
         .omset-row input:focus { border-color: #d4af37; background: #222; }
@@ -137,10 +138,22 @@
             </div>
             <div class="roti-box">
                 <table class="roti-table">
-                    <tr style="background:#1a1a1a; color:#888;"><td colspan="2" style="text-align:center; font-size: 8px; border: 1px solid #333;">SISA ROTI</td></tr>
-                    <tr><td class="r-name">COKLAT</td><td class="r-inp"><input type="text" id="r_cok" oninput="liveSync(this)"></td></tr>
-                    <tr><td class="r-name">VANILLA</td><td class="r-inp"><input type="text" id="r_van" oninput="liveSync(this)"></td></tr>
-                    <tr><td class="r-name">BLUEBERRY</td><td class="r-inp"><input type="text" id="r_blu" oninput="liveSync(this)"></td></tr>
+                    <tr style="background:#1a1a1a; color:#888;"><td colspan="3" style="text-align:center; font-size: 8px; border: 1px solid #333;">SISA ROTI</td></tr>
+                    <tr>
+                        <td class="r-name">COKLAT</td>
+                        <td class="r-inp"><input type="text" id="r_cok" oninput="liveSync(this)"></td>
+                        <td class="r-rfl"><button id="btn_rfl_r_cok" class="btn-rfl" onclick="toggleRefill('r_cok')">⚠️</button></td>
+                    </tr>
+                    <tr>
+                        <td class="r-name">VANILLA</td>
+                        <td class="r-inp"><input type="text" id="r_van" oninput="liveSync(this)"></td>
+                        <td class="r-rfl"><button id="btn_rfl_r_van" class="btn-rfl" onclick="toggleRefill('r_van')">⚠️</button></td>
+                    </tr>
+                    <tr>
+                        <td class="r-name">BLUEBERRY</td>
+                        <td class="r-inp"><input type="text" id="r_blu" oninput="liveSync(this)"></td>
+                        <td class="r-rfl"><button id="btn_rfl_r_blu" class="btn-rfl" onclick="toggleRefill('r_blu')">⚠️</button></td>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -205,7 +218,6 @@
     const db = firebase.database();
 
     const barang_list = ["CUP KECIL", "CUP BESAR", "CUP HOT", "BOTOL 1 LITER", "BOTOL 500 ML", "GULA AREN", "GULA PUTIH", "KOPI", "SUSU UHT", "KRIMER", "SEA SALT", "FN", "SKM", "HERSHEY'S", "REMON", "SEDOTAN KEC", "SEDOTAN BSR", "PLASTIK ISI 2", "PLASTIK ISI 1", "PLASTIK BSR", "CUP SEALER", "BASE SUSU", "BASE KOPI", "ROTI"];
-    // PEMBARUAN: AIRASIA DIGANTI MENJADI QPON
     const omset_list = ["CASH", "TRANSFER", "GRAB FOOD", "OVO", "SHOPEE FOOD", "SHOPEE PAY", "GOJEK", "GOPAY", "Qpon"];
     const list_kosongkan = ["CUP_KECIL", "CUP_BESAR", "SUSU_UHT", "KRIMER", "SKM", "BASE_SUSU", "BASE_KOPI", "ROTI"];
 
@@ -388,12 +400,14 @@
             if (data) {
                 document.querySelectorAll('.btn-rfl').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('[id^="sisa_"]').forEach(i => i.classList.remove('sisa-active'));
+                document.querySelectorAll('[id^="r_"]').forEach(i => i.classList.remove('sisa-active'));
                 
                 Object.keys(data).forEach(key => { 
                     if (key.startsWith('refill_')) {
                         const id = key.replace('refill_', '');
                         const btn = document.getElementById('btn_rfl_' + id);
-                        const sisaInp = document.getElementById('sisa_' + id);
+                        const sisaInp = document.getElementById('sisa_' + id) || document.getElementById(id);
+                        
                         if (btn && sisaInp) {
                             if (data[key]) {
                                 btn.classList.add('active');
@@ -474,7 +488,11 @@
         const d = {
             hari: document.getElementById('label-hari').innerText, tgl: document.getElementById('label-tgl').innerText,
             cab: document.getElementById('main-cab').value, total: document.getElementById('val-total').innerText,
-            roti: { cok: document.getElementById('r_cok').value || 0, van: document.getElementById('r_van').value || 0, blu: document.getElementById('r_blu').value || 0 },
+            roti: { 
+                cok: document.getElementById('r_cok').value || 0, refill_r_cok: document.getElementById('btn_rfl_r_cok').classList.contains('active'),
+                van: document.getElementById('r_van').value || 0, refill_r_van: document.getElementById('btn_rfl_r_van').classList.contains('active'),
+                blu: document.getElementById('r_blu').value || 0, refill_r_blu: document.getElementById('btn_rfl_r_blu').classList.contains('active')
+            },
             omset: {}, barang: {}, f_cash: document.getElementById('f_cash').value || "-", f_note: document.getElementById('f_note').value || "-"
         };
         barang_list.forEach(it => { 
@@ -494,6 +512,10 @@
     }
 
     function tampilkanLaporanFinal(d) {
+        let styleCok = (d.roti && d.roti.refill_r_cok) ? 'background:#ffcccc; color:#cc0000; font-weight:bold;' : '';
+        let styleVan = (d.roti && d.roti.refill_r_van) ? 'background:#ffcccc; color:#cc0000; font-weight:bold;' : '';
+        let styleBlu = (d.roti && d.roti.refill_r_blu) ? 'background:#ffcccc; color:#cc0000; font-weight:bold;' : '';
+
         let h = `<div style="color:#000; background:#fff; padding:10px; font-family:sans-serif;">
             <h2 style="text-align:center; margin:0 0 10px 0;">KOPI SETENGAH-4</h2>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -501,9 +523,9 @@
                 <div style="width:120px;">
                     <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #000;">
                         <tr style="background:#eee;"><td colspan="2" style="text-align:center; font-weight:bold; border:1px solid #000;">SISA ROTI</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.cok:0}</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.van:0}</td></tr>
-                        <tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center;">${d.roti?d.roti.blu:0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">COKLAT</td><td style="border:1px solid #000; text-align:center; ${styleCok}">${d.roti?d.roti.cok:0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">VANILLA</td><td style="border:1px solid #000; text-align:center; ${styleVan}">${d.roti?d.roti.van:0}</td></tr>
+                        <tr><td style="border:1px solid #000; padding:2px;">BLUEBERRY</td><td style="border:1px solid #000; text-align:center; ${styleBlu}">${d.roti?d.roti.blu:0}</td></tr>
                     </table>
                 </div>
             </div>
