@@ -133,7 +133,7 @@
         <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:8px; align-items: flex-end;">
             <div style="flex: 1;">
                 <span id="label-hari" style="font-weight:bold; display:block; font-size: 12px; text-transform: uppercase;">-</span>
-                TGL: <span id="label-tgl">-</span><br>
+                TGL: <select id="main-tgl" onchange="gantiTanggalKasir()" style="background:#1a1a1a; color:#fff; border:1px solid #333; font-size:11px; padding:2px; font-weight:bold; outline:none; border-radius:4px; margin-bottom:3px;"></select><br>
                 CAB: <select id="main-cab" onchange="konfirmasiGantiLokasi()"></select>
             </div>
             <div class="roti-box">
@@ -237,10 +237,22 @@
 
     function initApp() {
         const d = new Date();
-        const tglStr = d.toISOString().split('T')[0];
+        const tglHariIni = d.toISOString().split('T')[0];
+        
+        // Hitung Tanggal Kemarin
+        const dKemarin = new Date();
+        dKemarin.setDate(d.getDate() - 1);
+        const tglKemarin = dKemarin.toISOString().split('T')[0];
+        
         const hr = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-        document.getElementById('label-tgl').innerText = tglStr;
         document.getElementById('label-hari').innerText = hr[d.getDay()];
+        
+        // Render Opsi Dropdown Tanggal Kasir
+        const tglSel = document.getElementById('main-tgl');
+        tglSel.innerHTML = `
+            <option value="${tglHariIni}" data-hari="${hr[d.getDay()]}">HARI INI (${tglHariIni})</option>
+            <option value="${tglKemarin}" data-hari="${hr[dKemarin.getDay()]}">KEMARIN (${tglKemarin})</option>
+        `;
         
         const cSel = document.getElementById('main-cab');
         const hSel = document.getElementById('h_cab');
@@ -275,7 +287,8 @@
                 localStorage.removeItem('ks4_id'); 
                 localStorage.removeItem('ks4_pass'); 
             }
-            jalankanAplikasi(user, document.getElementById('label-tgl').innerText);
+            // Kirim tanggal aktif bawaan dari dropdown main-tgl
+            jalankanAplikasi(user, document.getElementById('main-tgl').value);
         } else {
             alert("❌ Akses Ditolak! ID atau Password Salah.");
             if(cabangSebelumnya !== "") document.getElementById('main-cab').value = cabangSebelumnya; 
@@ -296,12 +309,35 @@
             document.getElementById('main-cab').value = user.nama;
             cabangSebelumnya = user.nama;
             renderTables();
-            pathAktif = `Drafts/${tglStr}/${user.nama}`;
+            
+            const tglTerpilih = document.getElementById('main-tgl').value;
+            pathAktif = `Drafts/${tglTerpilih}/${user.nama}`;
             mulaiListenSync();
         }
     }
 
     function logoutSystem() { location.reload(); }
+
+    function gantiTanggalKasir() {
+        const tglSel = document.getElementById('main-tgl');
+        const tglTerpilih = tglSel.value;
+        const hariTerpilih = tglSel.options[tglSel.selectedIndex].getAttribute('data-hari');
+        const namaCabang = document.getElementById('main-cab').value;
+        
+        document.getElementById('label-hari').innerText = hariTerpilih;
+        
+        db.ref(pathAktif).off();
+        pathAktif = `Drafts/${tglTerpilih}/${namaCabang}`;
+        
+        renderTables();
+        document.getElementById('r_cok').value = "";
+        document.getElementById('r_van').value = "";
+        document.getElementById('r_blu').value = "";
+        document.getElementById('f_cash').value = "";
+        document.getElementById('f_note').value = "";
+        
+        mulaiListenSync();
+    }
 
     function loadAdminData() {
         const tgl = document.getElementById('admin-date').value;
@@ -426,7 +462,7 @@
 
     function tarikDataMesinWaktu(hariMundur) {
         if (hariMundur > 7) return; 
-        const tglS = document.getElementById('label-tgl').innerText;
+        const tglS = document.getElementById('main-tgl').value;
         const cab = document.getElementById('main-cab').value;
         let d = new Date(tglS); d.setDate(d.getDate() - hariMundur);
         let tglM = d.toISOString().split('T')[0];
@@ -486,7 +522,7 @@
 
     function prosesSimpan() {
         const d = {
-            hari: document.getElementById('label-hari').innerText, tgl: document.getElementById('label-tgl').innerText,
+            hari: document.getElementById('label-hari').innerText, tgl: document.getElementById('main-tgl').value,
             cab: document.getElementById('main-cab').value, total: document.getElementById('val-total').innerText,
             roti: { 
                 cok: document.getElementById('r_cok').value || 0, refill_r_cok: document.getElementById('btn_rfl_r_cok').classList.contains('active'),
