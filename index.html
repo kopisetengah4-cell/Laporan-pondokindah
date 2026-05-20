@@ -287,7 +287,6 @@
                 localStorage.removeItem('ks4_id'); 
                 localStorage.removeItem('ks4_pass'); 
             }
-            // Kirim tanggal aktif bawaan dari dropdown main-tgl
             jalankanAplikasi(user, document.getElementById('main-tgl').value);
         } else {
             alert("❌ Akses Ditolak! ID atau Password Salah.");
@@ -464,8 +463,12 @@
         if (hariMundur > 7) return; 
         const tglS = document.getElementById('main-tgl').value;
         const cab = document.getElementById('main-cab').value;
-        let d = new Date(tglS); d.setDate(d.getDate() - hariMundur);
+        
+        // Logika penyempurnaan: hitung mundur berdasarkan tanggal form yang sedang dibuka
+        let d = new Date(tglS); 
+        d.setDate(d.getDate() - hariMundur);
         let tglM = d.toISOString().split('T')[0];
+        
         cariDataLama(tglM, cab, function(full) {
             if(full) {
                 const bD = full.barang || {};
